@@ -1,13 +1,394 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// =============================================================================
+// AlloMyamMyam — Prisma Schema  (v2 — improved)
+// Stack: Next.js · TypeScript · PostgreSQL (Neon) · Prisma 7
+// =============================================================================
 
 generator client {
-  provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum Role {
+  USER
+  CHEF
+  ADMIN
+}
+
+enum ChefStatus {
+  PENDING
+  APPROVED
+  SUSPENDED
+}
+
+enum OrderStatus {
+  CREATED
+  ACCEPTED
+  PREPARING
+  READY
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+enum DishCategory {
+  APPETIZER
+  SOUP
+  SALAD
+  MAIN_COURSE
+  PASTA
+  RICE_AND_GRAINS
+  SEAFOOD
+  MEAT
+  VEGETARIAN
+  VEGAN
+  PIZZA
+  BURGER
+  SANDWICH
+  WRAP
+  SUSHI
+  ASIAN
+  MEDITERRANEAN
+  MIDDLE_EASTERN
+  AFRICAN
+  LATIN_AMERICAN
+  BREAKFAST
+  BRUNCH
+  DESSERT
+  PASTRY
+  CAKE
+  ICE_CREAM
+  BEVERAGE
+  SMOOTHIE
+  JUICE
+  OTHER
+}
+
+// =============================================================================
+// MODELS
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// User
+// CHANGE: added deletedAt for soft delete strategy
+// CHANGE: added defaultAddressId (nullable convenience pointer to Address)
+// -----------------------------------------------------------------------------
+model User {
+  id               String    @id @default(cuid())
+  email            String    @unique
+  password         String
+  firstName        String
+  lastName         String
+  phoneNumber      String?
+  role             Role      @default(USER)
+  avatar           String?
+  isActive         Boolean   @default(true)
+  deletedAt        DateTime?
+  defaultAddressId String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  chefProfile  ChefProfile?
+  orders       Order[]       @relation("CustomerOrders")
+  cart         Cart?
+  addresses    Address[]
+  orderReviews OrderReview[]
+  dishReviews  DishReview[]
+  favorites    Favorite[]
+
+  @@index([email])
+  @@index([role])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+// -----------------------------------------------------------------------------
+// Address  — NEW MODEL
+// Reusable delivery address book per user.
+// Order.deliveryAddress stays a String snapshot — this is the editable source.
+// -----------------------------------------------------------------------------
+model Address {
+  id           String   @id @default(cuid())
+  userId       String
+  label        String   @default("Home")
+  addressLine1 String
+  addressLine2 String?
+  city         String
+  postalCode   String
+  country      String   @default("MA")
+  latitude     Float?
+  longitude    Float?
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("addresses")
+}
+
+// -----------------------------------------------------------------------------
+// ChefProfile
+// CHANGE: added bannerUrl (hero image on chef page)
+// CHANGE: added avatarUrl (chef-specific avatar)
+// CHANGE: added city (enables city-based browse/filter)
+// CHANGE: added totalReviews (denormalized — avoids COUNT on hot pages)
+// CHANGE: added deletedAt for soft delete
+// -----------------------------------------------------------------------------
+model ChefProfile {
+  id            String     @id @default(cuid())
+  userId        String     @unique
+  displayName   String
+  bio           String?
+  specialties   String[]
+  city          String?
+  bannerUrl     String?
+  avatarUrl     String?
+  averageRating Float      @default(0)
+  totalReviews  Int        @default(0)
+  status        ChefStatus @default(PENDING)
+  isAvailable   Boolean    @default(true)
+  deletedAt     DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dishes Dish[]
+  orders Order[] @relation("ChefOrders")
+
+  @@index([userId])
+  @@index([status])
+  @@index([isAvailable])
+  @@index([city])
+  @@index([deletedAt])
+  @@map("chef_profiles")
+}
+
+// -----------------------------------------------------------------------------
+// Dish
+// CHANGE: added DishImage relation (multiple images / gallery)
+// CHANGE: added stockCount (null = unlimited, 0 = out of stock)
+// CHANGE: added totalReviews (denormalized counter)
+// CHANGE: added tags String[] (gluten-free, spicy, halal…)
+// CHANGE: added deletedAt (soft delete — preserves order history)
+// CHANGE: added composite index [chefId, isAvailable]
+// -----------------------------------------------------------------------------
+model Dish {
+  id              String       @id @default(cuid())
+  chefId          String
+  name            String
+  description     String?
+  price           Decimal      @db.Decimal(10, 2)
+  category        DishCategory
+  imageUrl        String?
+  averageRating   Float        @default(0)
+  totalReviews    Int          @default(0)
+  isAvailable     Boolean      @default(true)
+  stockCount      Int?
+  preparationTime Int
+  tags            String[]
+  deletedAt       DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  chef       ChefProfile @relation(fields: [chefId], references: [id], onDelete: Cascade)
+  images     DishImage[]
+  orderItems OrderItem[]
+  cartItems  CartItem[]
+  favorites  Favorite[]
+
+  @@index([chefId])
+  @@index([category])
+  @@index([isAvailable])
+  @@index([averageRating])
+  @@index([deletedAt])
+  @@index([chefId, isAvailable])
+  @@map("dishes")
+}
+
+// -----------------------------------------------------------------------------
+// DishImage  — NEW MODEL
+// Additional images per dish (gallery / carousel).
+// position controls display order.
+// -----------------------------------------------------------------------------
+model DishImage {
+  id        String   @id @default(cuid())
+  dishId    String
+  url       String
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  dish Dish @relation(fields: [dishId], references: [id], onDelete: Cascade)
+
+  @@index([dishId])
+  @@map("dish_images")
+}
+
+// -----------------------------------------------------------------------------
+// Favorite  — NEW MODEL
+// Users save dishes they like.
+// -----------------------------------------------------------------------------
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  dishId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dish Dish @relation(fields: [dishId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dishId])
+  @@index([userId])
+  @@index([dishId])
+  @@map("favorites")
+}
+
+// -----------------------------------------------------------------------------
+// Cart — no changes
+// -----------------------------------------------------------------------------
+model Cart {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cartItems CartItem[]
+
+  @@index([userId])
+  @@map("carts")
+}
+
+// -----------------------------------------------------------------------------
+// CartItem
+// CHANGE: dish onDelete Cascade → Restrict
+// Reason: soft-deleted dishes must stay visible in cart so UI can warn the user.
+// Silent cart emptying on dish delete is very bad UX.
+// -----------------------------------------------------------------------------
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  dishId    String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cart Cart @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  dish Dish @relation(fields: [dishId], references: [id], onDelete: Restrict)
+
+  @@unique([cartId, dishId])
+  @@index([cartId])
+  @@index([dishId])
+  @@map("cart_items")
+}
+
+// -----------------------------------------------------------------------------
+// Order
+// CHANGE: added deliveryFee (nullable — ready for delivery module)
+// CHANGE: added cancelReason (UX + analytics)
+// CHANGE: added scheduledAt (pre-order / schedule for later)
+// NOTE: deliveryAddress stays as String snapshot — correct order integrity pattern
+// -----------------------------------------------------------------------------
+model Order {
+  id              String      @id @default(cuid())
+  userId          String
+  chefId          String
+  status          OrderStatus @default(CREATED)
+  totalAmount     Decimal     @db.Decimal(10, 2)
+  deliveryFee     Decimal?    @db.Decimal(10, 2)
+  deliveryAddress String
+  notes           String?
+  cancelReason    String?
+  scheduledAt     DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  customer   User         @relation("CustomerOrders", fields: [userId], references: [id], onDelete: Restrict)
+  chef       ChefProfile  @relation("ChefOrders", fields: [chefId], references: [id], onDelete: Restrict)
+  orderItems OrderItem[]
+  review     OrderReview?
+
+  @@index([userId])
+  @@index([chefId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([scheduledAt])
+  @@map("orders")
+}
+
+// -----------------------------------------------------------------------------
+// OrderItem
+// CHANGE: added dishName String snapshot
+// Reason: dish names can be edited; order history must reflect what was ordered.
+// -----------------------------------------------------------------------------
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  dishId     String
+  dishName   String
+  quantity   Int
+  unitPrice  Decimal  @db.Decimal(10, 2)
+  totalPrice Decimal  @db.Decimal(10, 2)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  order      Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  dish       Dish        @relation(fields: [dishId], references: [id], onDelete: Restrict)
+  dishReview DishReview?
+
+  @@index([orderId])
+  @@index([dishId])
+  @@map("order_items")
+}
+
+// -----------------------------------------------------------------------------
+// OrderReview — no structural changes
+// CHANGE: added @@index([createdAt]) for sorting latest reviews
+// -----------------------------------------------------------------------------
+model OrderReview {
+  id            String   @id @default(cuid())
+  orderId       String   @unique
+  userId        String
+  overallRating Float
+  serviceRating Float
+  comment       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("order_reviews")
+}
+
+// -----------------------------------------------------------------------------
+// DishReview — no structural changes
+// CHANGE: added @@index([createdAt]) for sorting latest reviews
+// -----------------------------------------------------------------------------
+model DishReview {
+  id          String   @id @default(cuid())
+  orderItemId String   @unique
+  userId      String
+  rating      Float
+  comment     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([orderItemId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("dish_reviews")
 }
