@@ -18,8 +18,8 @@ export default function SearchBar({
   placeholder = "Search dishes or chefs...",
 }: SearchBarProps) {
   return (
-    <div className="flex-1 flex items-center gap-2.5 bg-gray-100 rounded-2xl px-4 h-11 focus-within:ring-2 focus-within:ring-emerald-300 transition-all duration-200">
-      <Search size={15} className="text-gray-400 flex-shrink-0" />
+    <div className="flex-1 flex items-center gap-2.5 bg-gray-100 rounded-2xl px-4 h-11 focus-within:ring-2 focus-within:ring-orange-300 transition-all duration-200">
+      <Search size={15} className="text-gray-500 flex-shrink-0" />
 
       <input
         type="text"
@@ -29,7 +29,7 @@ export default function SearchBar({
         autoComplete="off"
         autoCorrect="off"
         spellCheck={false}
-        className="flex-1 bg-transparent text-sm text-gray-700 placeholder:text-gray-400 outline-none font-medium"
+        className="flex-1 bg-transparent text-sm text-gray-700 placeholder:text-gray-500 outline-none font-medium"
       />
 
       {value.length > 0 && (

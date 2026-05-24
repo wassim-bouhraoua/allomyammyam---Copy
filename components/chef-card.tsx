@@ -43,7 +43,7 @@ export default function ChefCard({ chef, onBook }: ChefCardProps) {
         {/* Availability dot */}
         <div
           className={`absolute top-1.5 left-1.5 w-2 h-2 rounded-full border-[1.5px] border-white ${
-            chef.isAvailable ? "bg-emerald-500" : "bg-gray-400"
+            chef.isAvailable ? "bg-orange-500" : "bg-gray-400"
           }`}
         />
       </div>
@@ -52,13 +52,13 @@ export default function ChefCard({ chef, onBook }: ChefCardProps) {
       <div className="flex-1 min-w-0">
         <h3 className="text-[13px] font-bold text-gray-900 truncate">{chef.displayName}</h3>
         <div className="flex items-center gap-1 mt-0.5">
-          <MapPin size={9} className="text-emerald-500 flex-shrink-0" />
-          <span className="text-[11px] text-gray-400 truncate">{chef.city}</span>
+          <MapPin size={9} className="text-orange-500 flex-shrink-0" />
+          <span className="text-[11px] text-gray-500 truncate">{chef.city}</span>
         </div>
         <div className="flex items-center gap-1 mt-1">
           <Star size={9} className="text-amber-400 fill-amber-400" />
           <span className="text-[11px] font-semibold text-gray-700">{rating}</span>
-          <span className="text-[10px] text-gray-400">· {specialtiesLabel}</span>
+          <span className="text-[10px] text-gray-500">· {specialtiesLabel}</span>
         </div>
       </div>
 
@@ -68,8 +68,8 @@ export default function ChefCard({ chef, onBook }: ChefCardProps) {
         disabled={!chef.isAvailable}
         className={`flex-shrink-0 text-[11px] font-bold px-4 py-2 rounded-xl transition-all duration-150 active:scale-95 ${
           chef.isAvailable
-            ? "bg-emerald-500 text-white shadow-[0_4px_12px_rgba(16,185,129,0.35)]"
-            : "bg-gray-100 text-gray-400 cursor-not-allowed"
+            ? "bg-orange-500 text-white shadow-[0_4px_12px_rgba(255,138,0,0.35)]"
+            : "bg-gray-100 text-gray-500 cursor-not-allowed"
         }`}
       >
         {chef.isAvailable ? "Book" : "Closed"}

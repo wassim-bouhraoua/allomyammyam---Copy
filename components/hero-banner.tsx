@@ -31,8 +31,8 @@ const SLIDES: BannerSlide[] = [
     headline: "Authentic Moroccan tagines at home",
     sub: "Fresh from local chef kitchens",
     cta: "Explore",
-    gradient: "from-emerald-500 via-emerald-400 to-teal-400",
-    accentBg: "bg-emerald-300/25",
+    gradient: "from-orange-500 via-orange-400 to-teal-400",
+    accentBg: "bg-orange-300/25",
     imageUrl: "https://images.unsplash.com/photo-1547592180-85f173990554?w=300&q=80",
   },
   {
@@ -143,7 +143,7 @@ export default function HeroBanner() {
             aria-label={`Slide ${i + 1}`}
             className={`rounded-full transition-all duration-300 ${
               i === active
-                ? "w-5 h-2 bg-emerald-500"
+                ? "w-5 h-2 bg-orange-500"
                 : "w-2 h-2 bg-gray-200"
             }`}
           />

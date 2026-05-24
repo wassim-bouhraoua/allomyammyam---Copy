@@ -129,8 +129,8 @@ function matchesChip(dish: MockDish, chip: CuisineChip | VibeChip): boolean {
 function chipCls(active: boolean): string {
   return `flex-shrink-0 text-[12px] font-semibold px-3.5 py-2 rounded-full transition-all duration-200 active:scale-95 whitespace-nowrap ${
     active
-      ? "bg-emerald-500 text-white shadow-[0_4px_12px_rgba(16,185,129,0.30)]"
-      : "bg-gray-100 text-gray-600"
+      ? "bg-orange-500 text-white shadow-[0_4px_12px_rgba(255,138,0,0.30)]"
+      : "bg-orange-50 text-gray-700"
   }`;
 }
 
@@ -212,7 +212,7 @@ export default function DishesPage() {
             <h1 className="text-[17px] font-bold text-gray-900 flex-1">
               Explore Dishes
             </h1>
-            <span className="text-[12px] font-semibold text-gray-400">
+            <span className="text-[12px] font-semibold text-gray-500">
               {filtered.length} found
             </span>
           </header>
@@ -226,7 +226,7 @@ export default function DishesPage() {
               onClick={() => setShowRefine((p) => !p)}
               className={`relative w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all duration-150 active:scale-95 ${
                 showRefine || refineCount > 0
-                  ? "bg-emerald-500 shadow-[0_4px_14px_rgba(16,185,129,0.38)]"
+                  ? "bg-orange-500 shadow-[0_4px_14px_rgba(255,138,0,0.38)]"
                   : "bg-gray-100"
               }`}
               aria-label="Refine results"
@@ -249,7 +249,7 @@ export default function DishesPage() {
 
               {/* Sort */}
               <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">
                   Sort by
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -267,7 +267,7 @@ export default function DishesPage() {
 
               {/* Rating */}
               <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">
                   Min. rating
                 </p>
                 <div className="flex gap-2">
@@ -297,7 +297,7 @@ export default function DishesPage() {
 
           {/* ── Cuisine chips — "Where is it from?" ──────────────────────── */}
           <div className="px-4 mb-1">
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
+            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">
               Cuisine
             </p>
           </div>
@@ -316,7 +316,7 @@ export default function DishesPage() {
 
           {/* ── Vibe chips — "What am I in the mood for?" ────────────────── */}
           <div className="px-4 mb-1 mt-3">
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
+            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">
               Vibe
             </p>
           </div>
@@ -346,12 +346,12 @@ export default function DishesPage() {
               <h3 className="text-[15px] font-bold text-gray-800 mb-1.5">
                 Nothing matches
               </h3>
-              <p className="text-[13px] text-gray-400 leading-relaxed">
+              <p className="text-[13px] text-gray-500 leading-relaxed">
                 Try a different cuisine, vibe, or clear your search.
               </p>
               <button
                 onClick={resetAll}
-                className="mt-5 bg-emerald-500 text-white text-[12px] font-bold px-6 py-2.5 rounded-full shadow-[0_4px_12px_rgba(16,185,129,0.35)] active:scale-95 transition-transform"
+                className="mt-5 bg-orange-500 text-white text-[12px] font-bold px-6 py-2.5 rounded-full shadow-[0_4px_12px_rgba(255,138,0,0.35)] active:scale-95 transition-transform"
               >
                 Clear all filters
               </button>

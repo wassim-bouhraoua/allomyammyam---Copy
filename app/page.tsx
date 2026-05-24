@@ -36,7 +36,7 @@ export default function HomePage() {
             <button className="flex items-center gap-1.5">
               <MapPin
                 size={13}
-                className="text-emerald-500 flex-shrink-0"
+                className="text-orange-500 flex-shrink-0"
                 fill="currentColor"
               />
               <span className="text-[13px] font-bold text-gray-800 max-w-[140px] truncate">
@@ -46,7 +46,7 @@ export default function HomePage() {
 
             {/* Profile */}
             <button
-              className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-sm ring-[2.5px] ring-emerald-200"
+              className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-sm ring-[2.5px] ring-orange-200"
               aria-label="Profile"
             >
               <span className="text-white text-sm font-black select-none">
@@ -65,17 +65,17 @@ export default function HomePage() {
             >
               <Search
                 size={15}
-                className="text-gray-400 flex-shrink-0"
+                className="text-gray-500 flex-shrink-0"
               />
 
-              <span className="text-sm text-gray-400 font-medium">
+              <span className="text-sm text-gray-500 font-medium">
                 Search dishes or chefs...
               </span>
             </Link>
 
             <Link
               href="/dishes"
-              className="w-11 h-11 rounded-2xl bg-emerald-500 flex items-center justify-center flex-shrink-0 shadow-[0_4px_14px_rgba(16,185,129,0.38)] active:scale-95 transition-transform duration-150"
+              className="w-11 h-11 rounded-2xl bg-orange-500 flex items-center justify-center flex-shrink-0 shadow-[0_4px_14px_rgba(255,138,0,0.38)] active:scale-95 transition-transform duration-150"
               aria-label="Filter dishes"
             >
               <SlidersHorizontal

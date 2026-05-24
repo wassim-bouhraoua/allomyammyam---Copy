@@ -27,17 +27,17 @@ export default function BottomNav() {
               <div
                 className={`flex items-center justify-center w-10 h-10 rounded-2xl transition-all duration-200 ${
                   isActive
-                    ? "bg-emerald-500 shadow-[0_4px_14px_rgba(16,185,129,0.40)]"
+                    ? "bg-orange-500 shadow-[0_4px_14px_rgba(255,138,0,0.40)]"
                     : "group-active:bg-gray-100"
                 }`}
               >
                 <Icon
                   size={19}
                   strokeWidth={isActive ? 2.5 : 2}
-                  className={isActive ? "text-white" : "text-gray-400"}
+                  className={isActive ? "text-white" : "text-gray-500"}
                 />
               </div>
-              <span className={`text-[10px] font-semibold tracking-tight ${isActive ? "text-emerald-500" : "text-gray-400"}`}>
+              <span className={`text-[10px] font-semibold tracking-tight ${isActive ? "text-orange-500" : "text-gray-500"}`}>
                 {label}
               </span>
             </Link>

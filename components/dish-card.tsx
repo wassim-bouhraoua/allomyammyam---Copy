@@ -113,8 +113,8 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
                 {dish.name}
               </h3>
               <div className="flex items-center gap-1 mt-0.5">
-                <MapPin size={9} className="text-emerald-500 flex-shrink-0" />
-                <span className="text-[11px] text-gray-400 truncate">
+                <MapPin size={9} className="text-orange-500 flex-shrink-0" />
+                <span className="text-[11px] text-gray-500 truncate">
                   {dish.chef.displayName} · {dish.chef.city}
                 </span>
               </div>
@@ -125,12 +125,12 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
                   <Star size={10} className="text-amber-400 fill-amber-400" />
                   {rating}
                 </span>
-                <span className="flex items-center gap-0.5 text-[11px] text-gray-400">
+                <span className="flex items-center gap-0.5 text-[11px] text-gray-500">
                   <Clock size={9} className="text-gray-300" />
                   {dish.preparationTime}m
                 </span>
               </div>
-              <span className="text-[13px] font-extrabold text-emerald-600">
+              <span className="text-[13px] font-extrabold text-orange-600">
                 {formattedPrice}
               </span>
             </div>
@@ -149,7 +149,7 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
         It was clipping the box-shadow during active:scale on mobile.
         Each internal zone handles its own clipping.
       */}
-      <article className="w-[152px] flex-shrink-0 bg-white rounded-2xl shadow-[0_2px_18px_rgba(0,0,0,0.09)] border border-gray-50 active:scale-[0.96] transition-transform duration-150">
+      <article className="w-[152px] flex-shrink-0 bg-white rounded-2xl shadow-[0_2px_18px_rgba(0,0,0,0.09)] border border-gray-50 hover:-translate-y-0.5 active:scale-[0.97] transition-transform duration-150">
 
         {/* Image container
             - rounded-t-2xl matches article top radius since article no longer clips
@@ -198,7 +198,7 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
 
           {/* Chef row */}
           <div className="flex items-center gap-1 mt-1">
-            <div className="relative w-3.5 h-3.5 rounded-full overflow-hidden flex-shrink-0 bg-emerald-100">
+            <div className="relative w-3.5 h-3.5 rounded-full overflow-hidden flex-shrink-0 bg-orange-100">
               {dish.chef.avatarUrl ? (
                 <Image
   src={dish.chef.avatarUrl}
@@ -209,12 +209,12 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
   className="object-cover"
 />
               ) : (
-                <span className="absolute inset-0 flex items-center justify-center text-[7px] font-bold text-emerald-700">
+                <span className="absolute inset-0 flex items-center justify-center text-[7px] font-bold text-orange-700">
                   {dish.chef.displayName[0]}
                 </span>
               )}
             </div>
-            <span className="text-[10px] text-gray-400 truncate">
+            <span className="text-[10px] text-gray-500 truncate">
               {dish.chef.displayName}
             </span>
           </div>
@@ -225,7 +225,7 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
               <Star size={9} className="text-amber-400 fill-amber-400" />
               <span className="text-[10px] font-bold text-gray-700">{rating}</span>
             </div>
-            <span className="text-[12px] font-extrabold text-emerald-600">
+            <span className="text-[12px] font-extrabold text-orange-600">
               {formattedPrice}
             </span>
           </div>

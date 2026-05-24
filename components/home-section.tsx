@@ -23,12 +23,12 @@ export default function HomeSection({
       <div className="flex items-start justify-between px-4 mb-3">
         <div>
           <h2 className="text-[15px] font-bold text-gray-900 leading-tight">{title}</h2>
-          {subtitle && <p className="text-[11px] text-gray-400 font-medium mt-0.5">{subtitle}</p>}
+          {subtitle && <p className="text-[11px] text-gray-500 font-medium mt-0.5">{subtitle}</p>}
         </div>
         {href && (
           <Link
             href={href}
-            className="flex items-center gap-0.5 text-[11px] font-semibold text-emerald-500 mt-0.5 active:opacity-70"
+            className="flex items-center gap-0.5 text-[11px] font-semibold text-orange-500 mt-0.5 active:opacity-70"
           >
             See All <ChevronRight size={12} strokeWidth={2.5} />
           </Link>
