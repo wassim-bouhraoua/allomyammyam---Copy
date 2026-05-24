@@ -92,7 +92,7 @@ export default function HeroBanner() {
     <div className="px-4 pt-1 pb-3 select-none">
       {/* Slide container */}
       <div
-        className={`relative overflow-hidden rounded-3xl bg-gradient-to-r ${slide.gradient} transition-[background] duration-500`}
+       className={`relative overflow-hidden rounded-3xl bg-gradient-to-r ${slide.gradient} transition-all duration-400 ease-out`}
         onTouchStart={(e) => onDragStart(e.touches[0].clientX)}
         onTouchEnd={(e) => onDragEnd(e.changedTouches[0].clientX)}
         onMouseDown={(e) => onDragStart(e.clientX)}
@@ -120,16 +120,16 @@ export default function HeroBanner() {
 
           {/* Dish image */}
           <div className="relative w-[108px] h-[96px] rounded-2xl overflow-hidden flex-shrink-0 shadow-lg">
-            <Image
-              key={slide.id}
-              src={slide.imageUrl}
-              alt={slide.headline}
-              fill
-              sizes="108px"
-              className="object-cover"
-              draggable={false}
-              priority
-            />
+           <Image
+  src={slide.imageUrl}
+  alt={slide.headline}
+  fill
+  sizes="108px"
+  priority
+  unoptimized
+  className="object-cover"
+  draggable={false}
+/>
           </div>
         </div>
       </div>
