@@ -307,7 +307,7 @@ function ReviewCard({ review }: { review: Review }) {
           <div className="flex items-center gap-2 mt-0.5">
             <Stars rating={review.rating} size={10} />
             {review.verifiedOrder && (
-              <span className="text-[9px] font-bold text-green-600 bg-green-50 border border-green-100 rounded-full px-1.5 py-0.5 uppercase tracking-wide">
+              <span className="text-[9px] font-bold text-orange-600 bg-orange-50 border border-green-100 rounded-full px-1.5 py-0.5 uppercase tracking-wide">
                 ✓ Verified order
               </span>
             )}
@@ -367,7 +367,7 @@ export default function DishDetailPage({
   // ── Local state ───────────────────────────────────────────────────────────
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
-
+  const [showAllReviews, setShowAllReviews] = useState(false);
   const totalPrice = (dish.price * qty).toLocaleString("fr-MA");
   const stockMax = dish.stockCount ?? undefined;
 
@@ -459,8 +459,8 @@ export default function DishDetailPage({
                   </span>
                 )}
                 {isVegan && (
-                  <span title="Vegan / Vegetarian" className="w-6 h-6 rounded-full bg-green-50 flex items-center justify-center">
-                    <Leaf size={12} className="text-green-500" />
+                  <span title="Vegan / Vegetarian" className="w-6 h-6 rounded-full bg-orange-50 flex items-center justify-center">
+                    <Leaf size={12} className="text-orange-500" />
                   </span>
                 )}
               </div>
@@ -534,7 +534,49 @@ export default function DishDetailPage({
             {/* ── Divider ────────────────────────────────────────────────── */}
             <div className="my-5 h-px bg-gray-100" />
 
-            {/* ── Reviews ────────────────────────────────────────────────── */}
+            {/* ── Quantity + CTA ─────────────────────────────────────────── */}
+            <div className="flex items-center justify-between mb-4">
+              <QuantityStepper value={qty} onChange={setQty} max={stockMax} />
+              <div className="text-right">
+                <p className="text-[11px] text-gray-400 font-medium">Total</p>
+                <p className="text-[20px] font-black text-orange-600 leading-none">
+                  {totalPrice}{" "}
+                  <span className="text-[13px]">MAD</span>
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={handleAddToCart}
+              disabled={!dish.isAvailable}
+              style={{ height: 52 }}
+              className={[
+                "w-full rounded-2xl flex items-center justify-center gap-2.5",
+                "font-extrabold text-[15px] text-white",
+                "transition-all duration-200 active:scale-[0.985]",
+                !dish.isAvailable
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : added
+                  ? "bg-orange-500 shadow-[0_4px_18px_rgba(34,197,94,0.38)]"
+                  : "bg-orange-500 shadow-[0_4px_18px_rgba(255,138,0,0.40)]",
+              ].join(" ")}
+            >
+              {added ? (
+                <>
+                  <CheckCircle2 size={18} />
+                  Added to cart!
+                </>
+              ) : !dish.isAvailable ? (
+                "Sold Out"
+              ) : (
+                <>
+                  <ShoppingBag size={18} />
+                  Add to Cart · {totalPrice} MAD
+                </>
+              )}
+            </button>
+          </div>
+ {/* ── Reviews ────────────────────────────────────────────────── */}
             <h2 className="text-[15px] font-extrabold text-gray-900 mb-3">
               Reviews
             </h2>
@@ -564,57 +606,25 @@ export default function DishDetailPage({
 
             {/* Review cards */}
             <div className="flex flex-col gap-2.5">
-              {MOCK_REVIEWS.map((r) => (
-                <ReviewCard key={r.id} review={r} />
-              ))}
-            </div>
+  {(showAllReviews
+    ? MOCK_REVIEWS
+    : MOCK_REVIEWS.slice(0, 2)
+  ).map((r) => (
+    <ReviewCard key={r.id} review={r} />
+  ))}
+
+  {MOCK_REVIEWS.length > 2 && !showAllReviews && (
+    <button
+      onClick={() => setShowAllReviews(true)}
+      className="mt-1 text-[12px] font-bold text-orange-500 active:scale-95 transition-transform"
+    >
+      Show all reviews →
+    </button>
+  )}
+</div>
 
             {/* ── Divider ────────────────────────────────────────────────── */}
             <div className="my-5 h-px bg-gray-100" />
-
-            {/* ── Quantity + CTA ─────────────────────────────────────────── */}
-            <div className="flex items-center justify-between mb-4">
-              <QuantityStepper value={qty} onChange={setQty} max={stockMax} />
-              <div className="text-right">
-                <p className="text-[11px] text-gray-400 font-medium">Total</p>
-                <p className="text-[20px] font-black text-orange-600 leading-none">
-                  {totalPrice}{" "}
-                  <span className="text-[13px]">MAD</span>
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={handleAddToCart}
-              disabled={!dish.isAvailable}
-              style={{ height: 52 }}
-              className={[
-                "w-full rounded-2xl flex items-center justify-center gap-2.5",
-                "font-extrabold text-[15px] text-white",
-                "transition-all duration-200 active:scale-[0.985]",
-                !dish.isAvailable
-                  ? "bg-gray-300 cursor-not-allowed"
-                  : added
-                  ? "bg-green-500 shadow-[0_4px_18px_rgba(34,197,94,0.38)]"
-                  : "bg-orange-500 shadow-[0_4px_18px_rgba(255,138,0,0.40)]",
-              ].join(" ")}
-            >
-              {added ? (
-                <>
-                  <CheckCircle2 size={18} />
-                  Added to cart!
-                </>
-              ) : !dish.isAvailable ? (
-                "Sold Out"
-              ) : (
-                <>
-                  <ShoppingBag size={18} />
-                  Add to Cart · {totalPrice} MAD
-                </>
-              )}
-            </button>
-          </div>
-
           {/* ─── Related dishes ────────────────────────────────────────────── */}
           {related.length > 0 && (
             <div className="mt-2 mb-4 px-4">
@@ -636,10 +646,15 @@ export default function DishDetailPage({
               </div>
 
               {/* Horizontal scroll — same pattern as HomeSection */}
-              <div className="flex gap-3 overflow-x-auto pb-3 -mx-4 px-4 scrollbar-none">
+              <div className="flex gap-2 overflow-x-auto pb-3 -mx-4 px-4 scrollbar-none">
                 {related.map((d) => (
-                  <DishCard key={d.id} dish={d} variant="vertical" />
-                ))}
+  <div
+    key={d.id}
+    className="scale-[0.92] origin-left"
+  >
+    <DishCard dish={d} variant="vertical" />
+  </div>
+))}
               </div>
             </div>
           )}
