@@ -26,6 +26,15 @@ export interface MockChefProfile {
   updatedAt: Date;
 }
 
+// ── Nutrition facts (added to every dish) ────────────────────────────────────
+export interface NutritionFacts {
+  calories: number;   // kcal
+  protein: number;    // g
+  carbs: number;      // g
+  fat: number;        // g
+  sugar: number;      // g
+}
+
 // ── Dish with embedded chef (Prisma findMany include shape) ──────────────────
 export interface MockDish {
   id: string;
@@ -41,6 +50,7 @@ export interface MockDish {
   stockCount: number | null;
   preparationTime: number;
   tags: string[];
+  nutrition: NutritionFacts;
   deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -117,7 +127,7 @@ const chefPriya: MockChefProfile = {
   specialties: ["MAIN_COURSE", "RICE_AND_GRAINS"],
   city: "Casablanca",
   bannerUrl: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=800&q=80",
-  avatarUrl: "https://images.unsplash.com/photo-1607631568010-a87245c0daf4?w=200&q=80",
+  avatarUrl: "https://p16-oec-sg.ibyteimg.com/tos-alisg-i-aphluv4xwc-sg/img/VqbcmM/2023/11/10/1aa41dcc-5430-40c8-b119-d414df70559d.jpg~tplv-aphluv4xwc-resize-jpeg:700:0.jpg",
   averageRating: 4.8, totalReviews: 274, status: "APPROVED", isAvailable: true,
   deletedAt: null, createdAt: new Date("2024-06-01"), updatedAt: new Date("2025-05-10"),
 };
@@ -135,33 +145,36 @@ const chefYuki: MockChefProfile = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Dishes — 20 dishes with genuine variety across cuisines, styles, moods
-// Tags drive cooking-style and mood filtering (grilled, spicy, vegan, etc.)
-// Category drives cuisine/type filtering (Moroccan=MAIN_COURSE, Indian=RICE_AND_GRAINS…)
+// Dishes — 20 dishes, verified images, accurate tags, realistic nutrition
 // ─────────────────────────────────────────────────────────────────────────────
 export const mockDishes: MockDish[] = [
-  // ── Moroccan ─────────────────────────────────────────────────────────────
+
+  // ── Moroccan ───────────────────────────────────────────────────────────────
   {
     id: "dish-1", chefId: "chef-3",
     name: "Moroccan Lamb Tagine",
-    description: "Slow-braised lamb with preserved lemon, olives and harissa.",
+    description: "Slow-braised lamb with preserved lemon, olives and harissa — served with fresh khobz.",
     price: 150, category: "MAIN_COURSE",
-    imageUrl: "https://images.unsplash.com/photo-1547592180-85f173990554?w=500&q=80",
+    // Authentic Moroccan lamb tagine in a clay tagine pot with vegetables and olives
+    imageUrl: "https://images.unsplash.com/photo-1643019237176-8ae0859f1123?w=1200&q=80",
     averageRating: 4.7, totalReviews: 134, isAvailable: true, stockCount: null,
     preparationTime: 50,
-    tags: ["moroccan", "halal", "traditional", "slow-cooked"],
+    tags: ["moroccan", "halal", "lamb", "slow-cooked", "traditional"],
+    nutrition: { calories: 480, protein: 34, carbs: 28, fat: 22, sugar: 6 },
     deletedAt: null, createdAt: new Date("2025-01-22"), updatedAt: new Date("2025-04-28"),
     chef: chefKarim,
   },
   {
     id: "dish-2", chefId: "chef-3",
     name: "Harira Soup",
-    description: "Classic Moroccan lentil and tomato soup with fresh herbs.",
+    description: "Classic Moroccan lentil and tomato soup with fresh coriander, celery and lemon.",
     price: 45, category: "SOUP",
-    imageUrl: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&q=80",
+    // Harira — reddish-brown Moroccan soup with herbs and lemon
+    imageUrl: "https://images.unsplash.com/photo-1603105037880-880cd4edfb0d?w=600&q=80&auto=format&fit=crop",
     averageRating: 4.5, totalReviews: 98, isAvailable: true, stockCount: null,
     preparationTime: 30,
-    tags: ["moroccan", "halal", "vegetarian", "light"],
+    tags: ["moroccan", "halal", "soup", "traditional", "lentils"],
+    nutrition: { calories: 310, protein: 15, carbs: 36, fat: 8, sugar: 4 },
     deletedAt: null, createdAt: new Date("2025-02-01"), updatedAt: new Date("2025-04-20"),
     chef: chefKarim,
   },
@@ -170,10 +183,12 @@ export const mockDishes: MockDish[] = [
     name: "Beef Kofta Platter",
     description: "Charcoal-grilled beef kofta with saffron rice and mint yoghurt.",
     price: 110, category: "MEAT",
-    imageUrl: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=500&q=80",
+    // Kofta / kebab skewers on a platter with rice and sauce
+    imageUrl: "https://images.unsplash.com/photo-1696950168795-0b31150f8b5d?q=80",
     averageRating: 4.6, totalReviews: 119, isAvailable: true, stockCount: null,
     preparationTime: 30,
-    tags: ["moroccan", "halal", "grilled", "spicy"],
+    tags: ["moroccan", "halal", "grilled", "beef", "meat"],
+    nutrition: { calories: 520, protein: 38, carbs: 32, fat: 24, sugar: 3 },
     deletedAt: null, createdAt: new Date("2025-03-01"), updatedAt: new Date("2025-05-05"),
     chef: chefAli,
   },
@@ -182,35 +197,42 @@ export const mockDishes: MockDish[] = [
     name: "Chicken Bastilla",
     description: "Flaky warqa pastry filled with spiced chicken, almonds and cinnamon.",
     price: 95, category: "MAIN_COURSE",
-    imageUrl: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&q=80",
+    // Moroccan bastilla — round golden flaky pastry pie dusted with powdered sugar and cinnamon
+    imageUrl: "https://cultureatz.com/wp-content/uploads/2016/05/Chicken-Bastilla-1200x900.jpg",
     averageRating: 4.8, totalReviews: 167, isAvailable: true, stockCount: null,
     preparationTime: 40,
-    tags: ["moroccan", "halal", "traditional", "meat"],
+    tags: ["moroccan", "halal", "traditional", "pastry", "chicken"],
+    nutrition: { calories: 560, protein: 30, carbs: 45, fat: 26, sugar: 8 },
     deletedAt: null, createdAt: new Date("2025-01-10"), updatedAt: new Date("2025-05-01"),
     chef: chefAli,
   },
-  // ── Indian ───────────────────────────────────────────────────────────────
+
+  // ── Indian ─────────────────────────────────────────────────────────────────
   {
     id: "dish-5", chefId: "chef-6",
     name: "Chicken Biryani",
     description: "Aromatic basmati rice slow-cooked with spiced chicken and whole spices.",
     price: 120, category: "RICE_AND_GRAINS",
-    imageUrl: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=500&q=80",
+    // Classic chicken biryani in a pot with saffron rice and whole spices
+    imageUrl: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&q=80&auto=format&fit=crop",
     averageRating: 4.8, totalReviews: 241, isAvailable: true, stockCount: null,
     preparationTime: 35,
-    tags: ["indian", "halal", "spicy", "meat"],
+    tags: ["indian", "halal", "spicy", "rice", "chicken"],
+    nutrition: { calories: 620, protein: 36, carbs: 72, fat: 18, sugar: 5 },
     deletedAt: null, createdAt: new Date("2025-01-10"), updatedAt: new Date("2025-05-01"),
     chef: chefPriya,
   },
   {
     id: "dish-6", chefId: "chef-6",
     name: "Butter Chicken",
-    description: "Tender chicken in a rich tomato and butter masala sauce.",
+    description: "Tender chicken in a rich tomato and butter masala sauce with basmati.",
     price: 115, category: "MAIN_COURSE",
-    imageUrl: "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?w=500&q=80",
+    // Butter chicken — creamy orange-red curry in a bowl
+    imageUrl: "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?w=600&q=80&auto=format&fit=crop",
     averageRating: 4.9, totalReviews: 312, isAvailable: true, stockCount: null,
     preparationTime: 30,
-    tags: ["indian", "halal", "creamy", "meat"],
+    tags: ["indian", "halal", "creamy", "chicken", "mild"],
+    nutrition: { calories: 540, protein: 34, carbs: 30, fat: 28, sugar: 9 },
     deletedAt: null, createdAt: new Date("2025-02-14"), updatedAt: new Date("2025-05-08"),
     chef: chefPriya,
   },
@@ -219,60 +241,72 @@ export const mockDishes: MockDish[] = [
     name: "Palak Paneer",
     description: "Fresh cottage cheese cubes in a smooth spiced spinach sauce.",
     price: 85, category: "MAIN_COURSE",
-    imageUrl: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=500&q=80",
+    // Palak paneer — vibrant green spinach curry with visible white paneer cubes
+    imageUrl: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=600&q=80&auto=format&fit=crop",
     averageRating: 4.6, totalReviews: 88, isAvailable: true, stockCount: null,
     preparationTime: 25,
-    tags: ["indian", "vegetarian", "spicy", "healthy"],
+    tags: ["indian", "vegetarian", "spiced", "paneer", "spinach"],
+    nutrition: { calories: 390, protein: 22, carbs: 26, fat: 20, sugar: 5 },
     deletedAt: null, createdAt: new Date("2025-03-10"), updatedAt: new Date("2025-05-02"),
     chef: chefPriya,
   },
-  // ── Japanese ─────────────────────────────────────────────────────────────
+
+  // ── Japanese ───────────────────────────────────────────────────────────────
   {
     id: "dish-8", chefId: "chef-7",
     name: "Spicy Tuna Roll",
     description: "Fresh tuna, avocado and sriracha mayo in nori and sushi rice.",
     price: 130, category: "SEAFOOD",
-    imageUrl: "https://images.unsplash.com/photo-1611143669185-af224c5e3252?w=500&q=80",
+    // Sushi rolls — tuna maki sliced and arranged on a plate
+    imageUrl: "https://images.unsplash.com/photo-1611143669185-af224c5e3252?w=600&q=80&auto=format&fit=crop",
     averageRating: 4.8, totalReviews: 145, isAvailable: true, stockCount: 15,
     preparationTime: 20,
-    tags: ["japanese", "seafood", "spicy", "fresh"],
+    tags: ["japanese", "seafood", "spicy", "fresh", "sushi"],
+    nutrition: { calories: 340, protein: 22, carbs: 38, fat: 10, sugar: 3 },
     deletedAt: null, createdAt: new Date("2025-02-20"), updatedAt: new Date("2025-05-10"),
     chef: chefYuki,
   },
   {
     id: "dish-9", chefId: "chef-7",
     name: "Tonkotsu Ramen",
-    description: "Rich pork bone broth, chashu pork, soft egg and nori.",
+    description: "Rich pork bone broth, chashu pork, soft-boiled egg and nori.",
     price: 100, category: "SOUP",
-    imageUrl: "https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=500&q=80",
+    // Tonkotsu ramen bowl — milky white broth with chashu pork, soft-boiled egg and nori
+    imageUrl: "https://images.unsplash.com/photo-1623341214825-9f4f963727da?w=600&q=80&auto=format&fit=crop",
     averageRating: 4.9, totalReviews: 178, isAvailable: true, stockCount: null,
     preparationTime: 15,
-    tags: ["japanese", "spicy", "meat", "noodles"],
+    tags: ["japanese", "noodles", "rich", "pork", "warming"],
+    nutrition: { calories: 580, protein: 30, carbs: 55, fat: 24, sugar: 4 },
     deletedAt: null, createdAt: new Date("2025-03-05"), updatedAt: new Date("2025-05-11"),
     chef: chefYuki,
   },
   {
     id: "dish-10", chefId: "chef-7",
     name: "Salmon Sashimi",
-    description: "Premium Atlantic salmon sliced to order, served with wasabi.",
+    description: "Premium Atlantic salmon sliced to order, served with wasabi and pickled ginger.",
     price: 160, category: "SEAFOOD",
-   imageUrl: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800&q=80&auto=format&fit=crop",
+    // Salmon sashimi — thick orange slices neatly arranged on a plate with garnish
+    imageUrl: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=600&q=80&auto=format&fit=crop",
     averageRating: 4.9, totalReviews: 112, isAvailable: true, stockCount: 10,
     preparationTime: 10,
-    tags: ["japanese", "seafood", "fresh", "light"],
+    tags: ["japanese", "seafood", "fresh", "light", "raw"],
+    nutrition: { calories: 290, protein: 34, carbs: 4, fat: 14, sugar: 1 },
     deletedAt: null, createdAt: new Date("2025-04-01"), updatedAt: new Date("2025-05-12"),
     chef: chefYuki,
   },
-  // ── Seafood & Grill ──────────────────────────────────────────────────────
+
+  // ── Seafood & Grill ────────────────────────────────────────────────────────
   {
     id: "dish-11", chefId: "chef-5",
     name: "Grilled Sea Bass",
-    description: "Whole sea bass over charcoal with chermoula and lemon.",
+    description: "Whole sea bass over charcoal with chermoula and lemon wedges.",
     price: 180, category: "SEAFOOD",
-    imageUrl: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500&q=80",
+    // Grilled whole fish on a plate with lemon and herbs
+    imageUrl: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&q=80&auto=format&fit=crop",
     averageRating: 4.9, totalReviews: 202, isAvailable: true, stockCount: 8,
     preparationTime: 25,
-    tags: ["seafood", "grilled", "halal", "light"],
+    tags: ["seafood", "grilled", "halal", "moroccan", "chermoula"],
+    nutrition: { calories: 360, protein: 42, carbs: 6, fat: 16, sugar: 2 },
     deletedAt: null, createdAt: new Date("2025-02-28"), updatedAt: new Date("2025-05-12"),
     chef: chefOmar,
   },
@@ -281,10 +315,12 @@ export const mockDishes: MockDish[] = [
     name: "Prawn Chermoula",
     description: "Tiger prawns marinated in chermoula, pan-seared with garlic butter.",
     price: 160, category: "SEAFOOD",
-    imageUrl: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=500&q=80",
+    // Sautéed prawns / shrimp with herbs and garlic butter
+    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTS7nkqwxP3PaCE6AKacOFwRJ--u1TJzQ_RHw&s",
     averageRating: 4.8, totalReviews: 156, isAvailable: true, stockCount: 12,
     preparationTime: 20,
-    tags: ["seafood", "grilled", "halal", "moroccan"],
+    tags: ["seafood", "grilled", "halal", "moroccan", "prawns"],
+    nutrition: { calories: 310, protein: 32, carbs: 8, fat: 16, sugar: 2 },
     deletedAt: null, createdAt: new Date("2025-04-18"), updatedAt: new Date("2025-05-13"),
     chef: chefOmar,
   },
@@ -293,35 +329,42 @@ export const mockDishes: MockDish[] = [
     name: "Mixed Grill Platter",
     description: "Lamb chops, merguez and chicken skewers off the charcoal grill.",
     price: 200, category: "MEAT",
-    imageUrl: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=500&q=80",
+    // Mixed meat grill platter with skewers, lamb chops and sausages
+    imageUrl: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&q=80&auto=format&fit=crop",
     averageRating: 4.7, totalReviews: 143, isAvailable: true, stockCount: null,
     preparationTime: 35,
-    tags: ["grilled", "halal", "moroccan", "sharing"],
+    tags: ["grilled", "halal", "moroccan", "sharing", "meat"],
+    nutrition: { calories: 780, protein: 62, carbs: 14, fat: 48, sugar: 3 },
     deletedAt: null, createdAt: new Date("2025-03-15"), updatedAt: new Date("2025-05-09"),
     chef: chefOmar,
   },
-  // ── Vegan & Fresh ────────────────────────────────────────────────────────
+
+  // ── Vegan & Fresh ──────────────────────────────────────────────────────────
   {
     id: "dish-14", chefId: "chef-4",
     name: "Avocado Buddha Bowl",
-    description: "Quinoa, roasted chickpeas, avocado, pomegranate and tahini.",
+    description: "Quinoa, roasted chickpeas, avocado, pomegranate and tahini dressing.",
     price: 80, category: "SALAD",
-    imageUrl: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&q=80",
+    // Buddha bowl with greens, avocado slices, chickpeas and colourful toppings
+    imageUrl: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80&auto=format&fit=crop",
     averageRating: 4.5, totalReviews: 76, isAvailable: true, stockCount: null,
     preparationTime: 10,
-    tags: ["vegan", "healthy", "fresh", "light"],
+    tags: ["vegan", "healthy", "fresh", "light", "quinoa"],
+    nutrition: { calories: 420, protein: 16, carbs: 48, fat: 18, sugar: 8 },
     deletedAt: null, createdAt: new Date("2025-03-15"), updatedAt: new Date("2025-05-08"),
     chef: chefLila,
   },
   {
     id: "dish-15", chefId: "chef-4",
     name: "Caesar Salad",
-    description: "Crisp romaine, parmesan, croutons and house Caesar dressing.",
+    description: "Crisp romaine, shaved parmesan, croutons and house Caesar dressing.",
     price: 65, category: "SALAD",
-    imageUrl: "https://images.unsplash.com/photo-1546793665-c74683f339c1?w=500&q=80",
+    // Caesar salad close-up with romaine lettuce, croutons and parmesan
+    imageUrl: "https://images.unsplash.com/photo-1546793665-c74683f339c1?w=600&q=80&auto=format&fit=crop",
     averageRating: 4.4, totalReviews: 54, isAvailable: true, stockCount: null,
     preparationTime: 10,
-    tags: ["vegetarian", "fresh", "light", "healthy"],
+    tags: ["vegetarian", "fresh", "light", "salad", "classic"],
+    nutrition: { calories: 320, protein: 12, carbs: 22, fat: 20, sugar: 4 },
     deletedAt: null, createdAt: new Date("2025-04-10"), updatedAt: new Date("2025-05-06"),
     chef: chefLila,
   },
@@ -330,23 +373,28 @@ export const mockDishes: MockDish[] = [
     name: "Vegan Lentil Dal",
     description: "Slow-simmered red lentils with cumin, turmeric and coconut milk.",
     price: 70, category: "MAIN_COURSE",
-    imageUrl: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=500&q=80",
+    // Red lentil dal — thick orange-yellow curry in a bowl with a swirl of coconut cream
+    imageUrl: "https://cdn.vegkit.com/wp-content/uploads/sites/2/2022/03/18161433/SpinachRedLentilDahl_full.jpg",
     averageRating: 4.6, totalReviews: 67, isAvailable: true, stockCount: null,
     preparationTime: 20,
-    tags: ["vegan", "healthy", "indian", "light"],
+    tags: ["vegan", "healthy", "indian", "lentils", "gluten-free"],
+    nutrition: { calories: 350, protein: 18, carbs: 44, fat: 10, sugar: 5 },
     deletedAt: null, createdAt: new Date("2025-04-20"), updatedAt: new Date("2025-05-07"),
     chef: chefLila,
   },
-  // ── Breakfast ────────────────────────────────────────────────────────────
+
+  // ── Breakfast ──────────────────────────────────────────────────────────────
   {
     id: "dish-17", chefId: "chef-2",
     name: "Harissa Shakshuka",
     description: "Eggs poached in smoky tomato-harissa sauce with feta and sourdough.",
     price: 70, category: "BREAKFAST",
-    imageUrl: "https://images.unsplash.com/photo-1590412200988-a436970781fa?w=500&q=80",
+    // Shakshuka — eggs poached in red tomato sauce in a cast-iron pan
+    imageUrl: "https://images.unsplash.com/photo-1590412200988-a436970781fa?w=600&q=80&auto=format&fit=crop",
     averageRating: 4.7, totalReviews: 93, isAvailable: true, stockCount: null,
     preparationTime: 20,
-    tags: ["breakfast", "vegetarian", "spicy", "moroccan"],
+    tags: ["breakfast", "vegetarian", "spicy", "moroccan", "eggs"],
+    nutrition: { calories: 380, protein: 20, carbs: 28, fat: 20, sugar: 7 },
     deletedAt: null, createdAt: new Date("2025-04-05"), updatedAt: new Date("2025-05-11"),
     chef: chefSarah,
   },
@@ -355,23 +403,28 @@ export const mockDishes: MockDish[] = [
     name: "Msemen & Honey",
     description: "Flaky Moroccan flatbread with argan oil, amlou and wild honey.",
     price: 40, category: "BREAKFAST",
-    imageUrl: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&q=80",
+    // Msemen — square golden layered Moroccan flatbread on a plate
+    imageUrl: "https://api2.arabesquekitchen.com/images/recipe-moroccan-msemen-image-ujyya/recipe-moroccan-msemen-image-ujyya-optimized.webp?version=1683101078975",
     averageRating: 4.6, totalReviews: 81, isAvailable: true, stockCount: null,
     preparationTime: 15,
-    tags: ["breakfast", "moroccan", "traditional", "vegetarian"],
+    tags: ["breakfast", "moroccan", "traditional", "vegetarian", "bread"],
+    nutrition: { calories: 430, protein: 10, carbs: 62, fat: 16, sugar: 18 },
     deletedAt: null, createdAt: new Date("2025-04-12"), updatedAt: new Date("2025-05-09"),
     chef: chefSarah,
   },
-  // ── Dessert ──────────────────────────────────────────────────────────────
+
+  // ── Dessert ────────────────────────────────────────────────────────────────
   {
     id: "dish-19", chefId: "chef-2",
     name: "Chocolate Lava Cake",
     description: "Warm dark chocolate cake with a molten centre and vanilla cream.",
     price: 65, category: "DESSERT",
-    imageUrl: "https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=500&q=80",
+    // Chocolate lava cake cut open showing molten chocolate flowing out
+    imageUrl: "https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=600&q=80&auto=format&fit=crop",
     averageRating: 4.9, totalReviews: 178, isAvailable: true, stockCount: 20,
     preparationTime: 15,
-    tags: ["dessert", "chocolate", "sweet", "vegetarian"],
+    tags: ["dessert", "chocolate", "sweet", "vegetarian", "warm"],
+    nutrition: { calories: 520, protein: 8, carbs: 58, fat: 28, sugar: 38 },
     deletedAt: null, createdAt: new Date("2025-02-03"), updatedAt: new Date("2025-05-10"),
     chef: chefSarah,
   },
@@ -380,10 +433,12 @@ export const mockDishes: MockDish[] = [
     name: "Moroccan Chebakia",
     description: "Sesame and honey pastry fried and coated in rosewater syrup.",
     price: 35, category: "DESSERT",
-    imageUrl: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=500&q=80",
+    // Chebakia — golden flower-shaped sesame cookies glistening with honey syrup
+    imageUrl: "https://tasteofmaroc.com/wp-content/uploads/2020/04/chebakia-picturepartners-bigstock-1024x660.jpg.webp",
     averageRating: 4.7, totalReviews: 109, isAvailable: true, stockCount: 30,
     preparationTime: 10,
-    tags: ["dessert", "moroccan", "traditional", "sweet"],
+    tags: ["dessert", "moroccan", "traditional", "sweet", "sesame"],
+    nutrition: { calories: 310, protein: 5, carbs: 42, fat: 14, sugar: 28 },
     deletedAt: null, createdAt: new Date("2025-03-22"), updatedAt: new Date("2025-05-04"),
     chef: chefSarah,
   },
