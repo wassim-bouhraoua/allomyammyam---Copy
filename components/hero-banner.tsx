@@ -23,7 +23,7 @@ const SLIDES: BannerSlide[] = [
     cta: "Order now",
     gradient: "from-amber-400 via-orange-400 to-orange-500",
     accentBg: "bg-orange-300/25",
-    imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&q=80",
+    imageUrl: "https://www.tasteofhome.com/wp-content/uploads/2024/11/EXPS_TOHD24_44476_MelissaPatterson_11.jpg?w=700",
   },
   {
     id: "s2",
@@ -33,7 +33,7 @@ const SLIDES: BannerSlide[] = [
     cta: "Explore",
     gradient: "from-orange-500 via-orange-400 to-teal-400",
     accentBg: "bg-orange-300/25",
-    imageUrl: "https://images.unsplash.com/photo-1547592180-85f173990554?w=300&q=80",
+    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTi4R0Xo2g1bUAP3hISNCHshU-04TxJLqS2GQ&s",
   },
   {
     id: "s3",
@@ -43,7 +43,7 @@ const SLIDES: BannerSlide[] = [
     cta: "See dishes",
     gradient: "from-sky-500 via-blue-500 to-indigo-500",
     accentBg: "bg-sky-300/25",
-    imageUrl: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=300&q=80",
+    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZkmdNJJLQ6ZvPl_GzsDoN3qBbNLLYeZ1xxw&s",
   },
 ];
 
