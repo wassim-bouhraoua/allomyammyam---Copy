@@ -33,6 +33,8 @@ import {
   Beef,
   Wheat,
   Droplets,
+  Candy,
+  Cookie
 } from "lucide-react";
 
 import BottomNav from "@/components/bottom-nav";
@@ -268,21 +270,17 @@ function NutritionSection({ nutrition }: { nutrition: NutritionFacts }) {
       unit: "g",
     },
     {
-      icon: <Droplets size={14} className="text-orange-500" />,
-      label: "Fat",
-      value: nutrition.fat,
-      unit: "g",
-    },
-    {
-      icon: (
-        <span className="text-[11px] font-black text-orange-500">
-          S
-        </span>
-      ),
-      label: "Sugar",
-      value: nutrition.sugar,
-      unit: "g",
-    },
+  icon: <Flame size={14} className="text-orange-500" />,
+  label: "Fat",
+  value: nutrition.fat,
+  unit: "g",
+},
+   {
+  icon: <Candy size={14} className="text-orange-500" />,
+  label: "Sugar",
+  value: nutrition.sugar,
+  unit: "g",
+},
   ];
 
   return (
