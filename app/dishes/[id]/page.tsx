@@ -246,41 +246,83 @@ function ChefRow({ chef }: { chef: MockChefProfile }) {
   );
 }
 
-/** Nutrition Facts section — same visual language as the rest of the page */
+/** Nutrition Facts section */
 function NutritionSection({ nutrition }: { nutrition: NutritionFacts }) {
   const facts = [
-    { icon: <Zap size={13} className="text-orange-500" />, label: "Calories", value: nutrition.calories, unit: "kcal" },
-    { icon: <Beef size={13} className="text-orange-500" />, label: "Protein",  value: nutrition.protein,  unit: "g" },
-    { icon: <Wheat size={13} className="text-orange-500" />, label: "Carbs",   value: nutrition.carbs,    unit: "g" },
-    { icon: <Droplets size={13} className="text-orange-500" />, label: "Fat",  value: nutrition.fat,      unit: "g" },
-    { icon: <span className="text-[11px] font-black text-orange-400">S</span>, label: "Sugar", value: nutrition.sugar, unit: "g" },
+    {
+      icon: <Zap size={14} className="text-orange-500" />,
+      label: "Calories",
+      value: nutrition.calories,
+      unit: "kcal",
+    },
+    {
+      icon: <Beef size={14} className="text-orange-500" />,
+      label: "Protein",
+      value: nutrition.protein,
+      unit: "g",
+    },
+    {
+      icon: <Wheat size={14} className="text-orange-500" />,
+      label: "Carbs",
+      value: nutrition.carbs,
+      unit: "g",
+    },
+    {
+      icon: <Droplets size={14} className="text-orange-500" />,
+      label: "Fat",
+      value: nutrition.fat,
+      unit: "g",
+    },
+    {
+      icon: (
+        <span className="text-[11px] font-black text-orange-500">
+          S
+        </span>
+      ),
+      label: "Sugar",
+      value: nutrition.sugar,
+      unit: "g",
+    },
   ];
 
   return (
     <section>
-      <h2 className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider mb-3">
-        Nutrition Facts
-      </h2>
+      <div className="mb-3">
+        <h2 className="text-[12px] font-extrabold text-gray-600 uppercase tracking-wider">
+          Nutrition Facts
+        </h2>
+
+        <p className="text-[9px] text-gray-400 mt-0.5">
+          Per serving
+        </p>
+      </div>
+
       <div className="grid grid-cols-5 gap-2">
         {facts.map((f) => (
           <div
             key={f.label}
-            className="flex flex-col items-center gap-1.5 bg-gray-50 border border-gray-100 rounded-2xl pt-3 pb-2.5 px-1"
+            className="flex flex-col items-center rounded-2xl border border-gray-100 bg-gray-50 px-2 py-3"
           >
-            {/* Icon — top */}
-            <div className="w-6 h-6 rounded-lg bg-orange-50 border border-orange-100 flex items-center justify-center flex-shrink-0">
+            {/* Icon */}
+            <div className="w-7 h-7 rounded-full bg-orange-50 border border-orange-100 flex items-center justify-center mb-2">
               {f.icon}
             </div>
-            {/* Value — dominant */}
-            <span className="text-[16px] font-black text-gray-900 leading-none tabular-nums mt-0.5">
-              {f.value}
-            </span>
-            {/* Unit */}
-            <span className="text-[9px] font-bold text-orange-500 uppercase tracking-wide leading-none -mt-0.5">
-              {f.unit}
-            </span>
+
+            {/* Value + Unit */}
+            <div className="text-center leading-none">
+              <span className="text-[18px] font-black text-gray-900">
+                {f.value}
+              </span>
+
+              <span className="text-[10px] font-bold text-gray-400 ml-1">
+                {f.unit}
+              </span>
+            </div>
+
             {/* Label */}
-            <span className="text-[9px] text-gray-400 leading-none">{f.label}</span>
+            <span className="text-[10px] text-gray-500 mt-2">
+              {f.label}
+            </span>
           </div>
         ))}
       </div>
