@@ -33,8 +33,12 @@ export default function LoginPage() {
         return;
       }
       await refreshUser();
-      router.push("/");
-      router.refresh();
+
+const params = new URLSearchParams(window.location.search);
+const from = params.get("from");
+
+router.push(from || "/");
+router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -43,13 +47,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="bg-white rounded-[28px] shadow-[0_2px_32px_rgba(0,0,0,0.08)] border border-gray-50 px-6 py-8">
-      <div className="flex flex-col items-center mb-8">
-        <div className="w-14 h-14 rounded-2xl bg-orange-500 flex items-center justify-center shadow-[0_4px_16px_rgba(255,138,0,0.38)] mb-4">
-          <UtensilsCrossed size={26} className="text-white" />
+    <div className="bg-white rounded-3xl shadow-[0_2px_20px_rgba(0,0,0,0.06)] border border-gray-100 p-6">
+      <div className="flex flex-col items-center mb-6">
+        <div className="w-12 h-12 rounded-xl bg-orange-500 flex items-center justify-center shadow-[0_4px_16px_rgba(255,138,0,0.38)] mb-4">
+          <UtensilsCrossed size={22} className="text-white" />
         </div>
-        <h1 className="text-[22px] font-black text-gray-900">Welcome back</h1>
-        <p className="text-[13px] text-gray-400 mt-1">Sign in to your account</p>
+       <h1 className="text-[20px] font-black text-gray-900">Welcome back</h1>
+       <p className="text-[13px] text-gray-500 mt-1">
+  Continue your AlloMyamMyam journey
+</p>
       </div>
 
       {error && (
@@ -112,7 +118,7 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <div className="mt-6 flex flex-col items-center gap-2">
+      <div className="mt-5 flex flex-col items-center gap-1.5">
         <p className="text-[13px] text-gray-500">
           Don&apos;t have an account?{" "}
           <Link href="/register" className="text-orange-500 font-bold hover:underline">
