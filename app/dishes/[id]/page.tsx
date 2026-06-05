@@ -17,6 +17,8 @@ import { use, useState } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Star,
@@ -388,20 +390,30 @@ export default function DishDetailPage({
     .sort((a, b) => b.score - a.score)
     .slice(0, 6)
     .map(({ dish }) => dish);
+    
+// ── Local state ───────────────────────────────────────────────────────────
+const [qty, setQty] = useState(1);
+const [added, setAdded] = useState(false);
+const [showAllReviews, setShowAllReviews] = useState(false);
 
-  // ── Local state ───────────────────────────────────────────────────────────
-  const [qty, setQty] = useState(1);
-  const [added, setAdded] = useState(false);
-  const [showAllReviews, setShowAllReviews] = useState(false);
+// ── Auth ──────────────────────────────────────────────────────────────────
+const { user } = useAuth();
+const router = useRouter();
 
-  const totalPrice = (dish.price * qty).toLocaleString("fr-MA");
-  const stockMax = dish.stockCount ?? undefined;
+const totalPrice = (dish.price * qty).toLocaleString("fr-MA");
+const stockMax = dish.stockCount ?? undefined;
 
   function handleAddToCart() {
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2200);
-    // TODO: dispatch to cart context / store
+  if (!user) {
+    router.push("/login?from=" + encodeURIComponent(window.location.pathname));
+    return;
   }
+
+  setAdded(true);
+  setTimeout(() => setAdded(false), 2200);
+
+  // TODO: dispatch to cart context / store
+}
 
   const isSpicy = dish.tags.some((t) => ["spicy", "harissa"].includes(t.toLowerCase()));
 
