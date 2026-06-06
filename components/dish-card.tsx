@@ -225,8 +225,9 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
               <Star size={9} className="text-amber-400 fill-amber-400" />
               <span className="text-[10px] font-bold text-gray-700">{rating}</span>
             </div>
-            <span className="text-[12px] font-extrabold text-orange-600">
-              {formattedPrice}
+            <span className="flex items-baseline gap-[2px] whitespace-nowrap">
+              <span className="text-[12px] font-extrabold text-orange-600">{dish.price}</span>
+              <span className="text-[9px] font-bold text-orange-400">MAD</span>
             </span>
           </div>
         </div>
