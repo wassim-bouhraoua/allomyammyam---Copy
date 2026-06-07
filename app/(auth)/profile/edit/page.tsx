@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Loader2, User, X, Trash2, Camera } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import BackToHome from "@/components/auth/back-to-home";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -129,6 +130,7 @@ export default function EditProfilePage() {
 
   return (
     <div className="flex flex-col min-h-full px-4 pt-4 pb-8">
+      <BackToHome />
       {/* Header with back navigation */}
       <div className="flex items-center justify-between py-4 mb-2">
         <Link

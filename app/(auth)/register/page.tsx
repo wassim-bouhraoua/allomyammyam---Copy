@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2, UtensilsCrossed, X, User } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import BackToHome from "@/components/auth/back-to-home";
+import { useGoogleSignIn } from "@/hooks/useGoogleSignIn";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -17,43 +19,7 @@ export default function RegisterPage() {
   const [error, setError]     = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const google = (window as any).google;
-    if (google) {
-      initGoogleSignIn();
-    } else {
-      const script = document.createElement("script");
-      script.src = "https://accounts.google.com/gsi/client";
-      script.async = true;
-      script.defer = true;
-      script.id = "google-gsi-script";
-      script.onload = () => {
-        initGoogleSignIn();
-      };
-      document.body.appendChild(script);
-    }
-  }, []);
-
-  function initGoogleSignIn() {
-    const google = (window as any).google;
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    
-    if (google && clientId) {
-      google.accounts.id.initialize({
-        client_id: clientId,
-        callback: handleGoogleCredentialResponse,
-      });
-
-      const btnContainer = document.getElementById("google-signin-button");
-      if (btnContainer) {
-        google.accounts.id.renderButton(btnContainer, {
-          theme: "outline",
-          size: "large",
-          width: Math.floor(btnContainer.getBoundingClientRect().width) || 376,
-        });
-      }
-    }
-  }
+  useGoogleSignIn(handleGoogleCredentialResponse);
 
   async function handleGoogleCredentialResponse(response: any) {
     setError(null);
@@ -154,6 +120,7 @@ export default function RegisterPage() {
 
   return (
     <div className="flex flex-col min-h-full px-4 pt-4 pb-8">
+      <BackToHome />
 
       {/* Header */}
       <div className="flex flex-col items-center pt-8 pb-6">
@@ -171,6 +138,16 @@ export default function RegisterPage() {
           <p className="text-[12px] font-semibold text-red-600">{error}</p>
         </div>
       )}
+
+      {/* Google Sign-in Card */}
+      <div className="bg-white rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-gray-100 p-5 mb-3 flex flex-col gap-3">
+        <div id="google-signin-button" className="w-full flex justify-center min-h-[40px]" />
+        <div className="flex items-center gap-2.5 my-0.5">
+          <div className="flex-1 h-px bg-gray-100" />
+          <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">or register with email</span>
+          <div className="flex-1 h-px bg-gray-100" />
+        </div>
+      </div>
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-gray-100 p-5 flex flex-col gap-4">
@@ -271,14 +248,6 @@ export default function RegisterPage() {
             : "Create Account"
           }
         </button>
-
-        <div className="flex items-center gap-2.5 my-1">
-          <div className="flex-1 h-px bg-gray-100" />
-          <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">or sign up with</span>
-          <div className="flex-1 h-px bg-gray-100" />
-        </div>
-
-        <div id="google-signin-button" className="w-full flex justify-center min-h-[40px]" />
 
       </form>
 

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2, ChefHat, X, User } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import BackToHome from "@/components/auth/back-to-home";
+import { useGoogleSignIn } from "@/hooks/useGoogleSignIn";
 
 const SPECIALTY_OPTIONS = [
   "Moroccan",
@@ -80,6 +82,33 @@ export default function RegisterChefPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  useGoogleSignIn(handleGoogleCredentialResponse);
+
+  async function handleGoogleCredentialResponse(response: any) {
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential: response.credential, targetRole: "CHEF" }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Google registration failed.");
+        return;
+      }
+      await refreshUser();
+      const from = new URLSearchParams(window.location.search).get("from");
+      router.push(from || "/");
+      router.refresh();
+    } catch {
+      setError("Google authentication failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   function set(field: keyof typeof form) {
     return (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -130,6 +159,7 @@ export default function RegisterChefPage() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col px-4 pt-4 pb-8">
+      <BackToHome />
 
       {/* Header */}
       <div className="flex flex-col items-center pt-6 pb-7">
@@ -148,6 +178,16 @@ export default function RegisterChefPage() {
           <p className="text-[12px] font-semibold text-red-600">{error}</p>
         </div>
       )}
+
+      {/* Google Sign-in Card */}
+      <div className="bg-white rounded-3xl shadow-[0_2px_20px_rgba(0,0,0,0.06)] border border-gray-100 p-5 mb-3 flex flex-col gap-3">
+        <div id="google-signin-button" className="w-full flex justify-center min-h-[40px]" />
+        <div className="flex items-center gap-2.5 my-0.5">
+          <div className="flex-1 h-px bg-gray-100" />
+          <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">or register with email</span>
+          <div className="flex-1 h-px bg-gray-100" />
+        </div>
+      </div>
 
       {/* Personal info card */}
       <div className="bg-white rounded-3xl shadow-[0_2px_20px_rgba(0,0,0,0.06)] border border-gray-100 p-5">

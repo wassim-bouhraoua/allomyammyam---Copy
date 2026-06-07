@@ -7,6 +7,7 @@ import {
   LogOut, LogIn, UserPlus, Loader2, User, Pencil,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import BackToHome from "@/components/auth/back-to-home";
 
 const ROLE_LABELS: Record<string, string> = {
   USER: "Customer", CHEF: "Chef", ADMIN: "Administrator",
@@ -35,6 +36,7 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-12">
+        <BackToHome />
         <div className="w-20 h-20 rounded-3xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-6">
           <User size={32} className="text-gray-300" />
         </div>
@@ -77,6 +79,7 @@ export default function ProfilePage() {
 
   return (
     <div className="flex-1 flex flex-col">
+      <BackToHome />
 
       {/* Banner */}
       <div className="bg-gradient-to-br from-orange-400 to-orange-600 px-5 pt-10 pb-20 text-white">

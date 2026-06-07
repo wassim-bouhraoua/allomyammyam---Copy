@@ -6,7 +6,7 @@ import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
   try {
-    const { credential } = await req.json();
+    const { credential, targetRole } = await req.json();
 
     if (!credential) {
       return NextResponse.json(
@@ -68,6 +68,14 @@ export async function POST(req: NextRequest) {
         );
       }
 
+      // If targetRole is CHEF and existing user is a customer (USER), block registration
+      if (targetRole === "CHEF" && user.role !== "CHEF") {
+        return NextResponse.json(
+          { error: "This Google account is already associated with a customer account. Please use a different email address for your chef account." },
+          { status: 409 }
+        );
+      }
+
       // If existing user has no avatar, assign their Google profile picture
       if (!user.avatar && payload.picture) {
         user = await prisma.user.update({
@@ -84,16 +92,36 @@ export async function POST(req: NextRequest) {
       const lastName = payload.family_name || "User";
       const avatar = payload.picture || null;
 
-      user = await prisma.user.create({
-        data: {
-          email,
-          password: hashedPassword,
-          firstName,
-          lastName,
-          role: "USER",
-          avatar,
-        },
-      });
+      if (targetRole === "CHEF") {
+        user = await prisma.user.create({
+          data: {
+            email,
+            password: hashedPassword,
+            firstName,
+            lastName,
+            role: "CHEF",
+            avatar,
+            chefProfile: {
+              create: {
+                displayName: `${firstName} ${lastName}`,
+                status: "PENDING",
+                avatarUrl: avatar,
+              },
+            },
+          },
+        });
+      } else {
+        user = await prisma.user.create({
+          data: {
+            email,
+            password: hashedPassword,
+            firstName,
+            lastName,
+            role: "USER",
+            avatar,
+          },
+        });
+      }
     }
 
     const token = signToken({

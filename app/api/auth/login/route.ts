@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     // Constant-time-safe: always run verifyPassword even on missing user
     const passwordMatch = user
       ? await verifyPassword(password, user.password)
-      : await verifyPassword(password, "$2b$12$invalidhashfortimingprotection000000000000000")
+      : await verifyPassword(password, "$2b$12$Mac7h2VsaPAimra3Y/pIfeWLuqN96UTxn.MUm2ncByT/0xBGPTszq")
 
     if (!user || !passwordMatch) {
       return NextResponse.json(

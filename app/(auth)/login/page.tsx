@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2, UtensilsCrossed } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import BackToHome from "@/components/auth/back-to-home";
+import { useGoogleSignIn } from "@/hooks/useGoogleSignIn";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,43 +18,7 @@ export default function LoginPage() {
   const [error, setError]       = useState<string | null>(null);
   const [loading, setLoading]   = useState(false);
 
-  useEffect(() => {
-    const google = (window as any).google;
-    if (google) {
-      initGoogleSignIn();
-    } else {
-      const script = document.createElement("script");
-      script.src = "https://accounts.google.com/gsi/client";
-      script.async = true;
-      script.defer = true;
-      script.id = "google-gsi-script";
-      script.onload = () => {
-        initGoogleSignIn();
-      };
-      document.body.appendChild(script);
-    }
-  }, []);
-
-  function initGoogleSignIn() {
-    const google = (window as any).google;
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    
-    if (google && clientId) {
-      google.accounts.id.initialize({
-        client_id: clientId,
-        callback: handleGoogleCredentialResponse,
-      });
-
-      const btnContainer = document.getElementById("google-signin-button");
-      if (btnContainer) {
-        google.accounts.id.renderButton(btnContainer, {
-          theme: "outline",
-          size: "large",
-          width: Math.floor(btnContainer.getBoundingClientRect().width) || 376,
-        });
-      }
-    }
-  }
+  useGoogleSignIn(handleGoogleCredentialResponse);
 
   async function handleGoogleCredentialResponse(response: any) {
     setError(null);
@@ -108,6 +74,7 @@ export default function LoginPage() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col min-h-full px-4 pt-4">
+      <BackToHome />
 
       {/* Brand header */}
       <div className="flex flex-col items-center pt-8 pb-6">
