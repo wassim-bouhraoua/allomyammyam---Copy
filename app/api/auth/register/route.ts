@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { hashPassword } from "@/lib/password"
 import { signToken, COOKIE_NAME } from "@/lib/auth"
+import { saveAvatar } from "@/lib/upload"
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { email, password, firstName, lastName, phoneNumber } = body
+    const { email, password, firstName, lastName, phoneNumber, avatar } = body
 
     if (!email || !password || !firstName || !lastName) {
       return NextResponse.json(
@@ -25,6 +26,18 @@ export async function POST(req: NextRequest) {
 
     const hashed = await hashPassword(password)
 
+    let avatarPath: string | null = null
+    if (avatar && avatar.startsWith("data:image/")) {
+      try {
+        avatarPath = await saveAvatar(avatar)
+      } catch (err: any) {
+        return NextResponse.json(
+          { error: err.message ?? "Failed to save profile photo." },
+          { status: 400 }
+        )
+      }
+    }
+
     const user = await prisma.user.create({
       data: {
         email,
@@ -33,6 +46,7 @@ export async function POST(req: NextRequest) {
         lastName,
         phoneNumber: phoneNumber ?? null,
         role: "USER",
+        avatar: avatarPath,
       },
     })
 
@@ -46,6 +60,7 @@ export async function POST(req: NextRequest) {
           firstName: user.firstName,
           lastName: user.lastName,
           role: user.role,
+          avatar: user.avatar,
         },
       },
       { status: 201 }

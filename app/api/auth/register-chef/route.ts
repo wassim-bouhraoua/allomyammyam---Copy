@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { hashPassword } from "@/lib/password"
 import { signToken, COOKIE_NAME } from "@/lib/auth"
+import { saveAvatar } from "@/lib/upload"
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,6 +17,7 @@ export async function POST(req: NextRequest) {
       bio,
       specialties,
       city,
+      avatar,
     } = body
 
     if (!email || !password || !firstName || !lastName || !displayName) {
@@ -35,6 +37,18 @@ export async function POST(req: NextRequest) {
 
     const hashed = await hashPassword(password)
 
+    let avatarPath: string | null = null
+    if (avatar && avatar.startsWith("data:image/")) {
+      try {
+        avatarPath = await saveAvatar(avatar)
+      } catch (err: any) {
+        return NextResponse.json(
+          { error: err.message ?? "Failed to save profile photo." },
+          { status: 400 }
+        )
+      }
+    }
+
     const [user] = await prisma.$transaction([
       prisma.user.create({
         data: {
@@ -44,6 +58,7 @@ export async function POST(req: NextRequest) {
           lastName,
           phoneNumber: phoneNumber ?? null,
           role: "CHEF",
+          avatar: avatarPath,
           chefProfile: {
             create: {
               displayName,
@@ -51,6 +66,7 @@ export async function POST(req: NextRequest) {
               specialties: specialties ?? [],
               city: city ?? null,
               status: "PENDING",
+              avatarUrl: avatarPath,
             },
           },
         },
@@ -67,6 +83,7 @@ export async function POST(req: NextRequest) {
           firstName: user.firstName,
           lastName: user.lastName,
           role: user.role,
+          avatar: user.avatar,
         },
         message: "Chef account created. Awaiting approval.",
       },

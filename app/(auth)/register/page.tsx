@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Loader2, UserPlus } from "lucide-react";
+import { Eye, EyeOff, Loader2, UtensilsCrossed, X, User } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 export default function RegisterPage() {
@@ -11,11 +11,115 @@ export default function RegisterPage() {
   const { refreshUser } = useAuth();
 
   const [form, setForm] = useState({
-    firstName: "", lastName: "", email: "", password: "", phoneNumber: "",
+    firstName: "", lastName: "", email: "", password: "", phoneNumber: "", avatar: "",
   });
   const [showPw, setShowPw]   = useState(false);
   const [error, setError]     = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const google = (window as any).google;
+    if (google) {
+      initGoogleSignIn();
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.id = "google-gsi-script";
+      script.onload = () => {
+        initGoogleSignIn();
+      };
+      document.body.appendChild(script);
+    }
+  }, []);
+
+  function initGoogleSignIn() {
+    const google = (window as any).google;
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    
+    if (google && clientId) {
+      google.accounts.id.initialize({
+        client_id: clientId,
+        callback: handleGoogleCredentialResponse,
+      });
+
+      const btnContainer = document.getElementById("google-signin-button");
+      if (btnContainer) {
+        google.accounts.id.renderButton(btnContainer, {
+          theme: "outline",
+          size: "large",
+          width: Math.floor(btnContainer.getBoundingClientRect().width) || 376,
+        });
+      }
+    }
+  }
+
+  async function handleGoogleCredentialResponse(response: any) {
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential: response.credential }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Google sign-up failed.");
+        return;
+      }
+      await refreshUser();
+      const from = new URLSearchParams(window.location.search).get("from");
+      router.push(from || "/");
+      router.refresh();
+    } catch {
+      setError("Google authentication failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFileError(null);
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate type
+    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    if (!validTypes.includes(file.type)) {
+      setFileError("Please upload a valid image (JPG, JPEG, PNG, WEBP).");
+      return;
+    }
+
+    // Validate size (2MB limit)
+    const maxSize = 2 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setFileError("Photo size must be less than 2MB.");
+      return;
+    }
+
+    // Read and save as base64 for submission
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewUrl(reader.result as string);
+      setForm(prev => ({ ...prev, avatar: reader.result as string }));
+    };
+    reader.onerror = () => {
+      setFileError("Error reading file. Please try again.");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const clearPhoto = () => {
+    setPreviewUrl(null);
+    setFileError(null);
+    setForm(prev => ({ ...prev, avatar: "" }));
+    const input = document.getElementById("profile-photo-upload") as HTMLInputElement;
+    if (input) input.value = "";
+  };
 
   const set = (f: keyof typeof form) =>
     (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -45,44 +149,40 @@ export default function RegisterPage() {
     }
   }
 
-  const inputCls =
-    "h-12 px-4 rounded-2xl bg-gray-50 border border-gray-200 text-[14px] text-gray-900 placeholder-gray-400 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-all w-full";
-  const labelCls = "text-[12px] font-bold text-gray-500 uppercase tracking-widest";
+  const inputCls = "h-12 px-4 rounded-2xl bg-gray-50 border border-gray-200 text-[14px] text-gray-900 placeholder-gray-400 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors w-full";
+  const labelCls = "text-[11px] font-bold text-gray-400 uppercase tracking-wider";
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col">
+    <div className="flex flex-col min-h-full px-4 pt-4 pb-8">
 
       {/* Header */}
-      <div className="mb-8">
-        <div className="w-12 h-12 rounded-2xl bg-orange-500 flex items-center justify-center shadow-[0_4px_14px_rgba(255,138,0,0.40)] mb-5">
-          <UserPlus size={22} className="text-white" />
+      <div className="flex flex-col items-center pt-8 pb-6">
+        <div className="w-16 h-16 rounded-3xl bg-orange-500 flex items-center justify-center shadow-[0_6px_20px_rgba(255,138,0,0.40)] mb-5">
+          <UtensilsCrossed size={28} className="text-white" />
         </div>
-        <h1 className="text-[26px] font-black text-gray-900 tracking-tight leading-tight">
-          Create account
-        </h1>
-        <p className="text-[14px] text-gray-400 mt-1">Order homemade food from local chefs</p>
+        <h1 className="text-[24px] font-black text-gray-900 tracking-tight">Create account</h1>
+        <p className="text-[13px] text-gray-400 mt-1.5">Order homemade food from local chefs</p>
       </div>
 
       {/* Error */}
       {error && (
-        <div className="mb-5 px-4 py-3 rounded-2xl bg-red-50 border border-red-100 flex items-center gap-2.5">
-          <div className="w-4 h-4 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-            <span className="text-red-500 text-[10px] font-black">!</span>
-          </div>
-          <p className="text-[13px] font-semibold text-red-600">{error}</p>
+        <div className="mb-4 px-4 py-3 rounded-2xl bg-red-50 border border-red-100 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
+          <p className="text-[12px] font-semibold text-red-600">{error}</p>
         </div>
       )}
 
-      {/* Fields */}
-      <div className="flex flex-col gap-4 mb-5">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-2">
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-gray-100 p-5 flex flex-col gap-4">
+
+        <div className="grid grid-cols-2 gap-2.5">
+          <div className="flex flex-col gap-1.5">
             <label className={labelCls}>First name</label>
             <input type="text" autoComplete="given-name" required
               value={form.firstName} onChange={set("firstName")}
               placeholder="Yassine" className={inputCls} />
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             <label className={labelCls}>Last name</label>
             <input type="text" autoComplete="family-name" required
               value={form.lastName} onChange={set("lastName")}
@@ -90,24 +190,65 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2">
+        {/* Upload Profile Photo */}
+        <div className="flex flex-col gap-1.5">
+          <label className={labelCls}>Upload Profile Photo (Optional)</label>
+          <div className="flex items-center gap-3">
+            {/* Preview */}
+            <div className="relative w-12 h-12 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+              {previewUrl ? (
+                <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+              ) : (
+                <User size={20} className="text-gray-300" />
+              )}
+              {previewUrl && (
+                <button
+                  type="button"
+                  onClick={clearPhoto}
+                  className="absolute inset-0 bg-black/40 flex items-center justify-center text-white opacity-0 hover:opacity-100 transition-opacity"
+                  aria-label="Remove photo"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+            {/* Input */}
+            <div className="flex-1 min-w-0">
+              <input
+                type="file"
+                accept="image/png, image/jpeg, image/jpg, image/webp"
+                onChange={handleFileChange}
+                className="hidden"
+                id="profile-photo-upload"
+              />
+              <label
+                htmlFor="profile-photo-upload"
+                className="inline-flex items-center px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 text-[12px] font-bold text-gray-700 cursor-pointer hover:bg-gray-100 active:scale-95 transition-all"
+              >
+                Choose Photo
+              </label>
+              {fileError && <p className="text-[11px] text-red-500 font-semibold mt-1">{fileError}</p>}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
           <label className={labelCls}>Email</label>
           <input type="email" autoComplete="email" required
             value={form.email} onChange={set("email")}
             placeholder="you@example.com" className={inputCls} />
         </div>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1.5">
           <label className={labelCls}>
-            Phone{" "}
-            <span className="normal-case font-normal text-gray-400 tracking-normal">(optional)</span>
+            Phone <span className="normal-case text-gray-400 font-normal">(optional)</span>
           </label>
           <input type="tel" autoComplete="tel"
             value={form.phoneNumber} onChange={set("phoneNumber")}
             placeholder="+212 6 00 00 00 00" className={inputCls} />
         </div>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1.5">
           <label className={labelCls}>Password</label>
           <div className="relative">
             <input type={showPw ? "text" : "password"} autoComplete="new-password"
@@ -120,37 +261,45 @@ export default function RegisterPage() {
               {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </div>
-          <p className="text-[11px] text-gray-400 pl-1">At least 8 characters</p>
+          <p className="text-[11px] text-gray-400">At least 8 characters</p>
         </div>
-      </div>
 
-      {/* Submit */}
-      <button type="submit" disabled={loading}
-        className="h-[52px] rounded-2xl bg-orange-500 text-white font-extrabold text-[15px] shadow-[0_4px_20px_rgba(255,138,0,0.40)] transition-all duration-150 active:scale-[0.98] hover:bg-orange-600 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 mb-6">
-        {loading
-          ? <><Loader2 size={17} className="animate-spin" /> Creating account…</>
-          : "Create Account"
-        }
-      </button>
+        <button type="submit" disabled={loading}
+          className="h-12 rounded-2xl bg-orange-500 text-white font-extrabold text-[15px] shadow-[0_4px_14px_rgba(255,138,0,0.38)] transition-all duration-150 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-1">
+          {loading
+            ? <><Loader2 size={17} className="animate-spin" /> Creating account…</>
+            : "Create Account"
+          }
+        </button>
+
+        <div className="flex items-center gap-2.5 my-1">
+          <div className="flex-1 h-px bg-gray-100" />
+          <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">or sign up with</span>
+          <div className="flex-1 h-px bg-gray-100" />
+        </div>
+
+        <div id="google-signin-button" className="w-full flex justify-center min-h-[40px]" />
+
+      </form>
 
       {/* Divider */}
-      <div className="flex items-center gap-3 mb-5">
+      <div className="flex items-center gap-3 my-5">
         <div className="flex-1 h-px bg-gray-100" />
-        <span className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider">already a member?</span>
+        <span className="text-[11px] text-gray-400 font-medium">already a member?</span>
         <div className="flex-1 h-px bg-gray-100" />
       </div>
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2.5">
         <Link href="/login"
-          className="h-12 rounded-2xl border-2 border-gray-200 text-gray-700 font-bold text-[14px] flex items-center justify-center transition-all active:scale-[0.98] hover:border-orange-400 hover:text-orange-500">
+          className="h-12 rounded-2xl border border-gray-200 text-gray-700 font-bold text-[14px] flex items-center justify-center active:scale-[0.98] transition-transform hover:border-orange-300 hover:text-orange-500">
           Sign In
         </Link>
         <Link href="/register-chef"
-          className="h-12 rounded-2xl bg-orange-50 border border-orange-200 text-orange-600 font-bold text-[14px] flex items-center justify-center transition-all active:scale-[0.98] hover:bg-orange-100">
+          className="h-12 rounded-2xl border border-orange-100 bg-orange-50 text-orange-600 font-bold text-[14px] flex items-center justify-center active:scale-[0.98] transition-transform">
           Join as a Chef instead
         </Link>
       </div>
 
-    </form>
+    </div>
   );
 }

@@ -19,6 +19,8 @@ export interface AuthUser {
   avatar: string | null;
   phoneNumber: string | null;
   chefId?: string;
+  createdAt: string;
+  ordersCount?: number;
 }
 
 interface AuthContextValue {

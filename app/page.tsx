@@ -6,6 +6,7 @@ import HeroBanner from "@/components/hero-banner";
 import HomeSection from "@/components/home-section";
 import DishCard from "@/components/dish-card";
 import ChefCard from "@/components/chef-card";
+import MobileHeader from "@/components/mobile-header";
 
 import { todayNewDishes, mockChefs } from "@/lib/mock-data";
 
@@ -98,29 +99,7 @@ export default function HomePage() {
 
 /* ─── Extracted shared sections ─────────────────────────────────────────── */
 
-function MobileHeader() {
-  return (
-    <header className="flex items-center justify-between px-4 pt-5 pb-3">
-      <button className="flex flex-col gap-[5px] p-1 -ml-1" aria-label="Menu">
-        <span className="block w-[18px] h-[2px] bg-gray-800 rounded-full" />
-        <span className="block w-3 h-[2px] bg-gray-800 rounded-full" />
-        <span className="block w-[18px] h-[2px] bg-gray-800 rounded-full" />
-      </button>
-      <button className="flex items-center gap-1.5">
-        <MapPin size={13} className="text-orange-500 flex-shrink-0" fill="currentColor" />
-        <span className="text-[13px] font-bold text-gray-800 max-w-[140px] truncate">
-          Oujda, Oriental
-        </span>
-      </button>
-      <button
-        className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-sm ring-[2.5px] ring-orange-200"
-        aria-label="Profile"
-      >
-        <span className="text-white text-sm font-black select-none">Y</span>
-      </button>
-    </header>
-  );
-}
+
 
 function SearchBar() {
   return (

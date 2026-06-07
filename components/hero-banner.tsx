@@ -109,7 +109,7 @@ export default function HeroBanner() {
             <span className="inline-block text-[9px] font-black uppercase tracking-[0.12em] text-white/80 bg-white/20 rounded-full px-2.5 py-[3px] mb-2">
               {slide.tag}
             </span>
-            <h2 className="text-white font-bold text-[15px] leading-[1.25] max-w-[155px] mb-1.5">
+            <h2 className="text-white font-bold text-[15px] leading-[1.25] max-w-[220px] lg:max-w-none mb-1.5">
               {slide.headline}
             </h2>
             <p className="text-white/75 text-[11px] mb-3">{slide.sub}</p>

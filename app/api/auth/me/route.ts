@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import { getAvatarUrl } from "@/lib/upload";
 
 export async function GET() {
   const session = await getSession();
@@ -24,6 +25,21 @@ export async function GET() {
       phoneNumber: true,
       avatar: true,
       role: true,
+      createdAt: true,
+      _count: {
+        select: {
+          orders: true,
+        },
+      },
+      chefProfile: {
+        select: {
+          _count: {
+            select: {
+              orders: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -34,5 +50,21 @@ export async function GET() {
     );
   }
 
-  return NextResponse.json({ user });
+  const ordersCount = user.role === "CHEF"
+    ? (user.chefProfile?._count?.orders ?? 0)
+    : (user._count?.orders ?? 0);
+
+  return NextResponse.json({
+    user: {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phoneNumber: user.phoneNumber,
+      avatar: getAvatarUrl(user.avatar),
+      role: user.role,
+      createdAt: user.createdAt.toISOString(),
+      ordersCount,
+    },
+  });
 }
