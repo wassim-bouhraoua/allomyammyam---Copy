@@ -44,21 +44,18 @@ export default function RegisterChefPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate type
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (!validTypes.includes(file.type)) {
       setFileError("Please upload a valid image (JPG, JPEG, PNG, WEBP).");
       return;
     }
 
-    // Validate size (2MB limit)
     const maxSize = 2 * 1024 * 1024;
     if (file.size > maxSize) {
       setFileError("Photo size must be less than 2MB.");
       return;
     }
 
-    // Read and save as base64 for submission
     const reader = new FileReader();
     reader.onloadend = () => {
       setPreviewUrl(reader.result as string);

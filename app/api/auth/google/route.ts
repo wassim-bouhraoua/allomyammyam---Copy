@@ -24,7 +24,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Verify token with Google's tokeninfo endpoint
     const verifyRes = await fetch(
       `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`,
       { cache: "no-store" }
@@ -39,7 +38,6 @@ export async function POST(req: NextRequest) {
 
     const payload = await verifyRes.json();
 
-    // Verify audience
     if (payload.aud !== googleClientId) {
       return NextResponse.json(
         { error: "Invalid client audience." },
@@ -55,7 +53,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if user exists
     let user = await prisma.user.findUnique({
       where: { email },
     });
@@ -68,7 +65,7 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // If targetRole is CHEF and existing user is a customer (USER), block registration
+      // Prevent USER accounts from being automatically converted to CHEF accounts.
       if (targetRole === "CHEF" && user.role !== "CHEF") {
         return NextResponse.json(
           { error: "This Google account is already associated with a customer account. Please use a different email address for your chef account." },
@@ -76,7 +73,6 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // If existing user has no avatar, assign their Google profile picture
       if (!user.avatar && payload.picture) {
         user = await prisma.user.update({
           where: { id: user.id },
@@ -84,7 +80,6 @@ export async function POST(req: NextRequest) {
         });
       }
     } else {
-      // Create a new user (Option A: random password hash)
       const randomPassword = crypto.randomBytes(32).toString("hex");
       const hashedPassword = await hashPassword(randomPassword);
 
@@ -147,7 +142,7 @@ export async function POST(req: NextRequest) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 7,
     });
 
     return response;

@@ -15,7 +15,7 @@ export async function PUT(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { firstName, lastName, phoneNumber, avatar } = body;
+    const { firstName, lastName, phoneNumber, avatar, displayName, bio, city, specialties } = body;
 
     // Validation
     if (!firstName || typeof firstName !== "string" || !firstName.trim()) {
@@ -30,6 +30,27 @@ export async function PUT(req: NextRequest) {
         { error: "Last name is required." },
         { status: 400 }
       );
+    }
+
+    if (session.role === "CHEF") {
+      if (!displayName || typeof displayName !== "string" || !displayName.trim()) {
+        return NextResponse.json(
+          { error: "Display name is required for chefs." },
+          { status: 400 }
+        );
+      }
+      if (!city || typeof city !== "string" || !city.trim()) {
+        return NextResponse.json(
+          { error: "City is required for chefs." },
+          { status: 400 }
+        );
+      }
+      if (!specialties || !Array.isArray(specialties) || specialties.length === 0) {
+        return NextResponse.json(
+          { error: "At least one specialty is required for chefs." },
+          { status: 400 }
+        );
+      }
     }
 
     // Avatar state handling:
@@ -58,14 +79,21 @@ export async function PUT(req: NextRequest) {
       phoneNumber: phoneNumber ? phoneNumber.trim() : null,
     };
 
+    if (session.role === "CHEF") {
+      dataToUpdate.chefProfile = {
+        update: {
+          displayName: displayName.trim(),
+          bio: bio ? bio.trim() : null,
+          city: city ? city.trim() : null,
+          specialties: specialties || [],
+        }
+      };
+    }
+
     if (avatarPath !== undefined) {
       dataToUpdate.avatar = avatarPath;
       if (session.role === "CHEF") {
-        dataToUpdate.chefProfile = {
-          update: {
-            avatarUrl: avatarPath,
-          },
-        };
+        dataToUpdate.chefProfile.update.avatarUrl = avatarPath;
       }
     }
 

@@ -33,6 +33,12 @@ export async function GET() {
       },
       chefProfile: {
         select: {
+          id: true,
+          displayName: true,
+          bio: true,
+          specialties: true,
+          city: true,
+          status: true,
           _count: {
             select: {
               orders: true,
@@ -65,6 +71,16 @@ export async function GET() {
       role: user.role,
       createdAt: user.createdAt.toISOString(),
       ordersCount,
+      chefProfile: user.chefProfile
+        ? {
+            id: user.chefProfile.id,
+            displayName: user.chefProfile.displayName,
+            bio: user.chefProfile.bio,
+            specialties: user.chefProfile.specialties,
+            city: user.chefProfile.city,
+            status: user.chefProfile.status,
+          }
+        : null,
     },
   });
 }

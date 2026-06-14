@@ -175,6 +175,63 @@ export default function ProfilePage() {
         )}
       </div>
 
+      {/* Chef Profile Details */}
+      {user.role === "CHEF" && user.chefProfile && (
+        <div className="px-4 flex flex-col gap-2 mt-4">
+          <p className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider mb-1">
+            Chef profile details
+          </p>
+
+          <div className="flex flex-col gap-3.5 bg-white border border-gray-100 rounded-3xl p-5 shadow-[0_2px_24px_rgba(0,0,0,0.06)]">
+            <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+              <div>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Display Name</p>
+                <p className="text-[14px] font-extrabold text-gray-900 mt-0.5">{user.chefProfile.displayName}</p>
+              </div>
+              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                user.chefProfile.status === "APPROVED"
+                  ? "bg-green-50 text-green-600 border border-green-100"
+                  : user.chefProfile.status === "SUSPENDED"
+                  ? "bg-red-50 text-red-600 border border-red-100"
+                  : "bg-amber-50 text-amber-600 border border-amber-100"
+              }`}>
+                {user.chefProfile.status}
+              </span>
+            </div>
+
+            {user.chefProfile.city && (
+              <div>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">City</p>
+                <p className="text-[13px] font-semibold text-gray-800 mt-0.5">{user.chefProfile.city}</p>
+              </div>
+            )}
+
+            {user.chefProfile.bio && (
+              <div>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Bio</p>
+                <p className="text-[13px] text-gray-600 mt-0.5 whitespace-pre-wrap leading-relaxed">{user.chefProfile.bio}</p>
+              </div>
+            )}
+
+            {user.chefProfile.specialties && user.chefProfile.specialties.length > 0 && (
+              <div>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">Specialties</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {user.chefProfile.specialties.map((s) => (
+                    <span
+                      key={s}
+                      className="px-2.5 py-1 rounded-lg bg-orange-50 border border-orange-100 text-orange-600 text-[11px] font-bold"
+                    >
+                      {s.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Edit Profile */}
       <div className="px-4 mt-5">
         <Link href="/profile/edit"
@@ -183,6 +240,17 @@ export default function ProfilePage() {
           Edit Profile
         </Link>
       </div>
+
+      {/* Admin Dashboard */}
+      {user.role === "ADMIN" && (
+        <div className="px-4 mt-3">
+          <Link href="/admin"
+            className="w-full h-12 rounded-2xl bg-purple-600 text-white font-extrabold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-purple-700 shadow-[0_4px_14px_rgba(147,51,234,0.38)]">
+            <ShieldCheck size={15} />
+            Admin Dashboard
+          </Link>
+        </div>
+      )}
 
       {/* Sign out */}
       <div className="px-4 mt-3 mb-8">

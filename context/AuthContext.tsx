@@ -21,6 +21,14 @@ export interface AuthUser {
   chefId?: string;
   createdAt: string;
   ordersCount?: number;
+  chefProfile?: {
+    id: string;
+    displayName: string;
+    bio: string | null;
+    specialties: string[];
+    city: string | null;
+    status: "PENDING" | "APPROVED" | "SUSPENDED";
+  } | null;
 }
 
 interface AuthContextValue {

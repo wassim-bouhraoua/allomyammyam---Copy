@@ -7,30 +7,44 @@ import { ArrowLeft, Loader2, User, X, Trash2, Camera } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import BackToHome from "@/components/auth/back-to-home";
 
+const SPECIALTY_OPTIONS = [
+  "Moroccan",
+  "Indian",
+  "Japanese",
+  "Mediterranean",
+  "Seafood",
+  "Grill",
+  "Vegan",
+  "Pastry",
+  "Breakfast",
+  "Soups",
+];
+
 export default function EditProfilePage() {
   const router = useRouter();
   const { user, loading: authLoading, refreshUser } = useAuth();
 
-  // Form states
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [avatar, setAvatar] = useState<string | null>(null);
 
-  // UI / Preview states
+  const [displayName, setDisplayName] = useState("");
+  const [city, setCity] = useState("");
+  const [bio, setBio] = useState("");
+  const [specialties, setSpecialties] = useState<string[]>([]);
+
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  // Redirect if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
       router.push("/login?from=/profile/edit");
     }
   }, [user, authLoading, router]);
 
-  // Initialize form fields when user loads
   useEffect(() => {
     if (user) {
       setFirstName(user.firstName || "");
@@ -38,6 +52,13 @@ export default function EditProfilePage() {
       setPhoneNumber(user.phoneNumber || "");
       setAvatar(user.avatar || null);
       setPreviewUrl(user.avatar || null);
+      
+      if (user.chefProfile) {
+        setDisplayName(user.chefProfile.displayName || "");
+        setCity(user.chefProfile.city || "");
+        setBio(user.chefProfile.bio || "");
+        setSpecialties(user.chefProfile.specialties || []);
+      }
     }
   }, [user]);
 
@@ -54,14 +75,12 @@ export default function EditProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate type
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (!validTypes.includes(file.type)) {
       setFileError("Please upload a valid image (JPG, JPEG, PNG, WEBP).");
       return;
     }
 
-    // Validate size (2MB limit)
     const maxSize = 2 * 1024 * 1024;
     if (file.size > maxSize) {
       setFileError("Photo size must be less than 2MB.");
@@ -88,21 +107,49 @@ export default function EditProfilePage() {
     if (input) input.value = "";
   };
 
+  function toggleSpecialty(s: string) {
+    setSpecialties((prev) =>
+      prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]
+    );
+  }
+
+  const isFormValid = () => {
+    if (!user) return false;
+    if (!firstName.trim() || !lastName.trim()) return false;
+    if (user.role === "CHEF") {
+      if (!displayName.trim() || !city.trim() || specialties.length === 0) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!user || !isFormValid()) return;
+
     setError(null);
     setSaving(true);
 
     try {
+      const payload: any = {
+        firstName,
+        lastName,
+        phoneNumber: phoneNumber || null,
+        avatar,
+      };
+
+      if (user.role === "CHEF") {
+        payload.displayName = displayName;
+        payload.city = city;
+        payload.bio = bio;
+        payload.specialties = specialties;
+      }
+
       const res = await fetch("/api/auth/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          firstName,
-          lastName,
-          phoneNumber: phoneNumber || null,
-          avatar,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -112,7 +159,6 @@ export default function EditProfilePage() {
         return;
       }
 
-      // Refresh the context so new initials, names and avatar propagate everywhere
       await refreshUser();
       
       router.push("/profile");
@@ -141,7 +187,7 @@ export default function EditProfilePage() {
           <ArrowLeft size={18} />
         </Link>
         <h1 className="text-[18px] font-black text-gray-900 tracking-tight">Edit Profile</h1>
-        <div className="w-10" /> {/* Spacer to center the title */}
+        <div className="w-10" />
       </div>
 
       {/* Error banner */}
@@ -234,12 +280,88 @@ export default function EditProfilePage() {
           />
         </div>
 
+        {/* Chef Profile Section */}
+        {user?.role === "CHEF" && (
+          <>
+            <div className="border-t border-gray-100 pt-4 mt-2">
+              <p className="text-[11px] font-extrabold text-orange-500 uppercase tracking-wider mb-4 border-b border-gray-50 pb-2">
+                Chef Profile Details
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2.5">
+              <div className="flex flex-col gap-1.5">
+                <label className={labelCls}>Display Name</label>
+                <input
+                  type="text"
+                  required
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  placeholder="Chef name"
+                  className={inputCls}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className={labelCls}>City</label>
+                <input
+                  type="text"
+                  required
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="Casablanca"
+                  className={inputCls}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className={labelCls}>Bio</label>
+              <textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                rows={3}
+                placeholder="Tell customers about your cooking style…"
+                className="px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-[14px] text-gray-900 placeholder-gray-400 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors resize-none w-full"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className={labelCls}>Specialties</label>
+              <div className="flex flex-wrap gap-2">
+                {SPECIALTY_OPTIONS.map((s) => {
+                  const active = specialties.includes(s);
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => toggleSpecialty(s)}
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-semibold border transition-all active:scale-95 ${
+                        active
+                          ? "bg-orange-500 border-orange-500 text-white shadow-[0_2px_8px_rgba(255,138,0,0.30)]"
+                          : "bg-gray-50 border-gray-200 text-gray-600 hover:border-orange-200"
+                      }`}
+                    >
+                      {s}
+                      {active && <X size={11} />}
+                    </button>
+                  );
+                })}
+              </div>
+              {specialties.length > 0 && (
+                <p className="text-[11px] text-orange-500 font-semibold mt-1">
+                  {specialties.length} selected
+                </p>
+              )}
+            </div>
+          </>
+        )}
+
         {/* Submit Actions */}
-        <div className="flex flex-col gap-2 mt-2">
+        <div className="flex flex-col gap-2 mt-4">
           <button
             type="submit"
-            disabled={saving}
-            className="h-12 rounded-2xl bg-orange-500 text-white font-extrabold text-[15px] shadow-[0_4px_14px_rgba(255,138,0,0.38)] transition-all duration-150 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            disabled={saving || !isFormValid()}
+            className="h-12 rounded-2xl bg-orange-500 text-white font-extrabold text-[15px] shadow-[0_4px_14px_rgba(255,138,0,0.38)] transition-all duration-150 active:scale-[0.98] disabled:bg-gray-150 disabled:text-gray-400 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {saving ? (
               <>
