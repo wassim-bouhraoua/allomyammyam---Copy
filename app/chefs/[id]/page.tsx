@@ -20,6 +20,7 @@ interface ResolvedChef {
   totalReviews: number;
   isAvailable: boolean;
   createdAt: Date;
+  status: string;
 }
 
 export default async function ChefProfilePage({ params }: { params: Promise<{ id: string }> }) {
@@ -42,6 +43,7 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
       totalReviews: mockChef.totalReviews,
       isAvailable: mockChef.isAvailable,
       createdAt: mockChef.createdAt,
+      status: mockChef.status,
     };
     chefDishes = mockDishes.filter((d) => d.chefId === id);
   } else {
@@ -72,6 +74,7 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
         totalReviews: dbChef.totalReviews,
         isAvailable: dbChef.isAvailable,
         createdAt: dbChef.createdAt,
+        status: dbChef.status,
       };
       chefDishes = [];
     }
@@ -142,12 +145,23 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
                 </div>
 
                 {/* Name & Badge */}
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex flex-wrap items-center gap-2 mb-1 justify-center lg:justify-start">
                   <h1 className="text-[22px] lg:text-[26px] font-black text-gray-900 tracking-tight">
                     {chef.displayName}
                   </h1>
                   <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-orange-100 text-orange-600">
                     <ChefHat size={14} />
+                  </span>
+                  
+                  {/* Status badge */}
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                    chef.status === "APPROVED"
+                      ? "bg-green-50 text-green-600 border border-green-100"
+                      : chef.status === "SUSPENDED"
+                      ? "bg-red-50 text-red-600 border border-red-100"
+                      : "bg-amber-50 text-amber-600 border border-amber-100"
+                  }`}>
+                    {chef.status}
                   </span>
                 </div>
 
