@@ -430,239 +430,265 @@ const stockMax = dish.stockCount ?? undefined;
   const visibleReviews = showAllReviews ? MOCK_REVIEWS : MOCK_REVIEWS.slice(0, REVIEWS_PREVIEW);
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="max-w-md mx-auto bg-white min-h-screen flex flex-col relative shadow-[0_0_80px_rgba(0,0,0,0.07)]">
-        <main className="flex-1 overflow-y-auto pb-[100px]">
+    <div className="bg-[#FFF9F5] min-h-screen flex justify-center py-0 lg:py-12">
+      <div className="w-full max-w-md lg:max-w-5xl bg-white min-h-screen lg:min-h-0 lg:rounded-[32px] flex flex-col relative shadow-[0_0_80px_rgba(0,0,0,0.07)] lg:border lg:border-gray-100/50 overflow-hidden transition-all duration-300">
+        
+        {/* Floating Back Button */}
+        <Link
+          href="/dishes"
+          className="absolute top-5 left-4 w-10 h-10 rounded-2xl bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-[0_2px_12px_rgba(0,0,0,0.12)] transition-transform duration-150 active:scale-95 z-20"
+          aria-label="Go back"
+        >
+          <ArrowLeft size={18} className="text-gray-800" />
+        </Link>
 
-          {/* ── Hero ──────────────────────────────────────────────────────── */}
-          <div className="relative w-full bg-gray-100" style={{ height: 300 }}>
-            {dish.imageUrl ? (
-              <FadeImage src={dish.imageUrl} alt={dish.name} />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-6xl opacity-20">🍽️</span>
-              </div>
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-black/20" />
-
-            <Link
-              href="/dishes"
-              className="absolute top-5 left-4 w-10 h-10 rounded-2xl bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-[0_2px_12px_rgba(0,0,0,0.12)] transition-transform duration-150 active:scale-95"
-              aria-label="Go back"
-            >
-              <ArrowLeft size={18} className="text-gray-800" />
-            </Link>
-
-            <div className="absolute bottom-4 left-4">
-              <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-[11px] font-bold text-white uppercase tracking-wider">
-                {dish.category.replace(/_/g, " ")}
-              </span>
-            </div>
-
-            {!dish.isAvailable && (
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                <div className="bg-white rounded-2xl px-5 py-3 text-center shadow-lg">
-                  <AlertCircle size={22} className="text-orange-500 mx-auto mb-1" />
-                  <p className="text-[13px] font-extrabold text-gray-900">Sold Out</p>
-                  <p className="text-[11px] text-gray-500 mt-0.5">Check back later</p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* ── Content card ──────────────────────────────────────────────── */}
-          <div className="relative z-10 -mt-5 rounded-t-[28px] bg-white px-4 pt-5 pb-4">
-
-            {/* Title + spicy badge */}
-            <div className="flex items-start justify-between gap-3">
-              <h1 className="text-[21px] font-black text-gray-900 leading-tight flex-1">{dish.name}</h1>
-              {isSpicy && (
-                <span className="flex-shrink-0 mt-1 flex items-center gap-1 px-2 py-1 rounded-full bg-orange-50 border border-orange-100">
-                  <Flame size={11} className="text-orange-500" />
-                  <span className="text-[10px] font-bold text-orange-600">Spicy</span>
-                </span>
-              )}
-            </div>
-
-            {/* Rating */}
-            <div className="flex items-center gap-2 mt-1.5">
-              <Stars rating={dish.averageRating} size={12} />
-              <span className="text-[12px] font-bold text-gray-700">{dish.averageRating.toFixed(1)}</span>
-              <span className="text-[12px] text-gray-400">({dish.totalReviews.toLocaleString()} reviews)</span>
-            </div>
-
-            {/* Info pills */}
-            <div className="flex items-center flex-wrap gap-2 mt-3">
-              <InfoPill
-                icon={<Clock size={12} className="text-gray-400" />}
-                label={`Ready in ${dish.preparationTime} min`}
-              />
-              {availabilityLabel && (
-                <InfoPill
-                  icon={
-                    <CheckCircle2
-                      size={12}
-                      className={availabilityLabel.startsWith("Only") ? "text-red-400" : "text-orange-500"}
-                    />
-                  }
-                  label={availabilityLabel}
-                  accent
-                />
-              )}
-            </div>
-
-            <p className="mt-2.5 text-[11px] text-gray-400 font-medium">🍳 Prepared fresh after your order</p>
-
-            {/* ── Divider ───────────────────────────────────────────────── */}
-            <div className="my-5 h-px bg-gray-100" />
-
-            {/* ── Nutrition Facts — before description ──────────────────── */}
-            <NutritionSection nutrition={dish.nutrition} />
-
-            {/* ── Divider ───────────────────────────────────────────────── */}
-            <div className="my-5 h-px bg-gray-100" />
-
-            {dish.description && (
-              <p className="text-[13px] leading-relaxed text-gray-600">{dish.description}</p>
-            )}
-
-            {dish.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-3">
-                {dish.tags.map((tag) => <TagChip key={tag} label={tag} />)}
-              </div>
-            )}
-
-            {/* ── Divider ───────────────────────────────────────────────── */}
-            <div className="my-5 h-px bg-gray-100" />
-
-            {/* ── Chef ──────────────────────────────────────────────────── */}
-            <p className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider mb-2.5">
-              Your chef
-            </p>
-            <ChefRow chef={dish.chef} />
-
-            {/* ── Divider ───────────────────────────────────────────────── */}
-            <div className="my-5 h-px bg-gray-100" />
-
-            {/* ── Quantity + CTA ────────────────────────────────────────── */}
-            <div className="flex items-center justify-between mb-4">
-              <QuantityStepper value={qty} onChange={setQty} max={stockMax} />
-              <div className="text-right">
-                <p className="text-[11px] text-gray-400 font-medium">Total</p>
-                <p className="text-[20px] font-black text-orange-600 leading-none">
-                  {totalPrice} <span className="text-[13px]">MAD</span>
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={handleAddToCart}
-              disabled={!dish.isAvailable}
-              style={{ height: 52 }}
-              className={[
-                "w-full rounded-2xl flex items-center justify-center gap-2.5",
-                "font-extrabold text-[15px] text-white",
-                "transition-all duration-150 active:scale-[0.983]",
-                !dish.isAvailable
-                  ? "bg-gray-300 cursor-not-allowed"
-                  : added
-                  ? "bg-orange-400 shadow-[0_4px_18px_rgba(255,138,0,0.38)]"
-                  : "bg-orange-500 shadow-[0_4px_18px_rgba(255,138,0,0.40)]",
-              ].join(" ")}
-            >
-              {added ? (
-                <><CheckCircle2 size={18} /> Added to cart!</>
-              ) : !dish.isAvailable ? (
-                "Sold Out"
-              ) : (
-                <><ShoppingBag size={18} /> Add to Cart · {totalPrice} MAD</>
-              )}
-            </button>
-
-            {/* ── Divider ───────────────────────────────────────────────── */}
-            <div className="my-5 h-px bg-gray-100" />
-
-            {/* ── Reviews ───────────────────────────────────────────────── */}
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <h2 className="text-[15px] font-extrabold text-gray-900">Reviews</h2>
-                <p className="text-[11px] text-gray-400 mt-0.5">
-                  {dish.totalReviews.toLocaleString()} customer reviews
-                </p>
-              </div>
-              <div className="flex items-center gap-1 mt-0.5">
-                <Star size={12} className="text-amber-400 fill-amber-400" />
-                <span className="text-[13px] font-extrabold text-gray-800">{dish.averageRating.toFixed(1)}</span>
-              </div>
-            </div>
-
-            {/* Rating summary */}
-            <div className="flex items-center gap-4 mb-4">
-              <div className="text-center flex-shrink-0">
-                <p className="text-[36px] font-black text-gray-900 leading-none">{dish.averageRating.toFixed(1)}</p>
-                <div className="flex justify-center mt-1"><Stars rating={dish.averageRating} size={11} /></div>
-                <p className="text-[10px] text-gray-400 mt-0.5">{dish.totalReviews} reviews</p>
-              </div>
-              <div className="flex-1 flex flex-col gap-1.5">
-                {[5, 4, 3, 2, 1].map((star) => (
-                  <RatingBar key={star} label={`${star}`} pct={dist[star]} />
-                ))}
-              </div>
-            </div>
-
-            {/* Review cards */}
-            <div className="flex flex-col gap-2.5">
-              {visibleReviews.map((r) => <ReviewCard key={r.id} review={r} />)}
-            </div>
-
-            {/* Expand / collapse */}
-            {!showAllReviews && MOCK_REVIEWS.length > REVIEWS_PREVIEW && (
-              <button
-                onClick={() => setShowAllReviews(true)}
-                className="mt-3 w-full flex items-center justify-center gap-1.5 py-2.5 rounded-2xl border border-orange-200 bg-orange-50 transition-transform duration-150 active:scale-[0.98]"
-              >
-                <span className="text-[13px] font-bold text-orange-600">
-                  Show all {MOCK_REVIEWS.length} reviews
-                </span>
-                <ChevronRight size={14} className="text-orange-500" />
-              </button>
-            )}
-            {showAllReviews && (
-              <button
-                onClick={() => setShowAllReviews(false)}
-                className="mt-3 w-full flex items-center justify-center gap-1.5 py-2.5 rounded-2xl border border-gray-200 bg-gray-50 transition-transform duration-150 active:scale-[0.98]"
-              >
-                <span className="text-[13px] font-bold text-gray-500">Show less</span>
-              </button>
-            )}
-
-          </div>
-
-          {/* ── Related dishes ────────────────────────────────────────────── */}
-          {related.length > 0 && (
-            <div className="mt-2 mb-4 px-4">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <h2 className="text-[15px] font-extrabold text-gray-900">More like this</h2>
-                  <p className="text-[11px] text-gray-400 mt-0.5">Similar dishes you might enjoy</p>
-                </div>
-                <Link
-                  href={`/dishes?category=${dish.category}`}
-                  className="flex items-center gap-0.5 text-[12px] font-bold text-orange-500 transition-opacity active:opacity-60"
-                >
-                  See all <ChevronRight size={13} />
-                </Link>
-              </div>
-
-              <div className="flex gap-2 overflow-x-auto pb-3 -mx-4 px-4 scrollbar-none">
-                {related.map((d) => (
-                  <div key={d.id} className="flex-shrink-0 scale-[0.92] origin-top-left" style={{ marginRight: -10 }}>
-                    <DishCard dish={d} variant="vertical" />
+        <main className="flex-1 overflow-y-auto pb-[100px] lg:pb-6">
+          
+          {/* Top side-by-side layout for product details */}
+          <div className="flex flex-col lg:flex-row gap-6 p-4 lg:p-6">
+            
+            {/* LEFT SIDE: Image, Category, Description, Tags, Nutrition Facts */}
+            <div className="w-full lg:w-[48%] flex flex-col gap-6">
+              
+              {/* Dish Image */}
+              <div className="relative w-full h-[300px] lg:h-[360px] bg-gray-100 overflow-hidden flex-shrink-0 rounded-2xl shadow-sm">
+                {dish.imageUrl ? (
+                  <FadeImage src={dish.imageUrl} alt={dish.name} />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-6xl opacity-20">🍽️</span>
                   </div>
-                ))}
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-black/20" />
+                
+                {/* Category badge */}
+                <div className="absolute bottom-4 left-4">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-[11px] font-bold text-white uppercase tracking-wider">
+                    {dish.category.replace(/_/g, " ")}
+                  </span>
+                </div>
+
+                {!dish.isAvailable && (
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-2xl">
+                    <div className="bg-white rounded-2xl px-5 py-3 text-center shadow-lg">
+                      <AlertCircle size={22} className="text-orange-500 mx-auto mb-1" />
+                      <p className="text-[13px] font-extrabold text-gray-900">Sold Out</p>
+                      <p className="text-[11px] text-gray-500 mt-0.5">Check back later</p>
+                    </div>
+                  </div>
+                )}
               </div>
+
+              {/* Description & Tags */}
+              {dish.description && (
+                <div className="bg-white rounded-2xl p-5 border border-gray-100/80 shadow-[0_2px_18px_rgba(0,0,0,0.03)]">
+                  <h2 className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider mb-2">
+                    About this dish
+                  </h2>
+                  <p className="text-[13px] leading-relaxed text-gray-650">{dish.description}</p>
+                  
+                  {dish.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-3.5">
+                      {dish.tags.map((tag) => <TagChip key={tag} label={tag} />)}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Nutrition Facts */}
+              <div className="bg-white rounded-2xl p-5 border border-gray-100/80 shadow-[0_2px_18px_rgba(0,0,0,0.03)]">
+                <NutritionSection nutrition={dish.nutrition} />
+              </div>
+
             </div>
-          )}
+
+            {/* RIGHT SIDE: Product Info, Chef, Add to Cart */}
+            <div className="flex-1 flex flex-col gap-6">
+              
+              {/* Title, spicy badge, rating info */}
+              <div className="bg-white rounded-2xl p-5 border border-gray-100/80 shadow-[0_2px_18px_rgba(0,0,0,0.03)]">
+                <div className="flex items-start justify-between gap-3">
+                  <h1 className="text-[21px] lg:text-[25px] font-black text-gray-900 leading-tight flex-1">
+                    {dish.name}
+                  </h1>
+                  {isSpicy && (
+                    <span className="flex-shrink-0 mt-1 flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-50 border border-orange-100">
+                      <Flame size={11} className="text-orange-500" />
+                      <span className="text-[10px] font-bold text-orange-600">Spicy</span>
+                    </span>
+                  )}
+                </div>
+
+                {/* Rating */}
+                <div className="flex items-center gap-2 mt-2">
+                  <Stars rating={dish.averageRating} size={12} />
+                  <span className="text-[13px] font-bold text-gray-700">{dish.averageRating.toFixed(1)}</span>
+                  <span className="text-[12px] text-gray-400">({dish.totalReviews.toLocaleString()} reviews)</span>
+                </div>
+
+                {/* Info pills */}
+                <div className="flex items-center flex-wrap gap-2 mt-3.5">
+                  <InfoPill
+                    icon={<Clock size={12} className="text-gray-400" />}
+                    label={`Ready in ${dish.preparationTime} min`}
+                  />
+                  {availabilityLabel && (
+                    <InfoPill
+                      icon={
+                        <CheckCircle2
+                          size={12}
+                          className={availabilityLabel.startsWith("Only") ? "text-red-400" : "text-orange-500"}
+                        />
+                      }
+                      label={availabilityLabel}
+                      accent
+                    />
+                  )}
+                </div>
+                <p className="mt-2.5 text-[11px] text-gray-400 font-semibold">🍳 Prepared fresh after your order</p>
+              </div>
+
+              {/* Chef Profile Card */}
+              <div className="bg-white rounded-2xl p-5 border border-gray-100/80 shadow-[0_2px_18px_rgba(0,0,0,0.03)]">
+                <p className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider mb-2.5">
+                  Your chef
+                </p>
+                <ChefRow chef={dish.chef} />
+              </div>
+
+              {/* Quantity Selector, Price & Add to Cart Action */}
+              <div className="bg-white rounded-2xl p-5 border border-gray-100/80 shadow-[0_2px_18px_rgba(0,0,0,0.03)] flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <QuantityStepper value={qty} onChange={setQty} max={stockMax} />
+                  <div className="text-right">
+                    <p className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">Total Price</p>
+                    <p className="text-[22px] font-black text-orange-600 leading-none mt-0.5">
+                      {totalPrice} <span className="text-[13px] font-extrabold">MAD</span>
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleAddToCart}
+                  disabled={!dish.isAvailable}
+                  style={{ height: 52 }}
+                  className={[
+                    "w-full rounded-2xl flex items-center justify-center gap-2.5",
+                    "font-extrabold text-[15px] text-white transition-all duration-150 active:scale-[0.983]",
+                    !dish.isAvailable
+                      ? "bg-gray-300 cursor-not-allowed"
+                      : added
+                      ? "bg-orange-400 shadow-[0_4px_18px_rgba(255,138,0,0.38)]"
+                      : "bg-orange-500 shadow-[0_4px_18px_rgba(255,138,0,0.40)]",
+                  ].join(" ")}
+                >
+                  {added ? (
+                    <><CheckCircle2 size={18} /> Added to cart!</>
+                  ) : !dish.isAvailable ? (
+                    "Sold Out"
+                  ) : (
+                    <><ShoppingBag size={18} /> Add to Cart · {totalPrice} MAD</>
+                  )}
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* BOTTOM SECTION: Reviews & Related Dishes (spanning full width) */}
+          <div className="px-4 lg:px-6 flex flex-col gap-6">
+            
+            {/* Divider */}
+            <div className="h-px bg-gray-100" />
+
+            {/* Reviews Block */}
+            <div className="bg-white rounded-2xl p-5 border border-gray-100/80 shadow-[0_2px_18px_rgba(0,0,0,0.03)]">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h2 className="text-[15px] font-extrabold text-gray-900">Reviews</h2>
+                  <p className="text-[11px] text-gray-400 mt-0.5">
+                    {dish.totalReviews.toLocaleString()} customer reviews
+                  </p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Star size={12} className="text-amber-400 fill-amber-400" />
+                  <span className="text-[13px] font-extrabold text-gray-800">{dish.averageRating.toFixed(1)}</span>
+                </div>
+              </div>
+
+              {/* Rating summary */}
+              <div className="flex flex-col md:flex-row gap-6 mb-5">
+                <div className="text-center flex-shrink-0 bg-gray-50 border border-gray-100 rounded-2xl p-3 flex flex-col items-center justify-center min-w-[110px]">
+                  <p className="text-[32px] font-black text-gray-900 leading-none">
+                    {dish.averageRating.toFixed(1)}
+                  </p>
+                  <div className="flex justify-center mt-1.5"><Stars rating={dish.averageRating} size={10} /></div>
+                  <p className="text-[9px] text-gray-400 mt-1 font-semibold uppercase tracking-wider">
+                    {dish.totalReviews} reviews
+                  </p>
+                </div>
+                <div className="flex-1 flex flex-col gap-1.5 justify-center">
+                  {[5, 4, 3, 2, 1].map((star) => (
+                    <RatingBar key={star} label={`${star}`} pct={dist[star]} />
+                  ))}
+                </div>
+              </div>
+
+              {/* Review cards list */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                {visibleReviews.map((r) => <ReviewCard key={r.id} review={r} />)}
+              </div>
+
+              {/* Expand / collapse reviews button */}
+              {!showAllReviews && MOCK_REVIEWS.length > REVIEWS_PREVIEW && (
+                <button
+                  onClick={() => setShowAllReviews(true)}
+                  className="mt-3 w-full flex items-center justify-center gap-1.5 py-2.5 rounded-2xl border border-orange-200 bg-orange-50 transition-transform duration-150 active:scale-[0.98]"
+                >
+                  <span className="text-[13px] font-bold text-orange-600">
+                    Show all {MOCK_REVIEWS.length} reviews
+                  </span>
+                  <ChevronRight size={14} className="text-orange-500" />
+                </button>
+              )}
+              {showAllReviews && (
+                <button
+                  onClick={() => setShowAllReviews(false)}
+                  className="mt-3 w-full flex items-center justify-center gap-1.5 py-2.5 rounded-2xl border border-gray-200 bg-gray-50 transition-transform duration-150 active:scale-[0.98]"
+                >
+                  <span className="text-[13px] font-bold text-gray-500">Show less</span>
+                </button>
+              )}
+            </div>
+
+            {/* Related dishes / More Like This */}
+            {related.length > 0 && (
+              <div className="border-t border-gray-100 pt-6 pb-2">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 className="text-[15px] font-extrabold text-gray-900">More like this</h2>
+                    <p className="text-[11px] text-gray-400 mt-0.5">Similar dishes you might enjoy</p>
+                  </div>
+                  <Link
+                    href={`/dishes?category=${dish.category}`}
+                    className="flex items-center gap-0.5 text-[12px] font-bold text-orange-500 transition-opacity active:opacity-60"
+                  >
+                    See all <ChevronRight size={13} />
+                  </Link>
+                </div>
+
+                <div className="flex gap-3.5 overflow-x-auto pb-4 -mx-4 px-4 lg:mx-0 lg:px-0 scrollbar-none">
+                  {related.map((d) => (
+                    <div key={d.id} className="flex-shrink-0">
+                      <DishCard dish={d} variant="vertical" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          </div>
 
         </main>
         <BottomNav />
