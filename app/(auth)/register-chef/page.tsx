@@ -150,49 +150,77 @@ export default function RegisterChefPage() {
   }
 
   const inputClass =
-    "h-12 px-4 rounded-2xl bg-gray-50 border border-gray-200 text-[14px] text-gray-900 placeholder-gray-400 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors";
+    "h-12 px-4 rounded-2xl bg-gray-50 border border-gray-200 text-[14px] text-gray-900 placeholder-gray-400 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors w-full";
 
   const labelClass = "text-[11px] font-bold text-gray-500 uppercase tracking-wider";
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col px-4 pt-4 pb-8">
-      <BackToHome />
+    <div className="flex-1 flex flex-col lg:flex-row min-h-screen lg:min-h-0">
+      {/* Left side: Premium Welcome Graphic (Hidden on mobile) */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-orange-400 to-orange-600 text-white p-10 flex-col justify-between relative overflow-hidden select-none">
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
+        <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-black/10 rounded-full blur-3xl" />
 
-      {/* Header */}
-      <div className="flex flex-col items-center pt-6 pb-7">
-        <div className="w-14 h-14 rounded-2xl bg-orange-500 flex items-center justify-center shadow-[0_4px_18px_rgba(255,138,0,0.40)] mb-4">
-          <ChefHat size={24} className="text-white" />
+        <div className="flex items-center gap-2 relative z-10">
+          <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+            <ChefHat size={18} className="text-white" />
+          </div>
+          <span className="font-black text-[18px] tracking-tight">AlloMyamMyam</span>
         </div>
-        <h1 className="text-[22px] font-black text-gray-900">Become a Chef</h1>
-        <p className="text-[13px] text-gray-400 mt-1 text-center">
-          Share your homemade dishes and grow your customer base
+
+        <div className="my-auto relative z-10">
+          <h2 className="text-[32px] font-black leading-tight tracking-tight mb-4">
+            Cook. Share. Earn.
+          </h2>
+          <p className="text-[14px] text-orange-50/90 leading-relaxed font-medium max-w-sm">
+            Become a partner chef, showcase your culinary specialties, manage your kitchen, and reach local hungry customers.
+          </p>
+        </div>
+
+        <p className="text-[11px] text-orange-100/70 font-semibold relative z-10">
+          © 2026 AlloMyamMyam. All rights reserved.
         </p>
       </div>
 
-      {/* Error */}
-      {error && (
-        <div className="mb-4 px-4 py-3 rounded-2xl bg-red-50 border border-red-100">
-          <p className="text-[12px] font-semibold text-red-600">{error}</p>
+      {/* Right side: Chef Registration Form */}
+      <form onSubmit={handleSubmit} className="w-full lg:w-1/2 flex flex-col justify-center px-4 py-8 lg:p-10 lg:overflow-y-auto">
+        <BackToHome />
+
+        {/* Header */}
+        <div className="flex flex-col items-center pt-8 pb-6">
+          <div className="w-16 h-16 rounded-3xl bg-orange-500 flex lg:hidden items-center justify-center shadow-[0_6px_20px_rgba(255,138,0,0.40)] mb-5">
+            <ChefHat size={28} className="text-white" />
+          </div>
+          <h1 className="text-[24px] font-black text-gray-900 tracking-tight">Become a Chef</h1>
+          <p className="text-[13px] text-gray-400 mt-1.5 text-center">
+            Share your homemade dishes and grow your customer base
+          </p>
         </div>
-      )}
 
-      {/* Google Sign-in Card */}
-      <div className="bg-white rounded-3xl shadow-[0_2px_20px_rgba(0,0,0,0.06)] border border-gray-100 p-5 mb-3 flex flex-col gap-3">
-        <div id="google-signin-button" className="w-full flex justify-center min-h-[40px]" />
-        <div className="flex items-center gap-2.5 my-0.5">
-          <div className="flex-1 h-px bg-gray-100" />
-          <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">or register with email</span>
-          <div className="flex-1 h-px bg-gray-100" />
+        {/* Error */}
+        {error && (
+          <div className="mb-4 px-4 py-3 rounded-2xl bg-red-50 border border-red-100 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
+            <p className="text-[12px] font-semibold text-red-600">{error}</p>
+          </div>
+        )}
+
+        {/* Google Sign-in Card */}
+        <div className="bg-white rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-gray-100 p-5 mb-3 flex flex-col gap-3">
+          <div id="google-signin-button" className="w-full flex justify-center min-h-[40px]" />
+          <div className="flex items-center gap-2.5 my-0.5">
+            <div className="flex-1 h-px bg-gray-100" />
+            <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">or register with email</span>
+            <div className="flex-1 h-px bg-gray-100" />
+          </div>
         </div>
-      </div>
 
-      {/* Personal info card */}
-      <div className="bg-white rounded-3xl shadow-[0_2px_20px_rgba(0,0,0,0.06)] border border-gray-100 p-5">
-        <p className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider mb-3">
-          Personal Info
-        </p>
+        {/* Personal info card */}
+        <div className="bg-white rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-gray-100 p-5 flex flex-col gap-4">
+          <p className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider">
+            Personal Info
+          </p>
 
-        <div className="flex flex-col gap-3">
           <div className="grid grid-cols-2 gap-2.5">
             <div className="flex flex-col gap-1.5">
               <label className={labelClass}>First name</label>
@@ -314,15 +342,13 @@ export default function RegisterChefPage() {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Chef profile card */}
-      <div className="bg-white rounded-3xl shadow-[0_2px_20px_rgba(0,0,0,0.06)] border border-gray-100 p-5 mt-3">
-        <p className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider mb-3">
-          Chef Profile
-        </p>
+        {/* Chef profile card */}
+        <div className="bg-white rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-gray-100 p-5 mt-4 flex flex-col gap-4">
+          <p className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider">
+            Chef Profile
+          </p>
 
-        <div className="flex flex-col gap-3">
           <div className="grid grid-cols-2 gap-2.5">
             <div className="flex flex-col gap-1.5">
               <label className={labelClass}>Display name</label>
@@ -401,22 +427,21 @@ export default function RegisterChefPage() {
             )}
           </button>
 
-          <p className="text-[11px] text-gray-400 text-center">
+          <p className="text-[11px] text-gray-400 text-center font-medium">
             Your chef profile will be reviewed before customers can place orders.
           </p>
         </div>
-      </div>
 
-      {/* Footer links */}
-      <div className="mt-5 flex flex-col items-center gap-2 pb-4">
-        <p className="text-[13px] text-gray-500">
-          Already have an account?{" "}
-          <Link href="/login" className="text-orange-500 font-bold">
-            Sign in
-          </Link>
-        </p>
-      </div>
-
-    </form>
+        {/* Footer links */}
+        <div className="mt-5 flex flex-col items-center gap-2 pb-8">
+          <p className="text-[13px] text-gray-500">
+            Already have an account?{" "}
+            <Link href="/login" className="text-orange-500 font-bold">
+              Sign in
+            </Link>
+          </p>
+        </div>
+      </form>
+    </div>
   );
 }

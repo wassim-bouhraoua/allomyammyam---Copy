@@ -82,10 +82,10 @@ export default function ProfilePage() {
       <BackToHome />
 
       {/* Banner */}
-      <div className="bg-gradient-to-br from-orange-400 to-orange-600 px-5 pt-10 pb-20 text-white">
+      <div className="bg-gradient-to-br from-orange-400 to-orange-600 px-5 pt-10 pb-20 lg:pb-16 text-white lg:rounded-2xl lg:mx-6 lg:mt-6">
         <p className="text-[12px] font-bold text-orange-100 uppercase tracking-wider mb-2">My Profile</p>
         <div className="flex flex-col gap-1.5">
-          <h1 className="text-[26px] font-black leading-none tracking-tight">
+          <h1 className="text-[26px] lg:text-[32px] font-black leading-none tracking-tight">
             {user.firstName} {user.lastName}
           </h1>
           
@@ -116,151 +116,158 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Identity card — overlaps banner */}
-      <div className="px-4 -mt-12 mb-5">
-        <div className="bg-white rounded-3xl shadow-[0_4px_28px_rgba(0,0,0,0.10)] border border-gray-50 p-5">
-          <div className="flex items-center gap-4">
-            {/* Avatar */}
-            <div className="w-[72px] h-[72px] rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center flex-shrink-0 shadow-[0_4px_16px_rgba(255,138,0,0.40)] overflow-hidden relative">
-              {user.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt={`${user.firstName} ${user.lastName}`}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className="text-[28px] font-black text-white select-none leading-none">
-                  {initials}
+      {/* Profile Content Wrapper */}
+      <div className="px-4 lg:px-6 pb-8 lg:pb-6 flex-1">
+        <div className="flex flex-col lg:flex-row gap-6 -mt-12 lg:-mt-8 relative z-10">
+          
+          {/* Left Column (Sidebar-like Card) */}
+          <div className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-4">
+            
+            {/* Identity card */}
+            <div className="bg-white rounded-3xl shadow-[0_4px_28px_rgba(0,0,0,0.10)] border border-gray-50 p-5 flex flex-col items-center lg:items-start text-center lg:text-left gap-4">
+              <div className="w-[72px] h-[72px] rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center flex-shrink-0 shadow-[0_4px_16px_rgba(255,138,0,0.40)] overflow-hidden relative">
+                {user.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt={`${user.firstName} ${user.lastName}`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-[28px] font-black text-white select-none leading-none">
+                    {initials}
+                  </span>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider ${ROLE_COLORS[user.role] ?? "bg-gray-50 text-gray-600 border-gray-100"}`}>
+                  {user.role === "CHEF"  && <ChefHat    size={9} />}
+                  {user.role === "ADMIN" && <ShieldCheck size={9} />}
+                  {ROLE_LABELS[user.role] ?? user.role}
                 </span>
+                <p className="text-[13px] text-gray-400 mt-2 truncate w-full">{user.email}</p>
+              </div>
+            </div>
+
+            {/* Actions Card */}
+            <div className="bg-white lg:shadow-[0_4px_20px_rgba(0,0,0,0.05)] lg:border lg:border-gray-50 lg:p-5 lg:rounded-3xl flex flex-col gap-3">
+              <Link href="/profile/edit"
+                className="w-full h-12 rounded-2xl bg-orange-500 text-white font-extrabold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-orange-600 shadow-[0_4px_14px_rgba(255,138,0,0.38)]">
+                <Pencil size={15} />
+                Edit Profile
+              </Link>
+
+              {user.role === "ADMIN" && (
+                <Link href="/admin"
+                  className="w-full h-12 rounded-2xl bg-purple-600 text-white font-extrabold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-purple-700 shadow-[0_4px_14px_rgba(147,51,234,0.38)]">
+                  <ShieldCheck size={15} />
+                  Admin Dashboard
+                </Link>
               )}
+
+              <button onClick={handleLogout}
+                className="w-full h-12 rounded-2xl bg-gray-50 border border-gray-200 text-gray-600 font-bold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-gray-100">
+                <LogOut size={15} className="text-gray-400" />
+                Sign Out
+              </button>
             </div>
-            <div className="flex-1 min-w-0">
-              <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider ${ROLE_COLORS[user.role] ?? "bg-gray-50 text-gray-600 border-gray-100"}`}>
-                {user.role === "CHEF"  && <ChefHat    size={9} />}
-                {user.role === "ADMIN" && <ShieldCheck size={9} />}
-                {ROLE_LABELS[user.role] ?? user.role}
-              </span>
-              <p className="text-[13px] text-gray-400 mt-2 truncate">{user.email}</p>
-            </div>
+
           </div>
-        </div>
-      </div>
 
-      {/* Details */}
-      <div className="px-4 flex flex-col gap-2">
-        <p className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider mb-1">
-          Account details
-        </p>
+          {/* Right Column (Content Cards) */}
+          <div className="flex-1 flex flex-col gap-4">
+            
+            {/* Account Details */}
+            <div className="flex flex-col gap-2">
+              <p className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider mb-1 pl-1">
+                Account details
+              </p>
 
-        <div className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3.5">
-          <div className="w-8 h-8 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center flex-shrink-0">
-            <Mail size={14} className="text-orange-500" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Email</p>
-            <p className="text-[13px] font-semibold text-gray-900 truncate mt-0.5">{user.email}</p>
-          </div>
-        </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3.5">
+                  <div className="w-8 h-8 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center flex-shrink-0">
+                    <Mail size={14} className="text-orange-500" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Email</p>
+                    <p className="text-[13px] font-semibold text-gray-900 truncate mt-0.5">{user.email}</p>
+                  </div>
+                </div>
 
-        {user.phoneNumber && (
-          <div className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3.5">
-            <div className="w-8 h-8 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center flex-shrink-0">
-              <Phone size={14} className="text-orange-500" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Phone</p>
-              <p className="text-[13px] font-semibold text-gray-900 truncate mt-0.5">{user.phoneNumber}</p>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Chef Profile Details */}
-      {user.role === "CHEF" && user.chefProfile && (
-        <div className="px-4 flex flex-col gap-2 mt-4">
-          <p className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider mb-1">
-            Chef profile details
-          </p>
-
-          <div className="flex flex-col gap-3.5 bg-white border border-gray-100 rounded-3xl p-5 shadow-[0_2px_24px_rgba(0,0,0,0.06)]">
-            <div className="flex justify-between items-center border-b border-gray-100 pb-3">
-              <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Display Name</p>
-                <p className="text-[14px] font-extrabold text-gray-900 mt-0.5">{user.chefProfile.displayName}</p>
+                {user.phoneNumber && (
+                  <div className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3.5">
+                    <div className="w-8 h-8 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center flex-shrink-0">
+                      <Phone size={14} className="text-orange-500" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Phone</p>
+                      <p className="text-[13px] font-semibold text-gray-900 truncate mt-0.5">{user.phoneNumber}</p>
+                    </div>
+                  </div>
+                )}
               </div>
-              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                user.chefProfile.status === "APPROVED"
-                  ? "bg-green-50 text-green-600 border border-green-100"
-                  : user.chefProfile.status === "SUSPENDED"
-                  ? "bg-red-50 text-red-600 border border-red-100"
-                  : "bg-amber-50 text-amber-600 border border-amber-100"
-              }`}>
-                {user.chefProfile.status}
-              </span>
             </div>
 
-            {user.chefProfile.city && (
-              <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">City</p>
-                <p className="text-[13px] font-semibold text-gray-800 mt-0.5">{user.chefProfile.city}</p>
-              </div>
-            )}
+            {/* Chef Profile Details */}
+            {user.role === "CHEF" && user.chefProfile && (
+              <div className="flex flex-col gap-2">
+                <p className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider mb-1 pl-1">
+                  Chef profile details
+                </p>
 
-            {user.chefProfile.bio && (
-              <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Bio</p>
-                <p className="text-[13px] text-gray-600 mt-0.5 whitespace-pre-wrap leading-relaxed">{user.chefProfile.bio}</p>
-              </div>
-            )}
-
-            {user.chefProfile.specialties && user.chefProfile.specialties.length > 0 && (
-              <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">Specialties</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {user.chefProfile.specialties.map((s) => (
-                    <span
-                      key={s}
-                      className="px-2.5 py-1 rounded-lg bg-orange-50 border border-orange-100 text-orange-600 text-[11px] font-bold"
-                    >
-                      {s.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}
+                <div className="flex flex-col gap-3.5 bg-white border border-gray-100 rounded-3xl p-5 shadow-[0_2px_24px_rgba(0,0,0,0.06)]">
+                  <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Display Name</p>
+                      <p className="text-[14px] font-extrabold text-gray-900 mt-0.5">{user.chefProfile.displayName}</p>
+                    </div>
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                      user.chefProfile.status === "APPROVED"
+                        ? "bg-green-50 text-green-600 border border-green-100"
+                        : user.chefProfile.status === "SUSPENDED"
+                        ? "bg-red-50 text-red-600 border border-red-100"
+                        : "bg-amber-50 text-amber-600 border border-amber-100"
+                    }`}>
+                      {user.chefProfile.status}
                     </span>
-                  ))}
+                  </div>
+
+                  {user.chefProfile.city && (
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">City</p>
+                      <p className="text-[13px] font-semibold text-gray-800 mt-0.5">{user.chefProfile.city}</p>
+                    </div>
+                  )}
+
+                  {user.chefProfile.bio && (
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Bio</p>
+                      <p className="text-[13px] text-gray-650 mt-0.5 whitespace-pre-wrap leading-relaxed">{user.chefProfile.bio}</p>
+                    </div>
+                  )}
+
+                  {user.chefProfile.specialties && user.chefProfile.specialties.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">Specialties</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {user.chefProfile.specialties.map((s) => (
+                          <span
+                            key={s}
+                            className="px-2.5 py-1 rounded-lg bg-orange-50 border border-orange-100 text-orange-600 text-[11px] font-bold"
+                          >
+                            {s.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
+
           </div>
+
         </div>
-      )}
-
-      {/* Edit Profile */}
-      <div className="px-4 mt-5">
-        <Link href="/profile/edit"
-          className="w-full h-12 rounded-2xl bg-orange-500 text-white font-extrabold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-orange-600 shadow-[0_4px_14px_rgba(255,138,0,0.38)]">
-          <Pencil size={15} />
-          Edit Profile
-        </Link>
       </div>
-
-      {/* Admin Dashboard */}
-      {user.role === "ADMIN" && (
-        <div className="px-4 mt-3">
-          <Link href="/admin"
-            className="w-full h-12 rounded-2xl bg-purple-600 text-white font-extrabold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-purple-700 shadow-[0_4px_14px_rgba(147,51,234,0.38)]">
-            <ShieldCheck size={15} />
-            Admin Dashboard
-          </Link>
-        </div>
-      )}
-
-      {/* Sign out */}
-      <div className="px-4 mt-3 mb-8">
-        <button onClick={handleLogout}
-          className="w-full h-12 rounded-2xl bg-gray-50 border border-gray-200 text-gray-600 font-bold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-gray-100">
-          <LogOut size={15} className="text-gray-400" />
-          Sign Out
-        </button>
-      </div>
-
     </div>
   );
 }

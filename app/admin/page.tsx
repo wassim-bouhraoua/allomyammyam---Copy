@@ -108,7 +108,7 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-full px-4 pt-4 pb-8">
+    <div className="w-full max-w-6xl mx-auto flex flex-col min-h-full px-4 pt-4 pb-8 transition-all duration-300">
       <BackToHome />
       
       {/* Header */}
@@ -146,93 +146,96 @@ export default function AdminDashboardPage() {
             <Loader2 className="animate-spin text-orange-500" size={24} />
           </div>
         ) : chefs.length > 0 ? (
-          chefs.map((chef) => {
-            const isUpdating = updatingId === chef.id;
-            const registrationDate = new Date(chef.createdAt).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            });
-            const specialtiesLabel = chef.specialties
-              .map((s) => s.toLowerCase())
-              .join(", ");
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {chefs.map((chef) => {
+              const isUpdating = updatingId === chef.id;
+              const registrationDate = new Date(chef.createdAt).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              });
+              const specialtiesLabel = chef.specialties
+                .map((s) => s.toLowerCase())
+                .join(", ");
 
-            return (
-              <div
-                key={chef.id}
-                className="bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_2px_24px_rgba(0,0,0,0.05)] flex flex-col gap-4"
-              >
-                {/* Chef Bio / Info block */}
-                <div className="flex items-start gap-3.5">
-                  <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center flex-shrink-0 relative overflow-hidden font-black text-orange-600">
-                    {chef.user.avatar ? (
-                      <img src={chef.user.avatar} alt={chef.displayName} className="w-full h-full object-cover" />
-                    ) : (
-                      chef.displayName[0]?.toUpperCase()
-                    )}
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 justify-between">
-                      <h3 className="text-[14px] font-extrabold text-gray-900 truncate">
-                        {chef.displayName}
-                      </h3>
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider ${
-                        chef.status === "APPROVED"
-                          ? "bg-green-50 text-green-600 border border-green-100"
-                          : chef.status === "SUSPENDED"
-                          ? "bg-red-50 text-red-600 border border-red-100"
-                          : "bg-amber-50 text-amber-600 border border-amber-100"
-                      }`}>
-                        {chef.status}
-                      </span>
+              return (
+                <div
+                  key={chef.id}
+                  className="bg-white rounded-3xl p-4 border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.04)] flex flex-col justify-between gap-3"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center flex-shrink-0 relative overflow-hidden font-black text-[13px] text-orange-600">
+                      {chef.user.avatar ? (
+                        <img src={chef.user.avatar} alt={chef.displayName} className="w-full h-full object-cover" />
+                      ) : (
+                        chef.displayName[0]?.toUpperCase()
+                      )}
                     </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 justify-between">
+                        <h3 className="text-[13px] font-extrabold text-gray-900 truncate">
+                          {chef.displayName}
+                        </h3>
+                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${
+                          chef.status === "APPROVED"
+                            ? "bg-green-50 text-green-600 border border-green-100"
+                            : chef.status === "SUSPENDED"
+                            ? "bg-red-50 text-red-600 border border-red-100"
+                            : "bg-amber-50 text-amber-600 border border-amber-100"
+                        }`}>
+                          {chef.status}
+                        </span>
+                      </div>
 
-                    <p className="text-[12px] text-gray-500 font-semibold truncate mt-0.5">
-                      {chef.user.firstName} {chef.user.lastName} ({chef.user.email})
-                    </p>
-                    {chef.city && (
-                      <p className="text-[11px] text-gray-400 font-medium mt-1">
-                        Location: {chef.city}
+                      <p className="text-[11px] text-gray-500 font-semibold truncate mt-0.5">
+                        {chef.user.firstName} {chef.user.lastName}
                       </p>
-                    )}
-                    {chef.specialties.length > 0 && (
-                      <p className="text-[11px] text-gray-400 font-medium mt-0.5 truncate">
-                        Specialties: <span className="capitalize">{specialtiesLabel}</span>
+                      <p className="text-[10px] text-gray-400 truncate">{chef.user.email}</p>
+                      
+                      {chef.city && (
+                        <p className="text-[10px] text-gray-400 font-medium mt-1">
+                          Location: <span className="text-gray-700 font-semibold">{chef.city}</span>
+                        </p>
+                      )}
+                      {chef.specialties.length > 0 && (
+                        <p className="text-[10px] text-gray-400 font-medium mt-0.5 truncate">
+                          Specialties: <span className="capitalize text-gray-700 font-semibold">{specialtiesLabel}</span>
+                        </p>
+                      )}
+                      <p className="text-[10px] text-gray-400 font-medium mt-0.5 flex items-center gap-1">
+                        <Clock size={10} /> {registrationDate}
                       </p>
+                    </div>
+                  </div>
+
+                  {/* Actions row */}
+                  <div className="flex items-center gap-2 border-t border-gray-50 pt-2.5 mt-0.5">
+                    {(chef.status === "PENDING" || chef.status === "SUSPENDED") && (
+                      <button
+                        onClick={() => handleUpdateStatus(chef.id, "APPROVED")}
+                        disabled={isUpdating}
+                        className="flex-1 h-8 rounded-xl bg-green-500 text-white font-extrabold text-[11px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all disabled:opacity-50"
+                      >
+                        <UserCheck size={12} />
+                        Approve
+                      </button>
                     )}
-                    <p className="text-[11px] text-gray-400 font-medium mt-0.5 flex items-center gap-1">
-                      <Clock size={11} /> Registered: {registrationDate}
-                    </p>
+                    {chef.status === "APPROVED" && (
+                      <button
+                        onClick={() => handleUpdateStatus(chef.id, "SUSPENDED")}
+                        disabled={isUpdating}
+                        className="flex-1 h-8 rounded-xl bg-red-500 text-white font-extrabold text-[11px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all disabled:opacity-50"
+                      >
+                        <UserX size={12} />
+                        Suspend
+                      </button>
+                    )}
                   </div>
                 </div>
-
-                {/* Actions row */}
-                <div className="flex items-center gap-2 border-t border-gray-50 pt-3 mt-1">
-                  {(chef.status === "PENDING" || chef.status === "SUSPENDED") && (
-                    <button
-                      onClick={() => handleUpdateStatus(chef.id, "APPROVED")}
-                      disabled={isUpdating}
-                      className="flex-1 h-9 rounded-xl bg-green-500 text-white font-extrabold text-[12px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all disabled:opacity-50"
-                    >
-                      <UserCheck size={13} />
-                      Approve
-                    </button>
-                  )}
-                  {chef.status === "APPROVED" && (
-                    <button
-                      onClick={() => handleUpdateStatus(chef.id, "SUSPENDED")}
-                      disabled={isUpdating}
-                      className="flex-1 h-9 rounded-xl bg-red-500 text-white font-extrabold text-[12px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all disabled:opacity-50"
-                    >
-                      <UserX size={13} />
-                      Suspend
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })
+              );
+            })}
+          </div>
         ) : (
           <div className="bg-white rounded-3xl border border-gray-100 p-8 text-center text-gray-500 shadow-sm">
             No chef accounts registered in database.

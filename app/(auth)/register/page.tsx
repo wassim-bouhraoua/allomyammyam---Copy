@@ -116,156 +116,186 @@ export default function RegisterPage() {
   const labelCls = "text-[11px] font-bold text-gray-400 uppercase tracking-wider";
 
   return (
-    <div className="flex flex-col min-h-full px-4 pt-4 pb-8">
-      <BackToHome />
+    <div className="flex-1 flex flex-col lg:flex-row min-h-screen lg:min-h-0">
+      
+      {/* Left side: Premium Welcome Graphic (Hidden on mobile) */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-orange-400 to-orange-600 text-white p-10 flex-col justify-between relative overflow-hidden select-none">
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
+        <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-black/10 rounded-full blur-3xl" />
 
-      {/* Header */}
-      <div className="flex flex-col items-center pt-8 pb-6">
-        <div className="w-16 h-16 rounded-3xl bg-orange-500 flex items-center justify-center shadow-[0_6px_20px_rgba(255,138,0,0.40)] mb-5">
-          <UtensilsCrossed size={28} className="text-white" />
+        <div className="flex items-center gap-2 relative z-10">
+          <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+            <UtensilsCrossed size={18} className="text-white" />
+          </div>
+          <span className="font-black text-[18px] tracking-tight">AlloMyamMyam</span>
         </div>
-        <h1 className="text-[24px] font-black text-gray-900 tracking-tight">Create account</h1>
-        <p className="text-[13px] text-gray-400 mt-1.5">Order homemade food from local chefs</p>
+
+        <div className="my-auto relative z-10">
+          <h2 className="text-[32px] font-black leading-tight tracking-tight mb-4">
+            Join the home-cooked food revolution.
+          </h2>
+          <p className="text-[14px] text-orange-50/90 leading-relaxed font-medium max-w-sm">
+            Sign up as a customer to browse menus from certified local home kitchens, place orders, and support independent cooks.
+          </p>
+        </div>
+
+        <p className="text-[11px] text-orange-100/70 font-semibold relative z-10">
+          © 2026 AlloMyamMyam. All rights reserved.
+        </p>
       </div>
 
-      {/* Error */}
-      {error && (
-        <div className="mb-4 px-4 py-3 rounded-2xl bg-red-50 border border-red-100 flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
-          <p className="text-[12px] font-semibold text-red-600">{error}</p>
-        </div>
-      )}
+      {/* Right side: Registration Form */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-4 py-8 lg:p-10 lg:overflow-y-auto">
+        <BackToHome />
 
-      {/* Google Sign-in Card */}
-      <div className="bg-white rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-gray-100 p-5 mb-3 flex flex-col gap-3">
-        <div id="google-signin-button" className="w-full flex justify-center min-h-[40px]" />
-        <div className="flex items-center gap-2.5 my-0.5">
-          <div className="flex-1 h-px bg-gray-100" />
-          <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">or register with email</span>
-          <div className="flex-1 h-px bg-gray-100" />
-        </div>
-      </div>
-
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-gray-100 p-5 flex flex-col gap-4">
-
-        <div className="grid grid-cols-2 gap-2.5">
-          <div className="flex flex-col gap-1.5">
-            <label className={labelCls}>First name</label>
-            <input type="text" autoComplete="given-name" required
-              value={form.firstName} onChange={set("firstName")}
-              placeholder="Yassine" className={inputCls} />
+        {/* Header */}
+        <div className="flex flex-col items-center pt-8 pb-6">
+          <div className="w-16 h-16 rounded-3xl bg-orange-500 flex lg:hidden items-center justify-center shadow-[0_6px_20px_rgba(255,138,0,0.40)] mb-5">
+            <UtensilsCrossed size={28} className="text-white" />
           </div>
-          <div className="flex flex-col gap-1.5">
-            <label className={labelCls}>Last name</label>
-            <input type="text" autoComplete="family-name" required
-              value={form.lastName} onChange={set("lastName")}
-              placeholder="Alami" className={inputCls} />
+          <h1 className="text-[24px] font-black text-gray-900 tracking-tight">Create account</h1>
+          <p className="text-[13px] text-gray-400 mt-1.5">Order homemade food from local chefs</p>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div className="mb-4 px-4 py-3 rounded-2xl bg-red-50 border border-red-100 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
+            <p className="text-[12px] font-semibold text-red-600">{error}</p>
+          </div>
+        )}
+
+        {/* Google Sign-in Card */}
+        <div className="bg-white rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-gray-100 p-5 mb-3 flex flex-col gap-3">
+          <div id="google-signin-button" className="w-full flex justify-center min-h-[40px]" />
+          <div className="flex items-center gap-2.5 my-0.5">
+            <div className="flex-1 h-px bg-gray-100" />
+            <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">or register with email</span>
+            <div className="flex-1 h-px bg-gray-100" />
           </div>
         </div>
 
-        {/* Upload Profile Photo */}
-        <div className="flex flex-col gap-1.5">
-          <label className={labelCls}>Upload Profile Photo (Optional)</label>
-          <div className="flex items-center gap-3">
-            {/* Preview */}
-            <div className="relative w-12 h-12 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
-              {previewUrl ? (
-                <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
-              ) : (
-                <User size={20} className="text-gray-300" />
-              )}
-              {previewUrl && (
-                <button
-                  type="button"
-                  onClick={clearPhoto}
-                  className="absolute inset-0 bg-black/40 flex items-center justify-center text-white opacity-0 hover:opacity-100 transition-opacity"
-                  aria-label="Remove photo"
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-gray-100 p-5 flex flex-col gap-4">
+
+          <div className="grid grid-cols-2 gap-2.5">
+            <div className="flex flex-col gap-1.5">
+              <label className={labelCls}>First name</label>
+              <input type="text" autoComplete="given-name" required
+                value={form.firstName} onChange={set("firstName")}
+                placeholder="Yassine" className={inputCls} />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className={labelCls}>Last name</label>
+              <input type="text" autoComplete="family-name" required
+                value={form.lastName} onChange={set("lastName")}
+                placeholder="Alami" className={inputCls} />
+            </div>
+          </div>
+
+          {/* Upload Profile Photo */}
+          <div className="flex flex-col gap-1.5">
+            <label className={labelCls}>Upload Profile Photo (Optional)</label>
+            <div className="flex items-center gap-3">
+              {/* Preview */}
+              <div className="relative w-12 h-12 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+                {previewUrl ? (
+                  <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                ) : (
+                  <User size={20} className="text-gray-300" />
+                )}
+                {previewUrl && (
+                  <button
+                    type="button"
+                    onClick={clearPhoto}
+                    className="absolute inset-0 bg-black/40 flex items-center justify-center text-white opacity-0 hover:opacity-100 transition-opacity"
+                    aria-label="Remove photo"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+              {/* Input */}
+              <div className="flex-1 min-w-0">
+                <input
+                  type="file"
+                  accept="image/png, image/jpeg, image/jpg, image/webp"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  id="profile-photo-upload"
+                />
+                <label
+                  htmlFor="profile-photo-upload"
+                  className="inline-flex items-center px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 text-[12px] font-bold text-gray-700 cursor-pointer hover:bg-gray-100 active:scale-95 transition-all"
                 >
-                  <X size={14} />
-                </button>
-              )}
-            </div>
-            {/* Input */}
-            <div className="flex-1 min-w-0">
-              <input
-                type="file"
-                accept="image/png, image/jpeg, image/jpg, image/webp"
-                onChange={handleFileChange}
-                className="hidden"
-                id="profile-photo-upload"
-              />
-              <label
-                htmlFor="profile-photo-upload"
-                className="inline-flex items-center px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 text-[12px] font-bold text-gray-700 cursor-pointer hover:bg-gray-100 active:scale-95 transition-all"
-              >
-                Choose Photo
-              </label>
-              {fileError && <p className="text-[11px] text-red-500 font-semibold mt-1">{fileError}</p>}
+                  Choose Photo
+                </label>
+                {fileError && <p className="text-[11px] text-red-500 font-semibold mt-1">{fileError}</p>}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label className={labelCls}>Email</label>
-          <input type="email" autoComplete="email" required
-            value={form.email} onChange={set("email")}
-            placeholder="you@example.com" className={inputCls} />
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label className={labelCls}>
-            Phone <span className="normal-case text-gray-400 font-normal">(optional)</span>
-          </label>
-          <input type="tel" autoComplete="tel"
-            value={form.phoneNumber} onChange={set("phoneNumber")}
-            placeholder="+212 6 00 00 00 00" className={inputCls} />
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label className={labelCls}>Password</label>
-          <div className="relative">
-            <input type={showPw ? "text" : "password"} autoComplete="new-password"
-              required minLength={8}
-              value={form.password} onChange={set("password")}
-              placeholder="Min. 8 characters" className={`${inputCls} pr-12`} />
-            <button type="button" onClick={() => setShowPw(v => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
-              aria-label={showPw ? "Hide" : "Show"}>
-              {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
+          <div className="flex flex-col gap-1.5">
+            <label className={labelCls}>Email</label>
+            <input type="email" autoComplete="email" required
+              value={form.email} onChange={set("email")}
+              placeholder="you@example.com" className={inputCls} />
           </div>
-          <p className="text-[11px] text-gray-400">At least 8 characters</p>
+
+          <div className="flex flex-col gap-1.5">
+            <label className={labelCls}>
+              Phone <span className="normal-case text-gray-400 font-normal">(optional)</span>
+            </label>
+            <input type="tel" autoComplete="tel"
+              value={form.phoneNumber} onChange={set("phoneNumber")}
+              placeholder="+212 6 00 00 00 00" className={inputCls} />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className={labelCls}>Password</label>
+            <div className="relative">
+              <input type={showPw ? "text" : "password"} autoComplete="new-password"
+                required minLength={8}
+                value={form.password} onChange={set("password")}
+                placeholder="Min. 8 characters" className={`${inputCls} pr-12`} />
+              <button type="button" onClick={() => setShowPw(v => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label={showPw ? "Hide" : "Show"}>
+                {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+            <p className="text-[11px] text-gray-400">At least 8 characters</p>
+          </div>
+
+          <button type="submit" disabled={loading}
+            className="h-12 rounded-2xl bg-orange-500 text-white font-extrabold text-[15px] shadow-[0_4px_14px_rgba(255,138,0,0.38)] transition-all duration-150 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-1">
+            {loading
+              ? <><Loader2 size={17} className="animate-spin" /> Creating account…</>
+              : "Create Account"
+            }
+          </button>
+
+        </form>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3 my-5">
+          <div className="flex-1 h-px bg-gray-100" />
+          <span className="text-[11px] text-gray-400 font-medium">already a member?</span>
+          <div className="flex-1 h-px bg-gray-100" />
         </div>
 
-        <button type="submit" disabled={loading}
-          className="h-12 rounded-2xl bg-orange-500 text-white font-extrabold text-[15px] shadow-[0_4px_14px_rgba(255,138,0,0.38)] transition-all duration-150 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-1">
-          {loading
-            ? <><Loader2 size={17} className="animate-spin" /> Creating account…</>
-            : "Create Account"
-          }
-        </button>
+        <div className="flex flex-col gap-2.5">
+          <Link href="/login"
+            className="h-12 rounded-2xl border border-gray-200 text-gray-700 font-bold text-[14px] flex items-center justify-center active:scale-[0.98] transition-transform hover:border-orange-300 hover:text-orange-500">
+            Sign In
+          </Link>
+          <Link href="/register-chef"
+            className="h-12 rounded-2xl border border-orange-100 bg-orange-50 text-orange-600 font-bold text-[14px] flex items-center justify-center active:scale-[0.98] transition-transform">
+            Join as a Chef instead
+          </Link>
+        </div>
 
-      </form>
-
-      {/* Divider */}
-      <div className="flex items-center gap-3 my-5">
-        <div className="flex-1 h-px bg-gray-100" />
-        <span className="text-[11px] text-gray-400 font-medium">already a member?</span>
-        <div className="flex-1 h-px bg-gray-100" />
       </div>
-
-      <div className="flex flex-col gap-2.5">
-        <Link href="/login"
-          className="h-12 rounded-2xl border border-gray-200 text-gray-700 font-bold text-[14px] flex items-center justify-center active:scale-[0.98] transition-transform hover:border-orange-300 hover:text-orange-500">
-          Sign In
-        </Link>
-        <Link href="/register-chef"
-          className="h-12 rounded-2xl border border-orange-100 bg-orange-50 text-orange-600 font-bold text-[14px] flex items-center justify-center active:scale-[0.98] transition-transform">
-          Join as a Chef instead
-        </Link>
-      </div>
-
     </div>
   );
 }
