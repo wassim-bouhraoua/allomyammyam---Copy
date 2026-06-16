@@ -3,12 +3,12 @@ import path from "path";
 import crypto from "crypto";
 
 export interface StorageProvider {
-  uploadFile(base64Data: string, folder: string): Promise<string>;
+  uploadFile(base64Data: string, folder: string, prefix?: string): Promise<string>;
   getFileUrl(pathOrKey: string): string;
 }
 
 class LocalStorageProvider implements StorageProvider {
-  async uploadFile(base64Data: string, folder: string): Promise<string> {
+  async uploadFile(base64Data: string, folder: string, prefix?: string): Promise<string> {
     // 1. Validate Base64 data format
     const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
     if (!matches || matches.length !== 3) {
@@ -41,8 +41,9 @@ class LocalStorageProvider implements StorageProvider {
     }
 
     // 5. Generate unique filename (using a short random byte string and timestamp)
+    const filePrefix = prefix ?? folder;
     const uniqueId = crypto.randomBytes(6).toString("hex");
-    const filename = `avatar-${Date.now()}-${uniqueId}.${extension}`;
+    const filename = `${filePrefix}-${Date.now()}-${uniqueId}.${extension}`;
 
     const uploadDir = path.join(process.cwd(), "public", "uploads", folder);
 
@@ -66,10 +67,19 @@ class LocalStorageProvider implements StorageProvider {
 const activeStorageProvider: StorageProvider = new LocalStorageProvider();
 
 export async function saveAvatar(base64Data: string): Promise<string> {
-  return activeStorageProvider.uploadFile(base64Data, "avatars");
+  return activeStorageProvider.uploadFile(base64Data, "avatars", "avatar");
 }
 
 export function getAvatarUrl(pathOrKey: string | null): string | null {
+  if (!pathOrKey) return null;
+  return activeStorageProvider.getFileUrl(pathOrKey);
+}
+
+export async function saveDishImage(base64Data: string): Promise<string> {
+  return activeStorageProvider.uploadFile(base64Data, "dishes", "dish");
+}
+
+export function getDishImageUrl(pathOrKey: string | null): string | null {
   if (!pathOrKey) return null;
   return activeStorageProvider.getFileUrl(pathOrKey);
 }

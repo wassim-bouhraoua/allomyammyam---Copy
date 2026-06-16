@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import { MapPin, Search, SlidersHorizontal } from "lucide-react";
 
@@ -8,11 +10,81 @@ import DishCard from "@/components/dish-card";
 import ChefCard from "@/components/chef-card";
 import MobileHeader from "@/components/mobile-header";
 
-import { todayNewDishes, mockChefs } from "@/lib/mock-data";
+import { prisma } from "@/lib/prisma";
+import { getAvatarUrl } from "@/lib/upload";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const approvedChefs = await prisma.chefProfile.findMany({
+    where: {
+      status: "APPROVED",
+      deletedAt: null,
+    },
+    include: {
+      user: {
+        select: {
+          avatar: true,
+        },
+      },
+    },
+    orderBy: {
+      averageRating: "desc",
+    },
+    take: 4,
+  });
+
+  const chefs = approvedChefs.map((c) => ({
+    id: c.id,
+    displayName: c.displayName,
+    bannerUrl: c.bannerUrl || "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80",
+    avatarUrl: getAvatarUrl(c.avatarUrl || c.user.avatar),
+    isAvailable: c.isAvailable,
+    city: c.city,
+    averageRating: c.averageRating,
+    specialties: c.specialties,
+  }));
+
+  const activeDishes = await prisma.dish.findMany({
+    where: {
+      deletedAt: null,
+      isAvailable: true,
+      chef: {
+        status: "APPROVED",
+        deletedAt: null,
+      },
+    },
+    include: {
+      chef: {
+        include: {
+          user: {
+            select: {
+              avatar: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  const dishes = activeDishes.map((d) => ({
+    id: d.id,
+    name: d.name,
+    price: Number(d.price),
+    averageRating: d.averageRating,
+    imageUrl: d.imageUrl,
+    isAvailable: d.isAvailable,
+    preparationTime: d.preparationTime,
+    chef: {
+      displayName: d.chef.displayName,
+      city: d.chef.city,
+      avatarUrl: getAvatarUrl(d.chef.avatarUrl || d.chef.user.avatar),
+    },
+  }));
+
   return (
-    <div className="bg-[#FFF9F5] min-h-screen">
+    <div className="bg-[#FFF9F5] dark:bg-neutral-900 min-h-screen">
 
       {/* ── Desktop: two-column shell. Mobile: single column. ── */}
       <div className="max-w-6xl mx-auto min-h-screen flex gap-8 px-0 lg:px-8 lg:py-8">
@@ -25,7 +97,7 @@ export default function HomePage() {
             <div className="w-9 h-9 rounded-xl bg-orange-500 flex items-center justify-center shadow-[0_4px_12px_rgba(255,138,0,0.38)]">
               <span className="text-white text-sm font-black">A</span>
             </div>
-            <span className="text-[17px] font-black text-gray-900">AlloMyamMyam</span>
+            <span className="text-[17px] font-black text-gray-900 dark:text-neutral-100">AlloMyamMyam</span>
           </div>
 
           {/* Nav links */}
@@ -39,7 +111,7 @@ export default function HomePage() {
               <Link
                 key={href}
                 href={href}
-                className="px-4 py-2.5 rounded-2xl text-[14px] font-semibold text-gray-600 hover:bg-white hover:text-orange-500 hover:shadow-sm transition-all duration-150"
+                className="px-4 py-2.5 rounded-2xl text-[14px] font-semibold text-gray-600 dark:text-neutral-300 hover:bg-white dark:hover:bg-neutral-850 hover:text-orange-500 dark:hover:text-orange-400 hover:shadow-sm transition-all duration-150"
               >
                 {label}
               </Link>
@@ -47,9 +119,9 @@ export default function HomePage() {
           </nav>
 
           {/* Location pill */}
-          <div className="flex items-center gap-2 px-4 py-3 bg-white rounded-2xl border border-gray-100 shadow-sm">
+          <div className="flex items-center gap-2 px-4 py-3 bg-white dark:bg-neutral-800 rounded-2xl border border-gray-100 dark:border-neutral-700 shadow-sm">
             <MapPin size={13} className="text-orange-500 flex-shrink-0" fill="currentColor" />
-            <span className="text-[13px] font-bold text-gray-700 truncate">Oujda, Oriental</span>
+            <span className="text-[13px] font-bold text-gray-700 dark:text-neutral-200 truncate">Oujda, Oriental</span>
           </div>
         </aside>
 
@@ -57,12 +129,12 @@ export default function HomePage() {
         <div className="flex-1 min-w-0">
 
           {/* Mobile shell — unchanged */}
-          <div className="lg:hidden bg-white min-h-screen flex flex-col relative shadow-[0_0_80px_rgba(0,0,0,0.07)]">
+          <div className="lg:hidden bg-white dark:bg-neutral-900 min-h-screen flex flex-col relative shadow-[0_0_80px_rgba(0,0,0,0.07)]">
             <main className="flex-1 overflow-y-auto pb-[78px]">
               <MobileHeader />
               <SearchBar />
               <HeroBanner />
-              <HomeSections />
+              <HomeSections dishes={dishes} chefs={chefs} />
             </main>
             <BottomNav />
           </div>
@@ -71,7 +143,7 @@ export default function HomePage() {
           <div className="hidden lg:block">
             <DesktopSearchBar />
             <HeroBanner />
-            <HomeSections />
+            <HomeSections dishes={dishes} chefs={chefs} />
             {/* Bottom padding so last section doesn't hug viewport edge */}
             <div className="h-12" />
           </div>
@@ -80,12 +152,12 @@ export default function HomePage() {
 
         {/* ── Right panel — desktop only ───────────────────────────────────── */}
         <aside className="hidden xl:flex flex-col w-72 flex-shrink-0 gap-4 sticky top-8 self-start">
-          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5">
-            <p className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider mb-3">
+          <div className="bg-white dark:bg-neutral-800 rounded-3xl border border-gray-100 dark:border-neutral-700 shadow-sm p-5">
+            <p className="text-[11px] font-extrabold text-gray-400 dark:text-neutral-400 uppercase tracking-wider mb-3">
               Top Chefs
             </p>
             <div className="flex flex-col gap-3">
-              {mockChefs.slice(0, 4).map((chef) => (
+              {chefs.slice(0, 4).map((chef) => (
                 <ChefCard key={chef.id} chef={chef} />
               ))}
             </div>
@@ -106,10 +178,10 @@ function SearchBar() {
     <div className="flex items-center gap-2.5 px-4 mb-4">
       <Link
         href="/dishes"
-        className="flex-1 flex items-center gap-2.5 bg-gray-100 rounded-2xl px-4 h-11 active:bg-gray-200 transition-colors"
+        className="flex-1 flex items-center gap-2.5 bg-gray-100 dark:bg-neutral-800 rounded-2xl px-4 h-11 active:bg-gray-200 dark:active:bg-neutral-750 transition-colors"
       >
-        <Search size={15} className="text-gray-500 flex-shrink-0" />
-        <span className="text-sm text-gray-500 font-medium">Search dishes or chefs...</span>
+        <Search size={15} className="text-gray-500 dark:text-neutral-400 flex-shrink-0" />
+        <span className="text-sm text-gray-500 dark:text-neutral-400 font-medium">Search dishes or chefs...</span>
       </Link>
       <Link
         href="/dishes"
@@ -127,10 +199,10 @@ function DesktopSearchBar() {
     <div className="flex items-center gap-3 mb-6">
       <Link
         href="/dishes"
-        className="flex-1 flex items-center gap-3 bg-white border border-gray-200 rounded-2xl px-5 h-12 hover:border-orange-300 transition-colors shadow-sm"
+        className="flex-1 flex items-center gap-3 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-2xl px-5 h-12 hover:border-orange-300 dark:hover:border-orange-500 transition-colors shadow-sm"
       >
-        <Search size={16} className="text-gray-400 flex-shrink-0" />
-        <span className="text-[14px] text-gray-400 font-medium">Search dishes or chefs...</span>
+        <Search size={16} className="text-gray-400 dark:text-neutral-400 flex-shrink-0" />
+        <span className="text-[14px] text-gray-400 dark:text-neutral-400 font-medium">Search dishes or chefs...</span>
       </Link>
       <Link
         href="/dishes"
@@ -144,7 +216,7 @@ function DesktopSearchBar() {
   );
 }
 
-function HomeSections() {
+function HomeSections({ dishes, chefs }: { dishes: any[]; chefs: any[] }) {
   return (
     <>
       <HomeSection
@@ -152,7 +224,7 @@ function HomeSections() {
         subtitle="Fresh dishes added today"
         href="/dishes?filter=new"
       >
-        {todayNewDishes.map((dish) => (
+        {dishes.map((dish) => (
           <DishCard key={dish.id} dish={dish} variant="vertical" />
         ))}
       </HomeSection>
@@ -162,7 +234,7 @@ function HomeSections() {
         subtitle="Highest rated dishes on the platform"
         href="/dishes?filter=top-rated"
       >
-        {todayNewDishes
+        {dishes
           .slice()
           .sort((a, b) => b.averageRating - a.averageRating)
           .map((dish) => (
@@ -178,7 +250,7 @@ function HomeSections() {
           href="/restaurants"
           scrollable={false}
         >
-          {mockChefs.slice(0, 4).map((chef) => (
+          {chefs.slice(0, 4).map((chef) => (
             <ChefCard key={chef.id} chef={chef} />
           ))}
         </HomeSection>

@@ -4,10 +4,21 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { Star, Clock, MapPin } from "lucide-react";
-import { MockDish } from "@/lib/mock-data";
-
 interface DishCardProps {
-  dish: MockDish;
+  dish: {
+    id: string;
+    name: string;
+    price: number | string;
+    averageRating: number;
+    imageUrl: string | null;
+    isAvailable: boolean;
+    preparationTime: number;
+    chef: {
+      displayName: string;
+      city: string | null;
+      avatarUrl: string | null;
+    };
+  };
   variant?: "vertical" | "horizontal";
 }
 
@@ -38,7 +49,7 @@ function ImageWithFade({
   return (
     <>
       {!loaded && (
-        <div className="absolute inset-0 animate-pulse bg-gray-200" />
+        <div className="absolute inset-0 animate-pulse bg-gray-200 dark:bg-neutral-800" />
       )}
 
       <Image
@@ -73,7 +84,7 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
           overflow-hidden is NOT on this article — it would clip the
           active:scale shadow. Only the image container clips.
         */}
-        <article className="flex gap-3 bg-white rounded-2xl p-3 shadow-[0_2px_16px_rgba(0,0,0,0.07)] border border-gray-50 active:scale-[0.985] transition-transform duration-150">
+        <article className="flex gap-4 bg-white dark:bg-neutral-800 rounded-2xl p-4 shadow-[0_2px_16px_rgba(0,0,0,0.07)] border border-gray-50 dark:border-neutral-700 active:scale-[0.985] transition-transform duration-150">
 
           {/* Image container
               - explicit w/h in px locks the aspect ratio regardless of content
@@ -81,22 +92,22 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
               - overflow-hidden here only, not on article
               - bg-gray-100 is the loading skeleton color
           */}
-          <div className="relative w-[84px] h-[84px] rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
+          <div className="relative w-[112px] h-[112px] rounded-xl overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-neutral-900">
             {dish.imageUrl ? (
               <ImageWithFade
                 src={dish.imageUrl}
                 alt={dish.name}
-                sizes="84px"
+                sizes="112px"
               />
             ) : (
               // No-image fallback — emoji centered on gray background
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-2xl opacity-30">🍽️</span>
+                <span className="text-3xl opacity-30">🍽️</span>
               </div>
             )}
             {!dish.isAvailable && (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-xl">
-                <span className="text-white text-[9px] font-bold uppercase tracking-widest">
+                <span className="text-white text-[10px] font-bold uppercase tracking-widest">
                   Sold out
                 </span>
               </div>
@@ -109,28 +120,28 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
           */}
           <div className="flex-1 min-w-0 py-0.5 flex flex-col justify-between">
             <div>
-              <h3 className="text-[13px] font-bold text-gray-900 leading-snug truncate">
+              <h3 className="text-[14px] font-bold text-gray-900 dark:text-neutral-100 leading-snug line-clamp-2">
                 {dish.name}
               </h3>
-              <div className="flex items-center gap-1 mt-0.5">
-                <MapPin size={9} className="text-orange-500 flex-shrink-0" />
-                <span className="text-[11px] text-gray-500 truncate">
+              <div className="flex items-center gap-1.5 mt-1">
+                <MapPin size={10} className="text-orange-500 flex-shrink-0" />
+                <span className="text-[12px] text-gray-500 dark:text-neutral-400 truncate">
                   {dish.chef.displayName} · {dish.chef.city}
                 </span>
               </div>
             </div>
-            <div className="flex items-center justify-between mt-1">
-              <div className="flex items-center gap-2">
-                <span className="flex items-center gap-0.5 text-[11px] font-semibold text-gray-700">
-                  <Star size={10} className="text-amber-400 fill-amber-400" />
+            <div className="flex items-center justify-between gap-3 mt-2">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="flex items-center gap-0.5 text-[12px] font-semibold text-gray-700 dark:text-neutral-300 flex-shrink-0">
+                  <Star size={11} className="text-amber-400 fill-amber-400" />
                   {rating}
                 </span>
-                <span className="flex items-center gap-0.5 text-[11px] text-gray-500">
-                  <Clock size={9} className="text-gray-300" />
-                  {dish.preparationTime}m
+                <span className="flex items-center gap-0.5 text-[12px] text-gray-500 dark:text-neutral-400 min-w-0 truncate">
+                  <Clock size={10} className="text-gray-300 flex-shrink-0" />
+                  <span className="truncate">{dish.preparationTime}m</span>
                 </span>
               </div>
-              <span className="text-[13px] font-extrabold text-orange-600">
+              <span className="text-[14px] font-extrabold text-orange-600 whitespace-nowrap flex-shrink-0 text-right">
                 {formattedPrice}
               </span>
             </div>
@@ -149,7 +160,7 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
         It was clipping the box-shadow during active:scale on mobile.
         Each internal zone handles its own clipping.
       */}
-      <article className="w-[152px] flex-shrink-0 bg-white rounded-2xl shadow-[0_2px_18px_rgba(0,0,0,0.09)] border border-gray-50 hover:-translate-y-0.5 active:scale-[0.97] transition-transform duration-150">
+      <article className="w-[152px] flex-shrink-0 bg-white dark:bg-neutral-800 rounded-2xl shadow-[0_2px_18px_rgba(0,0,0,0.09)] border border-gray-50 dark:border-neutral-700 hover:-translate-y-0.5 active:scale-[0.97] transition-transform duration-150">
 
         {/* Image container
             - rounded-t-2xl matches article top radius since article no longer clips
@@ -158,7 +169,7 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
             - overflow-hidden here only
         */}
         <div
-          className="relative w-full rounded-t-2xl overflow-hidden bg-gray-100"
+          className="relative w-full rounded-t-2xl overflow-hidden bg-gray-100 dark:bg-neutral-900"
           style={{ height: "112px" }}
         >
           {dish.imageUrl ? (
@@ -192,7 +203,7 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
 
         {/* Content — explicit padding so nothing collapses */}
         <div className="p-2.5 pt-2">
-          <h3 className="text-[12px] font-bold text-gray-900 leading-tight line-clamp-1">
+          <h3 className="text-[12px] font-bold text-gray-900 dark:text-neutral-100 leading-tight line-clamp-1">
             {dish.name}
           </h3>
 
@@ -214,7 +225,7 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
                 </span>
               )}
             </div>
-            <span className="text-[10px] text-gray-500 truncate">
+            <span className="text-[10px] text-gray-500 dark:text-neutral-400 truncate">
               {dish.chef.displayName}
             </span>
           </div>
@@ -223,7 +234,7 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center gap-0.5">
               <Star size={9} className="text-amber-400 fill-amber-400" />
-              <span className="text-[10px] font-bold text-gray-700">{rating}</span>
+              <span className="text-[10px] font-bold text-gray-700 dark:text-neutral-350">{rating}</span>
             </div>
             <span className="flex items-baseline gap-[2px] whitespace-nowrap">
               <span className="text-[12px] font-extrabold text-orange-600">{dish.price}</span>

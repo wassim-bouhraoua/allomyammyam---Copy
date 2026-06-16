@@ -20,13 +20,13 @@ export default function MobileHeader() {
         <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center shadow-[0_2px_8px_rgba(255,138,0,0.30)]">
           <span className="text-white text-xs font-black">A</span>
         </div>
-        <span className="text-[15px] font-black text-gray-900">AlloMyamMyam</span>
+        <span className="text-[15px] font-black text-gray-900 dark:text-neutral-100">AlloMyamMyam</span>
       </Link>
 
       {/* Location */}
       <button className="flex items-center gap-1">
         <MapPin size={12} className="text-orange-500 flex-shrink-0" fill="currentColor" />
-        <span className="text-[12px] font-bold text-gray-700 max-w-[100px] truncate">
+        <span className="text-[12px] font-bold text-gray-700 dark:text-neutral-350 max-w-[100px] truncate">
           Oujda
         </span>
       </button>

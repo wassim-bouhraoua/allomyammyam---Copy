@@ -144,7 +144,7 @@ export default function HeroBanner() {
             className={`rounded-full transition-all duration-300 ${
               i === active
                 ? "w-5 h-2 bg-orange-500"
-                : "w-2 h-2 bg-gray-200"
+                : "w-2 h-2 bg-gray-200 dark:bg-neutral-750"
             }`}
           />
         ))}

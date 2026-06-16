@@ -4,20 +4,55 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Mail, Phone, ShieldCheck, ChefHat,
-  LogOut, LogIn, UserPlus, Loader2, User, Pencil,
+  LogOut, LogIn, UserPlus, Loader2, User, Pencil, UtensilsCrossed,
+  Sun, Moon, Monitor,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import BackToHome from "@/components/auth/back-to-home";
+import { useTheme } from "@/context/ThemeContext";
 
 const ROLE_LABELS: Record<string, string> = {
   USER: "Customer", CHEF: "Chef", ADMIN: "Administrator",
 };
 
 const ROLE_COLORS: Record<string, string> = {
-  USER:  "bg-blue-50 text-blue-600 border-blue-100",
-  CHEF:  "bg-orange-50 text-orange-600 border-orange-100",
-  ADMIN: "bg-purple-50 text-purple-600 border-purple-100",
+  USER:  "bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-900/30",
+  CHEF:  "bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 border-orange-100 dark:border-orange-900/30",
+  ADMIN: "bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 border-purple-100 dark:border-purple-900/30",
 };
+
+function ThemeSection() {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <div className="bg-white dark:bg-neutral-800 rounded-3xl p-5 border border-gray-100 dark:border-neutral-700 shadow-[0_2px_24px_rgba(0,0,0,0.04)] flex flex-col gap-3.5">
+      <div>
+        <p className="text-[11px] font-extrabold text-gray-400 dark:text-neutral-400 uppercase tracking-wider">Appearance</p>
+        <p className="text-[11px] text-gray-400 dark:text-neutral-500 mt-0.5">Choose how the interface looks on your device.</p>
+      </div>
+      <div className="grid grid-cols-3 gap-1.5 p-1 bg-gray-50 dark:bg-neutral-900 rounded-2xl border border-gray-100 dark:border-neutral-800">
+        {(["light", "dark", "system"] as const).map((mode) => {
+          const isActive = theme === mode;
+          const Icon = mode === "light" ? Sun : mode === "dark" ? Moon : Monitor;
+          return (
+            <button
+              key={mode}
+              onClick={() => setTheme(mode)}
+              className={`flex flex-col items-center justify-center gap-1.5 py-2 px-1 rounded-xl text-[11px] font-bold transition-all duration-150 ${
+                isActive
+                  ? "bg-white dark:bg-neutral-700 text-orange-500 dark:text-orange-400 shadow-sm"
+                  : "text-gray-500 hover:text-gray-900 dark:hover:text-neutral-200"
+              }`}
+            >
+              <Icon size={15} />
+              <span className="capitalize">{mode}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export default function ProfilePage() {
   const { user, loading, logout } = useAuth();
@@ -37,28 +72,31 @@ export default function ProfilePage() {
     return (
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-12">
         <BackToHome />
-        <div className="w-20 h-20 rounded-3xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-6">
-          <User size={32} className="text-gray-300" />
+        <div className="w-20 h-20 rounded-3xl bg-gray-50 dark:bg-neutral-800 border border-gray-100 dark:border-neutral-700 flex items-center justify-center mb-6">
+          <User size={32} className="text-gray-300 dark:text-neutral-500" />
         </div>
-        <h1 className="text-[20px] font-black text-gray-900 text-center">
+        <h1 className="text-[20px] font-black text-gray-900 dark:text-neutral-100 text-center">
           You&apos;re not signed in
         </h1>
-        <p className="text-[13px] text-gray-400 mt-2 text-center mb-8 leading-relaxed">
+        <p className="text-[13px] text-gray-400 dark:text-neutral-400 mt-2 text-center mb-8 leading-relaxed">
           Sign in to access your profile, track orders and more.
         </p>
-        <div className="w-full flex flex-col gap-2.5">
+        <div className="w-full flex flex-col gap-2.5 max-w-sm">
           <Link href="/login"
             className="h-12 rounded-2xl bg-orange-500 text-white font-extrabold text-[15px] shadow-[0_4px_14px_rgba(255,138,0,0.38)] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
             <LogIn size={17} /> Sign In
           </Link>
           <Link href="/register"
-            className="h-12 rounded-2xl bg-gray-100 text-gray-800 font-extrabold text-[15px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+            className="h-12 rounded-2xl bg-gray-100 dark:bg-neutral-800 text-gray-800 dark:text-neutral-200 font-extrabold text-[15px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
             <UserPlus size={17} /> Create Account
           </Link>
           <Link href="/register-chef"
-            className="h-12 rounded-2xl border border-orange-100 bg-orange-50 text-orange-600 font-bold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+            className="h-12 rounded-2xl border border-orange-100 dark:border-orange-900/35 bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 font-bold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
             <ChefHat size={17} /> Join as a Chef
           </Link>
+          <div className="mt-4 w-full">
+            <ThemeSection />
+          </div>
         </div>
       </main>
     );
@@ -124,7 +162,7 @@ export default function ProfilePage() {
           <div className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-4">
             
             {/* Identity card */}
-            <div className="bg-white rounded-3xl shadow-[0_4px_28px_rgba(0,0,0,0.10)] border border-gray-50 p-5 flex flex-col items-center lg:items-start text-center lg:text-left gap-4">
+            <div className="bg-white dark:bg-neutral-800 rounded-3xl shadow-[0_4px_28px_rgba(0,0,0,0.10)] border border-gray-50 dark:border-neutral-750 p-5 flex flex-col items-center lg:items-start text-center lg:text-left gap-4">
               <div className="w-[72px] h-[72px] rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center flex-shrink-0 shadow-[0_4px_16px_rgba(255,138,0,0.40)] overflow-hidden relative">
                 {user.avatar ? (
                   <img
@@ -144,12 +182,12 @@ export default function ProfilePage() {
                   {user.role === "ADMIN" && <ShieldCheck size={9} />}
                   {ROLE_LABELS[user.role] ?? user.role}
                 </span>
-                <p className="text-[13px] text-gray-400 mt-2 truncate w-full">{user.email}</p>
+                <p className="text-[13px] text-gray-400 dark:text-neutral-400 mt-2 truncate w-full">{user.email}</p>
               </div>
             </div>
 
             {/* Actions Card */}
-            <div className="bg-white lg:shadow-[0_4px_20px_rgba(0,0,0,0.05)] lg:border lg:border-gray-50 lg:p-5 lg:rounded-3xl flex flex-col gap-3">
+            <div className="bg-white dark:bg-neutral-800 lg:shadow-[0_4px_20px_rgba(0,0,0,0.05)] lg:border lg:border-gray-50 lg:border-neutral-750 lg:p-5 lg:rounded-3xl flex flex-col gap-3">
               <Link href="/profile/edit"
                 className="w-full h-12 rounded-2xl bg-orange-500 text-white font-extrabold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-orange-600 shadow-[0_4px_14px_rgba(255,138,0,0.38)]">
                 <Pencil size={15} />
@@ -165,11 +203,13 @@ export default function ProfilePage() {
               )}
 
               <button onClick={handleLogout}
-                className="w-full h-12 rounded-2xl bg-gray-50 border border-gray-200 text-gray-600 font-bold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-gray-100">
+                className="w-full h-12 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 text-gray-600 dark:text-neutral-300 font-bold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-gray-100 dark:hover:bg-neutral-800">
                 <LogOut size={15} className="text-gray-400" />
                 Sign Out
               </button>
             </div>
+
+            <ThemeSection />
 
           </div>
 
@@ -183,24 +223,24 @@ export default function ProfilePage() {
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3.5">
-                  <div className="w-8 h-8 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center flex-shrink-0">
+                <div className="flex items-center gap-3 bg-gray-50 dark:bg-neutral-800 border border-gray-100 dark:border-neutral-700 rounded-2xl px-4 py-3.5">
+                  <div className="w-8 h-8 rounded-xl bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 flex items-center justify-center flex-shrink-0">
                     <Mail size={14} className="text-orange-500" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Email</p>
-                    <p className="text-[13px] font-semibold text-gray-900 truncate mt-0.5">{user.email}</p>
+                    <p className="text-[10px] font-bold text-gray-400 dark:text-neutral-450 uppercase tracking-wide">Email</p>
+                    <p className="text-[13px] font-semibold text-gray-900 dark:text-neutral-100 truncate mt-0.5">{user.email}</p>
                   </div>
                 </div>
 
                 {user.phoneNumber && (
-                  <div className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3.5">
-                    <div className="w-8 h-8 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center flex-shrink-0">
+                  <div className="flex items-center gap-3 bg-gray-50 dark:bg-neutral-800 border border-gray-100 dark:border-neutral-700 rounded-2xl px-4 py-3.5">
+                    <div className="w-8 h-8 rounded-xl bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 flex items-center justify-center flex-shrink-0">
                       <Phone size={14} className="text-orange-500" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Phone</p>
-                      <p className="text-[13px] font-semibold text-gray-900 truncate mt-0.5">{user.phoneNumber}</p>
+                      <p className="text-[10px] font-bold text-gray-400 dark:text-neutral-450 uppercase tracking-wide">Phone</p>
+                      <p className="text-[13px] font-semibold text-gray-900 dark:text-neutral-100 truncate mt-0.5">{user.phoneNumber}</p>
                     </div>
                   </div>
                 )}
@@ -214,18 +254,18 @@ export default function ProfilePage() {
                   Chef profile details
                 </p>
 
-                <div className="flex flex-col gap-3.5 bg-white border border-gray-100 rounded-3xl p-5 shadow-[0_2px_24px_rgba(0,0,0,0.06)]">
-                  <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+                <div className="flex flex-col gap-3.5 bg-white dark:bg-neutral-800 border border-gray-100 dark:border-neutral-700 rounded-3xl p-5 shadow-[0_2px_24px_rgba(0,0,0,0.06)]">
+                  <div className="flex justify-between items-center border-b border-gray-100 dark:border-neutral-705 pb-3">
                     <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Display Name</p>
-                      <p className="text-[14px] font-extrabold text-gray-900 mt-0.5">{user.chefProfile.displayName}</p>
+                      <p className="text-[10px] font-bold text-gray-400 dark:text-neutral-450 uppercase tracking-wide">Display Name</p>
+                      <p className="text-[14px] font-extrabold text-gray-900 dark:text-neutral-100 mt-0.5">{user.chefProfile.displayName}</p>
                     </div>
                     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                       user.chefProfile.status === "APPROVED"
-                        ? "bg-green-50 text-green-600 border border-green-100"
+                        ? "bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-900/30"
                         : user.chefProfile.status === "SUSPENDED"
-                        ? "bg-red-50 text-red-600 border border-red-100"
-                        : "bg-amber-50 text-amber-600 border border-amber-100"
+                        ? "bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/30"
+                        : "bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30"
                     }`}>
                       {user.chefProfile.status}
                     </span>
@@ -233,26 +273,26 @@ export default function ProfilePage() {
 
                   {user.chefProfile.city && (
                     <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">City</p>
-                      <p className="text-[13px] font-semibold text-gray-800 mt-0.5">{user.chefProfile.city}</p>
+                      <p className="text-[10px] font-bold text-gray-400 dark:text-neutral-450 uppercase tracking-wide">City</p>
+                      <p className="text-[13px] font-semibold text-gray-800 dark:text-neutral-200 mt-0.5">{user.chefProfile.city}</p>
                     </div>
                   )}
 
                   {user.chefProfile.bio && (
                     <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Bio</p>
-                      <p className="text-[13px] text-gray-650 mt-0.5 whitespace-pre-wrap leading-relaxed">{user.chefProfile.bio}</p>
+                      <p className="text-[10px] font-bold text-gray-400 dark:text-neutral-450 uppercase tracking-wide">Bio</p>
+                      <p className="text-[13px] text-gray-650 dark:text-neutral-300 mt-0.5 whitespace-pre-wrap leading-relaxed">{user.chefProfile.bio}</p>
                     </div>
                   )}
 
                   {user.chefProfile.specialties && user.chefProfile.specialties.length > 0 && (
                     <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">Specialties</p>
+                      <p className="text-[10px] font-bold text-gray-400 dark:text-neutral-450 uppercase tracking-wide mb-1.5">Specialties</p>
                       <div className="flex flex-wrap gap-1.5">
                         {user.chefProfile.specialties.map((s) => (
                           <span
                             key={s}
-                            className="px-2.5 py-1 rounded-lg bg-orange-50 border border-orange-100 text-orange-600 text-[11px] font-bold"
+                            className="px-2.5 py-1 rounded-lg bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 text-orange-600 dark:text-orange-400 text-[11px] font-bold"
                           >
                             {s.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}
                           </span>
@@ -261,6 +301,30 @@ export default function ProfilePage() {
                     </div>
                   )}
                 </div>
+              </div>
+            )}
+
+            {/* Manage Dishes shortcut — chef only */}
+            {user.role === "CHEF" && (
+              <div className="flex flex-col gap-2">
+                <p className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider mb-1 pl-1">
+                  Dish Management
+                </p>
+                <Link
+                  href="/profile/dishes"
+                  className="flex items-center justify-between px-5 py-4 bg-white dark:bg-neutral-800 border border-gray-100 dark:border-neutral-700 rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.06)] hover:border-orange-200 dark:hover:border-orange-900/30 hover:shadow-[0_4px_20px_rgba(255,138,0,0.10)] active:scale-[0.99] transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 flex items-center justify-center">
+                      <UtensilsCrossed size={16} className="text-orange-500" />
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-bold text-gray-900 dark:text-neutral-100">Manage My Dishes</p>
+                      <p className="text-[11px] text-gray-400 dark:text-neutral-450 mt-0.5">Create, edit and manage your menu</p>
+                    </div>
+                  </div>
+                  <span className="text-gray-300 dark:text-neutral-600 text-[18px] font-light">›</span>
+                </Link>
               </div>
             )}
 

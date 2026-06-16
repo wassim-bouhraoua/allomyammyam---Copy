@@ -15,7 +15,7 @@ export default function BottomNav() {
 
   return (
     // lg:hidden — on desktop the sidebar nav replaces the bottom bar
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-gray-100">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md border-t border-gray-100 dark:border-neutral-800">
       <div className="max-w-md mx-auto flex items-center justify-around h-[62px] px-4">
         {NAV_ITEMS.map(({ href, icon: Icon, label }) => {
           const isActive = pathname === href;
@@ -29,18 +29,18 @@ export default function BottomNav() {
                 className={`flex items-center justify-center w-10 h-10 rounded-2xl transition-all duration-200 ${
                   isActive
                     ? "bg-orange-500 shadow-[0_4px_14px_rgba(255,138,0,0.40)]"
-                    : "group-active:bg-gray-100"
+                    : "group-active:bg-gray-100 dark:group-active:bg-neutral-800"
                 }`}
               >
                 <Icon
                   size={19}
                   strokeWidth={isActive ? 2.5 : 2}
-                  className={isActive ? "text-white" : "text-gray-500"}
+                  className={isActive ? "text-white" : "text-gray-500 dark:text-neutral-400"}
                 />
               </div>
               <span
                 className={`text-[10px] font-semibold tracking-tight ${
-                  isActive ? "text-orange-500" : "text-gray-500"
+                  isActive ? "text-orange-500" : "text-gray-500 dark:text-neutral-400"
                 }`}
               >
                 {label}
