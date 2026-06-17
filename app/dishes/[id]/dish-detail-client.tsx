@@ -254,31 +254,31 @@ function ChefRow({ chef }: { chef: DetailDish["chef"] }) {
 function NutritionSection({ nutrition }: { nutrition: NutritionFacts }) {
   const facts = [
     {
-      icon: <Zap size={14} className="text-orange-500" />,
+      icon: <Zap size={10} className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-orange-500" />,
       label: "Calories",
       value: nutrition.calories,
       unit: "kcal",
     },
     {
-      icon: <Beef size={14} className="text-orange-500" />,
+      icon: <Beef size={10} className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-orange-500" />,
       label: "Protein",
       value: nutrition.protein,
       unit: "g",
     },
     {
-      icon: <Wheat size={14} className="text-orange-500" />,
+      icon: <Wheat size={10} className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-orange-500" />,
       label: "Carbs",
       value: nutrition.carbs,
       unit: "g",
     },
     {
-      icon: <Flame size={14} className="text-orange-500" />,
+      icon: <Flame size={10} className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-orange-500" />,
       label: "Fat",
       value: nutrition.fat,
       unit: "g",
     },
     {
-      icon: <Candy size={14} className="text-orange-500" />,
+      icon: <Candy size={10} className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-orange-500" />,
       label: "Sugar",
       value: nutrition.sugar,
       unit: "g",
@@ -294,20 +294,20 @@ function NutritionSection({ nutrition }: { nutrition: NutritionFacts }) {
         <p className="text-[9px] text-gray-400 dark:text-neutral-500 mt-0.5">Per serving</p>
       </div>
 
-      <div className="grid grid-cols-2 min-[380px]:grid-cols-3 sm:grid-cols-5 gap-2">
+      <div className="grid grid-cols-5 gap-1 sm:gap-2">
         {facts.map((f) => (
           <div
             key={f.label}
-            className="flex flex-col items-center rounded-2xl border border-gray-100 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-900 px-2 py-3"
+            className="flex flex-col items-center rounded-2xl border border-gray-100 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-900 px-0.5 py-1.5 sm:px-2 sm:py-3 min-w-0"
           >
-            <div className="w-7 h-7 rounded-full bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 flex items-center justify-center mb-2">
+            <div className="w-[22px] h-[22px] sm:w-7 sm:h-7 rounded-full bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 flex items-center justify-center mb-1 sm:mb-1.5 flex-shrink-0">
               {f.icon}
             </div>
-            <div className="text-center leading-none">
-              <span className="text-[18px] font-black text-gray-900 dark:text-neutral-100">{f.value}</span>
-              <span className="text-[10px] font-bold text-gray-400 dark:text-neutral-500 ml-1">{f.unit}</span>
+            <div className="flex flex-col items-center text-center leading-none">
+              <span className="text-[11px] sm:text-[18px] font-black text-gray-900 dark:text-neutral-100 leading-none">{f.value}</span>
+              <span className="text-[7.5px] sm:text-[10px] font-bold text-gray-400 dark:text-neutral-500 mt-0.5 leading-none">{f.unit}</span>
             </div>
-            <span className="text-[10px] text-gray-500 dark:text-neutral-450 mt-2">{f.label}</span>
+            <span className="text-[8px] sm:text-[10px] text-gray-500 dark:text-neutral-450 mt-1 sm:mt-1.5 text-center truncate w-full tracking-tight">{f.label}</span>
           </div>
         ))}
       </div>
@@ -443,7 +443,7 @@ export default function DishDetailClient({ dish, related }: { dish: DetailDish; 
                 </div>
               )}
 
-              <div className="bg-white dark:bg-neutral-800 rounded-2xl p-5 border border-gray-100/80 dark:border-neutral-700 shadow-[0_2px_18px_rgba(0,0,0,0.03)]">
+              <div className="bg-white dark:bg-neutral-800 rounded-2xl p-3.5 sm:p-5 border border-gray-100/80 dark:border-neutral-700 shadow-[0_2px_18px_rgba(0,0,0,0.03)]">
                 <NutritionSection nutrition={dish.nutrition} />
               </div>
 
