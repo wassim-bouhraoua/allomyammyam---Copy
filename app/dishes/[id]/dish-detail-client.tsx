@@ -294,7 +294,7 @@ function NutritionSection({ nutrition }: { nutrition: NutritionFacts }) {
         <p className="text-[9px] text-gray-400 dark:text-neutral-500 mt-0.5">Per serving</p>
       </div>
 
-      <div className="grid grid-cols-5 gap-2">
+      <div className="grid grid-cols-2 min-[380px]:grid-cols-3 sm:grid-cols-5 gap-2">
         {facts.map((f) => (
           <div
             key={f.label}
