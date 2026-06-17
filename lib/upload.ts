@@ -7,7 +7,7 @@ export interface StorageProvider {
   getFileUrl(pathOrKey: string): string;
 }
 
-class LocalStorageProvider implements StorageProvider {
+class Base64StorageProvider implements StorageProvider {
   async uploadFile(base64Data: string, folder: string, prefix?: string): Promise<string> {
     // 1. Validate Base64 data format
     const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
@@ -24,47 +24,24 @@ class LocalStorageProvider implements StorageProvider {
       throw new Error("Invalid file type. Only JPG, JPEG, PNG, and WEBP are allowed.");
     }
 
-    const buffer = Buffer.from(base64Str, "base64");
-
     // 3. Validate file size (2 MB limit = 2 * 1024 * 1024 bytes)
+    const buffer = Buffer.from(base64Str, "base64");
     const maxSize = 2 * 1024 * 1024;
     if (buffer.length > maxSize) {
       throw new Error("File size exceeds 2 MB limit.");
     }
 
-    // 4. Determine file extension
-    let extension = "png";
-    if (mimeType.includes("jpeg") || mimeType.includes("jpg")) {
-      extension = "jpg";
-    } else if (mimeType.includes("webp")) {
-      extension = "webp";
-    }
-
-    // 5. Generate unique filename (using a short random byte string and timestamp)
-    const filePrefix = prefix ?? folder;
-    const uniqueId = crypto.randomBytes(6).toString("hex");
-    const filename = `${filePrefix}-${Date.now()}-${uniqueId}.${extension}`;
-
-    const uploadDir = path.join(process.cwd(), "public", "uploads", folder);
-
-    // Ensure directories exist
-    await fs.mkdir(uploadDir, { recursive: true });
-
-    const filePath = path.join(uploadDir, filename);
-    await fs.writeFile(filePath, buffer);
-
-    // Return the relative static URL path
-    return `/uploads/${folder}/${filename}`;
+    // Return the base64 string directly to be stored in DB
+    return base64Data;
   }
 
   getFileUrl(pathOrKey: string): string {
-    // For local storage, the stored value is already the relative static URL
     return pathOrKey;
   }
 }
 
-// Instantiate the active storage provider (can be swapped to Cloudinary / Vercel Blob here)
-const activeStorageProvider: StorageProvider = new LocalStorageProvider();
+// Instantiate the active storage provider
+const activeStorageProvider: StorageProvider = new Base64StorageProvider();
 
 export async function saveAvatar(base64Data: string): Promise<string> {
   return activeStorageProvider.uploadFile(base64Data, "avatars", "avatar");
