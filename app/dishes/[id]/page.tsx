@@ -72,6 +72,13 @@ export default async function DishDetailPage({ params }: { params: Promise<{ id:
     stockCount: dish.stockCount,
     preparationTime: dish.preparationTime,
     tags: dish.tags,
+    nutrition: {
+      calories: dish.calories,
+      protein: dish.protein,
+      carbs: dish.carbs,
+      fat: dish.fat,
+      sugar: dish.sugar,
+    },
     chef: {
       id: dish.chef.id,
       displayName: dish.chef.displayName,

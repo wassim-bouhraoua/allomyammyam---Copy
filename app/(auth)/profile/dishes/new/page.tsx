@@ -26,6 +26,11 @@ export default function NewDishPage() {
   const [preparationTime, setPreparationTime] = useState("");
   const [stockCount, setStockCount] = useState("");
   const [tags, setTags] = useState<string[]>([]);
+  const [calories, setCalories] = useState("");
+  const [protein, setProtein] = useState("");
+  const [carbs, setCarbs] = useState("");
+  const [fat, setFat] = useState("");
+  const [sugar, setSugar] = useState("");
   const [image, setImage] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [imageUrlInput, setImageUrlInput] = useState("");
@@ -172,6 +177,11 @@ export default function NewDishPage() {
       };
 
       if (stockCount.trim()) payload.stockCount = Number(stockCount);
+      if (calories.trim()) payload.calories = Number(calories);
+      if (protein.trim()) payload.protein = Number(protein);
+      if (carbs.trim()) payload.carbs = Number(carbs);
+      if (fat.trim()) payload.fat = Number(fat);
+      if (sugar.trim()) payload.sugar = Number(sugar);
       if (image) payload.image = image;
 
       const res = await fetch("/api/dishes", {
@@ -392,6 +402,73 @@ export default function NewDishPage() {
             placeholder="Leave blank for unlimited"
             className={inputCls}
           />
+        </div>
+
+        {/* Nutrition Facts */}
+        <div className="flex flex-col gap-3">
+          <label className={labelCls}>Nutrition Facts (optional)</label>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 p-4 bg-gray-50 dark:bg-neutral-900 border border-gray-100 dark:border-neutral-750 rounded-2xl">
+            <div className="flex flex-col gap-1.5 col-span-2 sm:col-span-1">
+              <span className="text-[10px] font-bold text-gray-500 dark:text-neutral-450 pl-1">Calories (kcal)</span>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={calories}
+                onChange={(e) => setCalories(e.target.value)}
+                placeholder="e.g. 450"
+                className={inputCls}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-bold text-gray-500 dark:text-neutral-450 pl-1">Protein (g)</span>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={protein}
+                onChange={(e) => setProtein(e.target.value)}
+                placeholder="e.g. 25"
+                className={inputCls}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-bold text-gray-500 dark:text-neutral-450 pl-1">Carbs (g)</span>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={carbs}
+                onChange={(e) => setCarbs(e.target.value)}
+                placeholder="e.g. 40"
+                className={inputCls}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-bold text-gray-500 dark:text-neutral-450 pl-1">Fat (g)</span>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={fat}
+                onChange={(e) => setFat(e.target.value)}
+                placeholder="e.g. 15"
+                className={inputCls}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-bold text-gray-500 dark:text-neutral-450 pl-1">Sugar (g)</span>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={sugar}
+                onChange={(e) => setSugar(e.target.value)}
+                placeholder="e.g. 5"
+                className={inputCls}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Tags */}

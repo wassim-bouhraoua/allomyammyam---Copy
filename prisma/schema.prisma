@@ -99,6 +99,11 @@ model Dish {
   stockCount      Int?
   tags            String[]
   totalReviews    Int          @default(0)
+  calories        Int?
+  protein         Int?
+  carbs           Int?
+  fat             Int?
+  sugar           Int?
   cartItems       CartItem[]
   images          DishImage[]
   chef            ChefProfile  @relation(fields: [chefId], references: [id], onDelete: Cascade)

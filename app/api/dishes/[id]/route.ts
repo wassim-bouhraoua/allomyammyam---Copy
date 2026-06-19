@@ -129,7 +129,7 @@ export async function PUT(
     if (auth.error) return auth.error;
 
     const body = await req.json();
-    const { name, description, price, category, preparationTime, tags, stockCount, image } = body;
+    const { name, description, price, category, preparationTime, tags, stockCount, image, calories, protein, carbs, fat, sugar } = body;
 
     // ── Validation (only for provided fields) ───────────────────────────────
 
@@ -190,6 +190,20 @@ export async function PUT(
       }
     }
 
+    // Validate optional nutrition fields
+    const nutritionFields = { calories, protein, carbs, fat, sugar };
+    for (const [key, value] of Object.entries(nutritionFields)) {
+      if (value !== undefined && value !== null && value !== "") {
+        const num = Number(value);
+        if (isNaN(num) || num < 0 || !Number.isInteger(num)) {
+          return NextResponse.json(
+            { error: `${key.charAt(0).toUpperCase() + key.slice(1)} must be a non-negative integer.` },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
     // ── Image handling (same pattern as profile avatar) ─────────────────────
     // null → remove image
     // data:image/... → upload new image
@@ -226,6 +240,12 @@ export async function PUT(
     if (tags !== undefined) dataToUpdate.tags = tags.map((t: any) => String(t).trim()).filter(Boolean);
     if (stockCount !== undefined) dataToUpdate.stockCount = stockCount !== null ? Number(stockCount) : null;
     if (imageUrl !== undefined) dataToUpdate.imageUrl = imageUrl;
+
+    if (calories !== undefined) dataToUpdate.calories = (calories !== null && calories !== "") ? Number(calories) : null;
+    if (protein !== undefined) dataToUpdate.protein = (protein !== null && protein !== "") ? Number(protein) : null;
+    if (carbs !== undefined) dataToUpdate.carbs = (carbs !== null && carbs !== "") ? Number(carbs) : null;
+    if (fat !== undefined) dataToUpdate.fat = (fat !== null && fat !== "") ? Number(fat) : null;
+    if (sugar !== undefined) dataToUpdate.sugar = (sugar !== null && sugar !== "") ? Number(sugar) : null;
 
     if (Object.keys(dataToUpdate).length === 0) {
       return NextResponse.json(

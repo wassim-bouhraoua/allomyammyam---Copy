@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
     if (auth.error) return auth.error;
 
     const body = await req.json();
-    const { name, description, price, category, preparationTime, tags, stockCount, image } = body;
+    const { name, description, price, category, preparationTime, tags, stockCount, image, calories, protein, carbs, fat, sugar } = body;
 
     // ── Validation ──────────────────────────────────────────────────────────
 
@@ -164,6 +164,20 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Validate optional nutrition fields
+    const nutritionFields = { calories, protein, carbs, fat, sugar };
+    for (const [key, value] of Object.entries(nutritionFields)) {
+      if (value !== undefined && value !== null && value !== "") {
+        const num = Number(value);
+        if (isNaN(num) || num < 0 || !Number.isInteger(num)) {
+          return NextResponse.json(
+            { error: `${key.charAt(0).toUpperCase() + key.slice(1)} must be a non-negative integer.` },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
     // ── Image upload ────────────────────────────────────────────────────────
 
     let imageUrl: string | null = null;
@@ -196,6 +210,11 @@ export async function POST(req: NextRequest) {
         tags: Array.isArray(tags) ? tags.map((t: any) => String(t).trim()).filter(Boolean) : [],
         stockCount: stockCount !== undefined && stockCount !== null ? Number(stockCount) : null,
         imageUrl,
+        calories: calories !== undefined && calories !== null && calories !== "" ? Number(calories) : null,
+        protein: protein !== undefined && protein !== null && protein !== "" ? Number(protein) : null,
+        carbs: carbs !== undefined && carbs !== null && carbs !== "" ? Number(carbs) : null,
+        fat: fat !== undefined && fat !== null && fat !== "" ? Number(fat) : null,
+        sugar: sugar !== undefined && sugar !== null && sugar !== "" ? Number(sugar) : null,
       },
     });
 

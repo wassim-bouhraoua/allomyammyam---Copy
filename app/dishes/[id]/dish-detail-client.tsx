@@ -29,11 +29,11 @@ import BottomNav from "@/components/bottom-nav";
 import DishCard from "@/components/dish-card";
 
 export interface NutritionFacts {
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  sugar: number;
+  calories: number | null;
+  protein: number | null;
+  carbs: number | null;
+  fat: number | null;
+  sugar: number | null;
 }
 
 export interface DetailDish {
@@ -251,36 +251,36 @@ function ChefRow({ chef }: { chef: DetailDish["chef"] }) {
   );
 }
 
-function NutritionSection({ nutrition }: { nutrition: NutritionFacts }) {
+function NutritionSection({ nutrition }: { nutrition?: NutritionFacts }) {
   const facts = [
     {
       icon: <Zap size={10} className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-orange-500" />,
       label: "Calories",
-      value: nutrition.calories,
+      value: nutrition?.calories,
       unit: "kcal",
     },
     {
       icon: <Beef size={10} className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-orange-500" />,
       label: "Protein",
-      value: nutrition.protein,
+      value: nutrition?.protein,
       unit: "g",
     },
     {
       icon: <Wheat size={10} className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-orange-500" />,
       label: "Carbs",
-      value: nutrition.carbs,
+      value: nutrition?.carbs,
       unit: "g",
     },
     {
       icon: <Flame size={10} className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-orange-500" />,
       label: "Fat",
-      value: nutrition.fat,
+      value: nutrition?.fat,
       unit: "g",
     },
     {
       icon: <Candy size={10} className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-orange-500" />,
       label: "Sugar",
-      value: nutrition.sugar,
+      value: nutrition?.sugar,
       unit: "g",
     },
   ];
@@ -288,7 +288,7 @@ function NutritionSection({ nutrition }: { nutrition: NutritionFacts }) {
   return (
     <section>
       <div className="mb-3">
-        <h2 className="text-[12px] font-extrabold text-gray-600 dark:text-neutral-400 uppercase tracking-wider">
+        <h2 className="text-[12px] font-extrabold text-gray-600 dark:text-neutral-455 uppercase tracking-wider">
           Nutrition Facts
         </h2>
         <p className="text-[9px] text-gray-400 dark:text-neutral-500 mt-0.5">Per serving</p>
@@ -304,7 +304,9 @@ function NutritionSection({ nutrition }: { nutrition: NutritionFacts }) {
               {f.icon}
             </div>
             <div className="flex flex-col items-center text-center leading-none">
-              <span className="text-[11px] sm:text-[18px] font-black text-gray-900 dark:text-neutral-100 leading-none">{f.value}</span>
+              <span className="text-[11px] sm:text-[18px] font-black text-gray-900 dark:text-neutral-100 leading-none">
+                {f.value !== undefined && f.value !== null ? f.value : "—"}
+              </span>
               <span className="text-[7.5px] sm:text-[10px] font-bold text-gray-400 dark:text-neutral-500 mt-0.5 leading-none">{f.unit}</span>
             </div>
             <span className="text-[8px] sm:text-[10px] text-gray-500 dark:text-neutral-450 mt-1 sm:mt-1.5 text-center truncate w-full tracking-tight">{f.label}</span>
@@ -443,11 +445,9 @@ export default function DishDetailClient({ dish, related }: { dish: DetailDish; 
                 </div>
               )}
 
-              {dish.nutrition && (
-                <div className="bg-white dark:bg-neutral-800 rounded-2xl p-3.5 sm:p-5 border border-gray-100/80 dark:border-neutral-700 shadow-[0_2px_18px_rgba(0,0,0,0.03)]">
-                  <NutritionSection nutrition={dish.nutrition} />
-                </div>
-              )}
+              <div className="bg-white dark:bg-neutral-800 rounded-2xl p-3.5 sm:p-5 border border-gray-100/80 dark:border-neutral-700 shadow-[0_2px_18px_rgba(0,0,0,0.03)]">
+                <NutritionSection nutrition={dish.nutrition} />
+              </div>
 
             </div>
 

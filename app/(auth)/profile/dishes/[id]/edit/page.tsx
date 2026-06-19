@@ -31,6 +31,11 @@ export default function EditDishPage({
   const [preparationTime, setPreparationTime] = useState("");
   const [stockCount, setStockCount] = useState("");
   const [tags, setTags] = useState<string[]>([]);
+  const [calories, setCalories] = useState("");
+  const [protein, setProtein] = useState("");
+  const [carbs, setCarbs] = useState("");
+  const [fat, setFat] = useState("");
+  const [sugar, setSugar] = useState("");
 
   // Image state:
   // - existingImageUrl: what's stored in DB (used for display when no new file chosen)
@@ -82,6 +87,11 @@ export default function EditDishPage({
         const allowedValues = ALLOWED_TAGS.map(t => t.value);
         const cleanedTags = (d.tags ?? []).map((t: string) => t.toLowerCase()).filter((t: string) => allowedValues.includes(t));
         setTags(cleanedTags);
+        setCalories(d.calories !== null && d.calories !== undefined ? String(d.calories) : "");
+        setProtein(d.protein !== null && d.protein !== undefined ? String(d.protein) : "");
+        setCarbs(d.carbs !== null && d.carbs !== undefined ? String(d.carbs) : "");
+        setFat(d.fat !== null && d.fat !== undefined ? String(d.fat) : "");
+        setSugar(d.sugar !== null && d.sugar !== undefined ? String(d.sugar) : "");
         setExistingImageUrl(d.imageUrl ?? null);
         setPreviewUrl(d.imageUrl ?? null);
         if (d.imageUrl && (d.imageUrl.startsWith("http://") || d.imageUrl.startsWith("https://"))) {
@@ -269,6 +279,11 @@ export default function EditDishPage({
         preparationTime: Number(preparationTime),
         tags,
         stockCount: stockCount.trim() ? Number(stockCount) : null,
+        calories: calories.trim() ? Number(calories) : null,
+        protein: protein.trim() ? Number(protein) : null,
+        carbs: carbs.trim() ? Number(carbs) : null,
+        fat: fat.trim() ? Number(fat) : null,
+        sugar: sugar.trim() ? Number(sugar) : null,
       };
 
       // Image field:
@@ -526,6 +541,73 @@ export default function EditDishPage({
             placeholder="Leave blank for unlimited"
             className={inputCls}
           />
+        </div>
+
+        {/* Nutrition Facts */}
+        <div className="flex flex-col gap-3">
+          <label className={labelCls}>Nutrition Facts (optional)</label>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 p-4 bg-gray-50 dark:bg-neutral-900 border border-gray-100 dark:border-neutral-750 rounded-2xl">
+            <div className="flex flex-col gap-1.5 col-span-2 sm:col-span-1">
+              <span className="text-[10px] font-bold text-gray-500 dark:text-neutral-450 pl-1">Calories (kcal)</span>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={calories}
+                onChange={(e) => setCalories(e.target.value)}
+                placeholder="e.g. 450"
+                className={inputCls}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-bold text-gray-500 dark:text-neutral-455 pl-1">Protein (g)</span>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={protein}
+                onChange={(e) => setProtein(e.target.value)}
+                placeholder="e.g. 25"
+                className={inputCls}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-bold text-gray-500 dark:text-neutral-455 pl-1">Carbs (g)</span>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={carbs}
+                onChange={(e) => setCarbs(e.target.value)}
+                placeholder="e.g. 40"
+                className={inputCls}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-bold text-gray-500 dark:text-neutral-455 pl-1">Fat (g)</span>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={fat}
+                onChange={(e) => setFat(e.target.value)}
+                placeholder="e.g. 15"
+                className={inputCls}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-bold text-gray-500 dark:text-neutral-455 pl-1">Sugar (g)</span>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={sugar}
+                onChange={(e) => setSugar(e.target.value)}
+                placeholder="e.g. 5"
+                className={inputCls}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Tags */}
