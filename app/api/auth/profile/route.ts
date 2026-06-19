@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { saveAvatar, getAvatarUrl } from "@/lib/upload";
+import { saveAvatar, saveBanner, getAvatarUrl } from "@/lib/upload";
 
 export async function PUT(req: NextRequest) {
   try {
@@ -15,17 +15,17 @@ export async function PUT(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { firstName, lastName, phoneNumber, avatar, displayName, bio, city, specialties } = body;
+    const { firstName, lastName, phoneNumber, avatar, displayName, bio, city, specialties, isAvailable, banner } = body;
 
     // Validation
-    if (!firstName || typeof firstName !== "string" || !firstName.trim()) {
+    if (body.hasOwnProperty("firstName") && (!firstName || typeof firstName !== "string" || !firstName.trim())) {
       return NextResponse.json(
         { error: "First name is required." },
         { status: 400 }
       );
     }
 
-    if (!lastName || typeof lastName !== "string" || !lastName.trim()) {
+    if (body.hasOwnProperty("lastName") && (!lastName || typeof lastName !== "string" || !lastName.trim())) {
       return NextResponse.json(
         { error: "Last name is required." },
         { status: 400 }
@@ -33,19 +33,19 @@ export async function PUT(req: NextRequest) {
     }
 
     if (session.role === "CHEF") {
-      if (!displayName || typeof displayName !== "string" || !displayName.trim()) {
+      if (body.hasOwnProperty("displayName") && (!displayName || typeof displayName !== "string" || !displayName.trim())) {
         return NextResponse.json(
           { error: "Display name is required for chefs." },
           { status: 400 }
         );
       }
-      if (!city || typeof city !== "string" || !city.trim()) {
+      if (body.hasOwnProperty("city") && (!city || typeof city !== "string" || !city.trim())) {
         return NextResponse.json(
           { error: "City is required for chefs." },
           { status: 400 }
         );
       }
-      if (!specialties || !Array.isArray(specialties) || specialties.length === 0) {
+      if (body.hasOwnProperty("specialties") && (!specialties || !Array.isArray(specialties) || specialties.length === 0)) {
         return NextResponse.json(
           { error: "At least one specialty is required for chefs." },
           { status: 400 }
@@ -73,26 +73,49 @@ export async function PUT(req: NextRequest) {
     }
 
     // Prepare update data
-    const dataToUpdate: any = {
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      phoneNumber: phoneNumber ? phoneNumber.trim() : null,
-    };
+    const dataToUpdate: any = {};
+    if (body.hasOwnProperty("firstName")) dataToUpdate.firstName = firstName.trim();
+    if (body.hasOwnProperty("lastName")) dataToUpdate.lastName = lastName.trim();
+    if (body.hasOwnProperty("phoneNumber")) dataToUpdate.phoneNumber = phoneNumber ? phoneNumber.trim() : null;
+
+    let bannerPath: string | null | undefined = undefined;
+    if (body.hasOwnProperty("banner")) {
+      if (banner === null) {
+        bannerPath = null;
+      } else if (typeof banner === "string" && banner.startsWith("data:image/")) {
+        try {
+          bannerPath = await saveBanner(banner);
+        } catch (err: any) {
+          return NextResponse.json(
+            { error: err.message ?? "Failed to save cover banner." },
+            { status: 400 }
+          );
+        }
+      }
+    }
 
     if (session.role === "CHEF") {
-      dataToUpdate.chefProfile = {
-        update: {
-          displayName: displayName.trim(),
-          bio: bio ? bio.trim() : null,
-          city: city ? city.trim() : null,
-          specialties: specialties || [],
-        }
-      };
+      const chefProfileUpdate: any = {};
+      if (body.hasOwnProperty("displayName")) chefProfileUpdate.displayName = displayName.trim();
+      if (body.hasOwnProperty("bio")) chefProfileUpdate.bio = bio ? bio.trim() : null;
+      if (body.hasOwnProperty("city")) chefProfileUpdate.city = city ? city.trim() : null;
+      if (body.hasOwnProperty("specialties")) chefProfileUpdate.specialties = specialties || [];
+      if (body.hasOwnProperty("isAvailable")) chefProfileUpdate.isAvailable = !!isAvailable;
+      if (bannerPath !== undefined) chefProfileUpdate.bannerUrl = bannerPath;
+
+      if (Object.keys(chefProfileUpdate).length > 0) {
+        dataToUpdate.chefProfile = {
+          update: chefProfileUpdate
+        };
+      }
     }
 
     if (avatarPath !== undefined) {
       dataToUpdate.avatar = avatarPath;
       if (session.role === "CHEF") {
+        if (!dataToUpdate.chefProfile) {
+          dataToUpdate.chefProfile = { update: {} };
+        }
         dataToUpdate.chefProfile.update.avatarUrl = avatarPath;
       }
     }

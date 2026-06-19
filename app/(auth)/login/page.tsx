@@ -69,8 +69,8 @@ export default function LoginPage() {
     }
   }
 
-  const inputCls = "h-12 px-4 rounded-2xl bg-gray-50 border border-gray-200 text-[14px] text-gray-900 placeholder-gray-400 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors w-full";
-  const labelCls = "text-[11px] font-bold text-gray-400 uppercase tracking-wider";
+  const inputCls = "h-12 px-4 rounded-2xl bg-secondary border border-border text-[14px] text-foreground placeholder:text-muted-foreground outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors w-full";
+  const labelCls = "text-[11px] font-bold text-muted-foreground uppercase tracking-wider";
 
   return (
     <div className="flex-1 flex flex-col lg:flex-row min-h-screen lg:min-h-0">
@@ -110,20 +110,20 @@ export default function LoginPage() {
           <div className="w-16 h-16 rounded-3xl bg-orange-500 flex lg:hidden items-center justify-center shadow-[0_6px_20px_rgba(255,138,0,0.40)] mb-5">
             <UtensilsCrossed size={28} className="text-white" />
           </div>
-          <h1 className="text-[24px] font-black text-gray-900 tracking-tight">Welcome back</h1>
-          <p className="text-[13px] text-gray-400 mt-1.5">Sign in to continue ordering</p>
+          <h1 className="text-[24px] font-black text-foreground tracking-tight">Welcome back</h1>
+          <p className="text-[13px] text-muted-foreground mt-1.5">Sign in to continue ordering</p>
         </div>
 
         {/* Error */}
         {error && (
-          <div className="mb-4 px-4 py-3 rounded-2xl bg-red-50 border border-red-100 flex items-center gap-2">
+          <div className="mb-4 px-4 py-3 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
-            <p className="text-[12px] font-semibold text-red-600">{error}</p>
+            <p className="text-[12px] font-semibold text-red-600 dark:text-red-400">{error}</p>
           </div>
         )}
 
         {/* Form */}
-        <div className="bg-white rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-gray-100 p-5 flex flex-col gap-4">
+        <div className="bg-card rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-border p-5 flex flex-col gap-4">
 
           <div className="flex flex-col gap-1.5">
             <label className={labelCls}>Email</label>
@@ -144,7 +144,7 @@ export default function LoginPage() {
               />
               <button
                 type="button" onClick={() => setShowPw(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
                 aria-label={showPw ? "Hide" : "Show"}
               >
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -164,9 +164,9 @@ export default function LoginPage() {
           </button>
 
           <div className="flex items-center gap-2.5 my-1">
-            <div className="flex-1 h-px bg-gray-100" />
-            <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">or sign in with</span>
-            <div className="flex-1 h-px bg-gray-100" />
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">or sign in with</span>
+            <div className="flex-1 h-px bg-border" />
           </div>
 
           <div id="google-signin-button" className="w-full flex justify-center min-h-[40px]" />
@@ -175,22 +175,22 @@ export default function LoginPage() {
 
         {/* Divider */}
         <div className="flex items-center gap-3 my-5">
-          <div className="flex-1 h-px bg-gray-100" />
-          <span className="text-[11px] text-gray-400 font-medium">or</span>
-          <div className="flex-1 h-px bg-gray-100" />
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-[11px] text-muted-foreground font-medium">or</span>
+          <div className="flex-1 h-px bg-border" />
         </div>
 
         {/* Footer CTAs */}
         <div className="flex flex-col gap-2.5 pb-8">
           <Link
             href="/register"
-            className="h-12 rounded-2xl border border-gray-200 text-gray-700 font-bold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform hover:border-orange-300 hover:text-orange-500"
+            className="h-12 rounded-2xl border border-border text-foreground font-bold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform hover:border-orange-300 hover:text-orange-500"
           >
             Create an account
           </Link>
           <Link
             href="/register-chef"
-            className="h-12 rounded-2xl border border-orange-100 bg-orange-50 text-orange-600 font-bold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+            className="h-12 rounded-2xl border border-orange-100 dark:border-orange-900/30 bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 font-bold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
           >
             Join as a Chef
           </Link>

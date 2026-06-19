@@ -22,8 +22,8 @@ export default function HomeSection({
     <section className="mb-7">
       <div className="flex items-start justify-between px-4 mb-3">
         <div>
-          <h2 className="text-[15px] font-bold text-gray-900 dark:text-neutral-100 leading-tight">{title}</h2>
-          {subtitle && <p className="text-[11px] text-gray-500 dark:text-neutral-400 font-medium mt-0.5">{subtitle}</p>}
+          <h2 className="text-[15px] font-bold text-foreground leading-tight">{title}</h2>
+          {subtitle && <p className="text-[11px] text-muted-foreground font-medium mt-0.5">{subtitle}</p>}
         </div>
         {href && (
           <Link

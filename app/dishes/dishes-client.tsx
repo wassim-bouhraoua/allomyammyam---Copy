@@ -84,7 +84,7 @@ function chipCls(active: boolean): string {
   return `flex-shrink-0 text-[12px] font-semibold px-3.5 py-2 rounded-full transition-all duration-200 active:scale-95 whitespace-nowrap ${
     active
       ? "bg-orange-500 text-white shadow-[0_4px_12px_rgba(255,138,0,0.30)]"
-      : "bg-orange-50 dark:bg-neutral-800 text-gray-700 dark:text-neutral-300"
+      : "bg-secondary text-foreground"
   }`;
 }
 
@@ -126,7 +126,7 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
   }, [initialDishes, query, cuisineIndex, vibeIndex, minRating, sortKey]);
 
   return (
-    <div className="bg-[#FFF9F5] dark:bg-neutral-900 min-h-screen">
+    <div className="bg-background min-h-screen">
       <div className="max-w-6xl mx-auto min-h-screen flex gap-8 px-0 lg:px-8 lg:py-8">
 
         {/* ── Desktop left sidebar ─────────────────────────────────────── */}
@@ -136,16 +136,16 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              className="w-9 h-9 rounded-xl bg-white dark:bg-neutral-800 border border-gray-100 dark:border-neutral-700 shadow-sm flex items-center justify-center hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors"
+              className="w-9 h-9 rounded-xl bg-card border border-border shadow-sm flex items-center justify-center hover:bg-secondary transition-colors"
             >
-              <ArrowLeft size={16} className="text-gray-600 dark:text-neutral-300" />
+              <ArrowLeft size={16} className="text-foreground" />
             </Link>
-            <span className="text-[16px] font-black text-gray-900 dark:text-neutral-100">Explore Dishes</span>
+            <span className="text-[16px] font-black text-foreground">Explore Dishes</span>
           </div>
 
           {/* Cuisine filter */}
-          <div className="bg-white dark:bg-neutral-800 rounded-3xl border border-gray-100 dark:border-neutral-700 shadow-sm p-4">
-            <p className="text-[10px] font-bold text-gray-400 dark:text-neutral-400 uppercase tracking-widest mb-3">
+          <div className="bg-card rounded-3xl border border-border shadow-sm p-4">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3">
               Cuisine
             </p>
             <div className="flex flex-col gap-1.5">
@@ -156,7 +156,7 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
                   className={`flex items-center gap-2.5 px-3 py-2.5 rounded-2xl text-[13px] font-semibold transition-all duration-150 text-left ${
                     cuisineIndex === i
                       ? "bg-orange-500 text-white shadow-[0_2px_10px_rgba(255,138,0,0.30)]"
-                      : "text-gray-600 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-700"
+                      : "text-foreground hover:bg-secondary"
                   }`}
                 >
                   <span className="text-[16px] leading-none">{chip.emoji}</span>
@@ -167,8 +167,8 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
           </div>
 
           {/* Vibe filter */}
-          <div className="bg-white dark:bg-neutral-800 rounded-3xl border border-gray-100 dark:border-neutral-700 shadow-sm p-4">
-            <p className="text-[10px] font-bold text-gray-400 dark:text-neutral-400 uppercase tracking-widest mb-3">
+          <div className="bg-card rounded-3xl border border-border shadow-sm p-4">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3">
               Vibe
             </p>
             <div className="flex flex-col gap-1.5">
@@ -179,7 +179,7 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
                   className={`flex items-center gap-2.5 px-3 py-2.5 rounded-2xl text-[13px] font-semibold transition-all duration-150 text-left ${
                     vibeIndex === i
                       ? "bg-orange-500 text-white shadow-[0_2px_10px_rgba(255,138,0,0.30)]"
-                      : "text-gray-600 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-700"
+                      : "text-foreground hover:bg-secondary"
                   }`}
                 >
                   <span className="text-[16px] leading-none">{chip.emoji}</span>
@@ -190,9 +190,9 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
           </div>
 
           {/* Sort + rating */}
-          <div className="bg-white dark:bg-neutral-800 rounded-3xl border border-gray-100 dark:border-neutral-700 shadow-sm p-4 space-y-4">
+          <div className="bg-card rounded-3xl border border-border shadow-sm p-4 space-y-4">
             <div>
-              <p className="text-[10px] font-bold text-gray-400 dark:text-neutral-400 uppercase tracking-widest mb-2.5">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2.5">
                 Sort by
               </p>
               <div className="flex flex-col gap-1.5">
@@ -203,7 +203,7 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
                     className={`px-3 py-2 rounded-2xl text-[13px] font-semibold transition-all text-left ${
                       sortKey === opt.value
                         ? "bg-orange-500 text-white"
-                        : "text-gray-600 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-700"
+                        : "text-foreground hover:bg-secondary"
                     }`}
                   >
                     {opt.label}
@@ -213,7 +213,7 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
             </div>
 
             <div>
-              <p className="text-[10px] font-bold text-gray-400 dark:text-neutral-400 uppercase tracking-widest mb-2.5">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2.5">
                 Min. rating
               </p>
               <div className="flex flex-wrap gap-2">
@@ -244,19 +244,19 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
         {/* ── Main column ──────────────────────────────────────────────── */}
         <div className="flex-1 min-w-0">
 
-          {/* ── Mobile shell — completely unchanged ──────────────────────── */}
-          <div className="lg:hidden bg-white dark:bg-neutral-900 min-h-screen flex flex-col shadow-[0_0_80px_rgba(0,0,0,0.07)]">
+          {/* ── Mobile shell ──────────────────────── */}
+          <div className="lg:hidden bg-background min-h-screen flex flex-col shadow-[0_0_80px_rgba(0,0,0,0.07)]">
             <main className="flex-1 overflow-y-auto pb-[78px]">
 
               <header className="flex items-center gap-3 px-4 pt-5 pb-3">
                 <Link
                   href="/"
-                  className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-neutral-800 flex items-center justify-center active:bg-gray-200 dark:active:bg-neutral-700 transition-colors flex-shrink-0"
+                  className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center active:bg-secondary/80 transition-colors flex-shrink-0"
                 >
-                  <ArrowLeft size={17} className="text-gray-700 dark:text-neutral-350" />
+                  <ArrowLeft size={17} className="text-foreground" />
                 </Link>
-                <h1 className="text-[17px] font-bold text-gray-900 dark:text-neutral-100 flex-1">Explore Dishes</h1>
-                <span className="text-[12px] font-semibold text-gray-500 dark:text-neutral-400">
+                <h1 className="text-[17px] font-bold text-foreground flex-1">Explore Dishes</h1>
+                <span className="text-[12px] font-semibold text-muted-foreground">
                   {filtered.length} found
                 </span>
               </header>
@@ -268,13 +268,13 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
                   className={`relative w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all duration-150 active:scale-95 ${
                     showRefine || refineCount > 0
                       ? "bg-orange-500 shadow-[0_4px_14px_rgba(255,138,0,0.38)]"
-                      : "bg-gray-100 dark:bg-neutral-800"
+                      : "bg-secondary"
                   }`}
                   aria-label="Refine results"
                 >
                   <SlidersHorizontal
                     size={16}
-                    className={showRefine || refineCount > 0 ? "text-white" : "text-gray-500 dark:text-neutral-400"}
+                    className={showRefine || refineCount > 0 ? "text-white" : "text-muted-foreground"}
                   />
                   {refineCount > 0 && (
                     <span className="absolute -top-1 -right-1 w-[14px] h-[14px] bg-red-500 rounded-full flex items-center justify-center">
@@ -285,9 +285,9 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
               </div>
 
               {showRefine && (
-                <div className="mx-4 mb-4 p-4 bg-gray-50 dark:bg-neutral-850 rounded-2xl border border-gray-100 dark:border-neutral-800 space-y-4">
+                <div className="mx-4 mb-4 p-4 bg-secondary rounded-2xl border border-border space-y-4">
                   <div>
-                    <p className="text-[10px] font-bold text-gray-500 dark:text-neutral-450 uppercase tracking-widest mb-2">Sort by</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Sort by</p>
                     <div className="flex flex-wrap gap-2">
                       {SORT_OPTIONS.map((opt) => (
                         <button key={opt.value} onClick={() => setSortKey(opt.value)} className={chipCls(sortKey === opt.value)}>
@@ -298,7 +298,7 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
                   </div>
 
                   <div>
-                    <p className="text-[10px] font-bold text-gray-500 dark:text-neutral-450 uppercase tracking-widest mb-2">Min. rating</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Min. rating</p>
                     <div className="flex flex-wrap gap-2">
                       {RATING_OPTIONS.map((opt) => (
                         <button key={opt.value} onClick={() => setMinRating(opt.value)} className={chipCls(minRating === opt.value)}>
@@ -350,8 +350,8 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
                 ) : (
                   <div className="flex flex-col items-center justify-center py-20 text-center">
                     <span className="text-4xl">🍽️</span>
-                    <p className="text-[14px] font-extrabold text-gray-700 dark:text-neutral-200 mt-3">No dishes found</p>
-                    <p className="text-[12px] text-gray-400 dark:text-neutral-450 mt-1 max-w-[220px]">
+                    <p className="text-[14px] font-extrabold text-foreground mt-3">No dishes found</p>
+                    <p className="text-[12px] text-muted-foreground mt-1 max-w-[220px]">
                       Try adjusting your search query or filters.
                     </p>
                   </div>
@@ -367,7 +367,7 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
             {/* Header + Search bar */}
             <div className="flex items-center justify-between mb-6">
               <SearchBar value={query} onChange={setQuery} />
-              <span className="text-[13px] font-extrabold text-gray-400 dark:text-neutral-500 uppercase tracking-widest ml-4">
+              <span className="text-[13px] font-extrabold text-muted-foreground uppercase tracking-widest ml-4">
                 {filtered.length} dishes found
               </span>
             </div>
@@ -376,14 +376,14 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
             {filtered.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {filtered.map((dish) => (
-                  <DishCard key={dish.id} dish={dish} variant="horizontal" />
+                  <DishCard key={dish.id} dish={dish} variant="grid" />
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-32 bg-white dark:bg-neutral-800 border border-gray-100 dark:border-neutral-700 rounded-3xl shadow-sm text-center">
+              <div className="flex flex-col items-center justify-center py-32 bg-card border border-border rounded-3xl shadow-sm text-center">
                 <span className="text-5xl">🍽️</span>
-                <p className="text-[16px] font-black text-gray-900 dark:text-neutral-100 mt-4">No dishes match filters</p>
-                <p className="text-[13px] text-gray-400 dark:text-neutral-400 mt-1 max-w-sm">
+                <p className="text-[16px] font-black text-foreground mt-4">No dishes match filters</p>
+                <p className="text-[13px] text-muted-foreground mt-1 max-w-sm">
                   We couldn't find any dishes matching those parameters. Try clearing some filters or searching for something else.
                 </p>
               </div>

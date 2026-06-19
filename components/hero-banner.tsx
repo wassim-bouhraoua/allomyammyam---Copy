@@ -103,33 +103,33 @@ export default function HeroBanner() {
         <div className={`absolute -top-10 -right-10 w-44 h-44 rounded-full ${slide.accentBg}`} />
         <div className={`absolute -bottom-8 right-6 w-28 h-28 rounded-full ${slide.accentBg}`} />
 
-        <div className="relative flex items-center justify-between px-5 py-5 gap-2 min-h-[108px]">
+        <div className="relative flex items-center justify-between px-5 py-5 lg:px-8 lg:py-6 gap-2 lg:gap-6 min-h-[108px] lg:min-h-[180px]">
           {/* Text block */}
-          <div className="flex-1 min-w-0">
-            <span className="inline-block text-[9px] font-black uppercase tracking-[0.12em] text-white/80 bg-white/20 rounded-full px-2.5 py-[3px] mb-2">
+          <div className="flex-1 min-w-0 text-left">
+            <span className="inline-block text-[9px] lg:text-[11px] font-black uppercase tracking-[0.12em] text-white/80 bg-white/20 rounded-full px-2.5 py-[3px] lg:px-3.5 lg:py-[5px] mb-2 lg:mb-3">
               {slide.tag}
             </span>
-            <h2 className="text-white font-bold text-[15px] leading-[1.25] max-w-[220px] lg:max-w-none mb-1.5">
+            <h2 className="text-white font-bold text-[15px] lg:text-[24px] leading-[1.25] max-w-[220px] lg:max-w-[480px] mb-1.5 lg:mb-2.5">
               {slide.headline}
             </h2>
-            <p className="text-white/75 text-[11px] mb-3">{slide.sub}</p>
-            <button className="bg-white text-gray-800 text-[11px] font-bold px-4 py-1.5 rounded-full shadow-sm active:scale-95 transition-transform duration-100">
+            <p className="text-white/75 text-[11px] lg:text-[14px] mb-3 lg:mb-4">{slide.sub}</p>
+            <button className="bg-white text-gray-800 text-[11px] lg:text-[13px] font-bold px-4 py-1.5 lg:px-6 lg:py-2.5 rounded-full shadow-sm active:scale-95 transition-transform duration-100">
               {slide.cta} →
             </button>
           </div>
 
           {/* Dish image */}
-          <div className="relative w-[108px] h-[96px] rounded-2xl overflow-hidden flex-shrink-0 shadow-lg">
-           <Image
-  src={slide.imageUrl}
-  alt={slide.headline}
-  fill
-  sizes="108px"
-  priority
-  unoptimized
-  className="object-cover"
-  draggable={false}
-/>
+          <div className="relative w-[108px] h-[96px] lg:w-[160px] lg:h-[135px] rounded-2xl overflow-hidden flex-shrink-0 shadow-lg">
+            <Image
+              src={slide.imageUrl}
+              alt={slide.headline}
+              fill
+              sizes="(max-width: 1024px) 108px, 160px"
+              priority
+              unoptimized
+              className="object-cover"
+              draggable={false}
+            />
           </div>
         </div>
       </div>
@@ -144,7 +144,7 @@ export default function HeroBanner() {
             className={`rounded-full transition-all duration-300 ${
               i === active
                 ? "w-5 h-2 bg-orange-500"
-                : "w-2 h-2 bg-gray-200 dark:bg-neutral-750"
+                : "w-2 h-2 bg-gray-200"
             }`}
           />
         ))}

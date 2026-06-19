@@ -28,6 +28,8 @@ export interface AuthUser {
     specialties: string[];
     city: string | null;
     status: "PENDING" | "APPROVED" | "SUSPENDED";
+    bannerUrl?: string | null;
+    isAvailable?: boolean;
   } | null;
 }
 

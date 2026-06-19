@@ -150,9 +150,9 @@ export default function RegisterChefPage() {
   }
 
   const inputClass =
-    "h-12 px-4 rounded-2xl bg-gray-50 border border-gray-200 text-[14px] text-gray-900 placeholder-gray-400 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors w-full";
+    "h-12 px-4 rounded-2xl bg-secondary border border-border text-[14px] text-foreground placeholder:text-muted-foreground outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors w-full";
 
-  const labelClass = "text-[11px] font-bold text-gray-500 uppercase tracking-wider";
+  const labelClass = "text-[11px] font-bold text-muted-foreground uppercase tracking-wider";
 
   return (
     <div className="flex-1 flex flex-col lg:flex-row min-h-screen lg:min-h-0">
@@ -191,8 +191,8 @@ export default function RegisterChefPage() {
           <div className="w-16 h-16 rounded-3xl bg-orange-500 flex lg:hidden items-center justify-center shadow-[0_6px_20px_rgba(255,138,0,0.40)] mb-5">
             <ChefHat size={28} className="text-white" />
           </div>
-          <h1 className="text-[24px] font-black text-gray-900 tracking-tight">Become a Chef</h1>
-          <p className="text-[13px] text-gray-400 mt-1.5 text-center">
+          <h1 className="text-[24px] font-black text-foreground tracking-tight">Become a Chef</h1>
+          <p className="text-[13px] text-muted-foreground mt-1.5 text-center">
             Share your homemade dishes and grow your customer base
           </p>
         </div>
@@ -206,18 +206,18 @@ export default function RegisterChefPage() {
         )}
 
         {/* Google Sign-in Card */}
-        <div className="bg-white rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-gray-100 p-5 mb-3 flex flex-col gap-3">
+        <div className="bg-card rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-border p-5 mb-3 flex flex-col gap-3">
           <div id="google-signin-button" className="w-full flex justify-center min-h-[40px]" />
           <div className="flex items-center gap-2.5 my-0.5">
-            <div className="flex-1 h-px bg-gray-100" />
-            <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">or register with email</span>
-            <div className="flex-1 h-px bg-gray-100" />
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">or register with email</span>
+            <div className="flex-1 h-px bg-border" />
           </div>
         </div>
 
         {/* Personal info card */}
-        <div className="bg-white rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-gray-100 p-5 flex flex-col gap-4">
-          <p className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider">
+        <div className="bg-card rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-border p-5 flex flex-col gap-4">
+          <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider">
             Personal Info
           </p>
 
@@ -253,11 +253,11 @@ export default function RegisterChefPage() {
             <label className={labelClass}>Chef Profile Photo (Optional)</label>
             <div className="flex items-center gap-3">
               {/* Preview */}
-              <div className="relative w-12 h-12 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+              <div className="relative w-12 h-12 rounded-xl bg-secondary border border-border flex items-center justify-center overflow-hidden flex-shrink-0">
                 {previewUrl ? (
                   <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
-                  <User size={20} className="text-gray-300" />
+                  <User size={20} className="text-muted-foreground/50" />
                 )}
                 {previewUrl && (
                   <button
@@ -281,7 +281,7 @@ export default function RegisterChefPage() {
                 />
                 <label
                   htmlFor="profile-photo-upload"
-                  className="inline-flex items-center px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 text-[12px] font-bold text-gray-700 cursor-pointer hover:bg-gray-100 active:scale-95 transition-all"
+                  className="inline-flex items-center px-4 py-2 border border-border rounded-xl bg-secondary text-[12px] font-bold text-foreground cursor-pointer hover:bg-secondary/80 active:scale-95 transition-all"
                 >
                   Choose Photo
                 </label>
@@ -306,7 +306,7 @@ export default function RegisterChefPage() {
           <div className="flex flex-col gap-1.5">
             <label className={labelClass}>
               Phone{" "}
-              <span className="normal-case text-gray-400 font-medium">(optional)</span>
+              <span className="normal-case text-muted-foreground font-medium">(optional)</span>
             </label>
             <input
               type="tel"
@@ -334,7 +334,7 @@ export default function RegisterChefPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -344,8 +344,8 @@ export default function RegisterChefPage() {
         </div>
 
         {/* Chef profile card */}
-        <div className="bg-white rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-gray-100 p-5 mt-4 flex flex-col gap-4">
-          <p className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider">
+        <div className="bg-card rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-border p-5 mt-4 flex flex-col gap-4">
+          <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider">
             Chef Profile
           </p>
 
@@ -381,7 +381,7 @@ export default function RegisterChefPage() {
               onChange={set("bio")}
               rows={3}
               placeholder="Tell customers about your cooking style…"
-              className="px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-[14px] text-gray-900 placeholder-gray-400 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors resize-none"
+              className="px-4 py-3 rounded-2xl bg-secondary border border-border text-[14px] text-foreground placeholder:text-muted-foreground outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors resize-none"
             />
           </div>
 
@@ -399,7 +399,7 @@ export default function RegisterChefPage() {
                     className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-semibold border transition-colors active:scale-95 ${
                       active
                         ? "bg-orange-500 border-orange-500 text-white shadow-[0_2px_8px_rgba(255,138,0,0.30)]"
-                        : "bg-gray-50 border-gray-200 text-gray-600"
+                        : "bg-secondary border-border text-foreground hover:bg-secondary/80"
                     }`}
                   >
                     {s}
@@ -427,14 +427,14 @@ export default function RegisterChefPage() {
             )}
           </button>
 
-          <p className="text-[11px] text-gray-400 text-center font-medium">
+          <p className="text-[11px] text-muted-foreground text-center font-medium">
             Your chef profile will be reviewed before customers can place orders.
           </p>
         </div>
 
         {/* Footer links */}
         <div className="mt-5 flex flex-col items-center gap-2 pb-8">
-          <p className="text-[13px] text-gray-500">
+          <p className="text-[13px] text-muted-foreground">
             Already have an account?{" "}
             <Link href="/login" className="text-orange-500 font-bold">
               Sign in

@@ -49,7 +49,7 @@ export interface DetailDish {
   stockCount: number | null;
   preparationTime: number;
   tags: string[];
-  nutrition: NutritionFacts;
+  nutrition?: NutritionFacts;
   chef: {
     id: string;
     displayName: string;
@@ -443,9 +443,11 @@ export default function DishDetailClient({ dish, related }: { dish: DetailDish; 
                 </div>
               )}
 
-              <div className="bg-white dark:bg-neutral-800 rounded-2xl p-3.5 sm:p-5 border border-gray-100/80 dark:border-neutral-700 shadow-[0_2px_18px_rgba(0,0,0,0.03)]">
-                <NutritionSection nutrition={dish.nutrition} />
-              </div>
+              {dish.nutrition && (
+                <div className="bg-white dark:bg-neutral-800 rounded-2xl p-3.5 sm:p-5 border border-gray-100/80 dark:border-neutral-700 shadow-[0_2px_18px_rgba(0,0,0,0.03)]">
+                  <NutritionSection nutrition={dish.nutrition} />
+                </div>
+              )}
 
             </div>
 

@@ -200,7 +200,7 @@ export async function PUT(
     if (image === null) {
       imageUrl = null;
     } else if (typeof image === "string") {
-      if (image.startsWith("data:image/")) {
+      if (image.startsWith("data:")) {
         try {
           imageUrl = await saveDishImage(image);
         } catch (err: any) {

@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import Link from "next/link";
 import { MapPin, Search, SlidersHorizontal } from "lucide-react";
 
@@ -11,10 +9,11 @@ import ChefCard from "@/components/chef-card";
 import MobileHeader from "@/components/mobile-header";
 
 import { prisma } from "@/lib/prisma";
-import { getAvatarUrl } from "@/lib/upload";
+import { getAvatarUrl, getDishImageUrl } from "@/lib/upload";
 
 export default async function HomePage() {
-  const approvedChefs = await prisma.chefProfile.findMany({
+  // Fetch approved chefs from database (Top Chefs / Booking Restaurant)
+  const dbChefs = await prisma.chefProfile.findMany({
     where: {
       status: "APPROVED",
       deletedAt: null,
@@ -26,24 +25,32 @@ export default async function HomePage() {
         },
       },
     },
+    take: 4,
     orderBy: {
       averageRating: "desc",
     },
-    take: 4,
   });
 
-  const chefs = approvedChefs.map((c) => ({
+  const chefs = dbChefs.map((c) => ({
     id: c.id,
+    userId: c.userId,
     displayName: c.displayName,
-    bannerUrl: c.bannerUrl || "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80",
-    avatarUrl: getAvatarUrl(c.avatarUrl || c.user.avatar),
-    isAvailable: c.isAvailable,
-    city: c.city,
-    averageRating: c.averageRating,
+    bio: c.bio,
     specialties: c.specialties,
+    city: c.city,
+    bannerUrl: c.bannerUrl,
+    avatarUrl: getAvatarUrl(c.avatarUrl || c.user.avatar),
+    averageRating: c.averageRating,
+    totalReviews: c.totalReviews,
+    status: c.status,
+    isAvailable: c.isAvailable,
+    deletedAt: c.deletedAt,
+    createdAt: c.createdAt,
+    updatedAt: c.updatedAt,
   }));
 
-  const activeDishes = await prisma.dish.findMany({
+  // Fetch newest active dishes from approved chefs (New Today Arrivals)
+  const dbNewDishes = await prisma.dish.findMany({
     where: {
       deletedAt: null,
       isAvailable: true,
@@ -54,7 +61,10 @@ export default async function HomePage() {
     },
     include: {
       chef: {
-        include: {
+        select: {
+          displayName: true,
+          city: true,
+          avatarUrl: true,
           user: {
             select: {
               avatar: true,
@@ -66,28 +76,78 @@ export default async function HomePage() {
     orderBy: {
       createdAt: "desc",
     },
+    take: 10,
   });
 
-  const dishes = activeDishes.map((d) => ({
-    id: d.id,
-    name: d.name,
-    price: Number(d.price),
-    averageRating: d.averageRating,
-    imageUrl: d.imageUrl,
-    isAvailable: d.isAvailable,
-    preparationTime: d.preparationTime,
+  const newDishes = dbNewDishes.map((dish) => ({
+    id: dish.id,
+    name: dish.name,
+    price: Number(dish.price),
+    category: dish.category,
+    imageUrl: getDishImageUrl(dish.imageUrl),
+    averageRating: dish.averageRating,
+    preparationTime: dish.preparationTime,
+    isAvailable: dish.isAvailable,
     chef: {
-      displayName: d.chef.displayName,
-      city: d.chef.city,
-      avatarUrl: getAvatarUrl(d.chef.avatarUrl || d.chef.user.avatar),
+      displayName: dish.chef.displayName,
+      city: dish.chef.city,
+      avatarUrl: getAvatarUrl(dish.chef.avatarUrl || dish.chef.user.avatar),
+    },
+  }));
+
+  // Fetch top rated active dishes from approved chefs (Top Rated)
+  // Fallback ordering: averageRating desc, then createdAt desc (newest first)
+  const dbTopRatedDishes = await prisma.dish.findMany({
+    where: {
+      deletedAt: null,
+      isAvailable: true,
+      chef: {
+        status: "APPROVED",
+        deletedAt: null,
+      },
+    },
+    include: {
+      chef: {
+        select: {
+          displayName: true,
+          city: true,
+          avatarUrl: true,
+          user: {
+            select: {
+              avatar: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: [
+      { averageRating: "desc" },
+      { createdAt: "desc" },
+    ],
+    take: 10,
+  });
+
+  const topRatedDishes = dbTopRatedDishes.map((dish) => ({
+    id: dish.id,
+    name: dish.name,
+    price: Number(dish.price),
+    category: dish.category,
+    imageUrl: getDishImageUrl(dish.imageUrl),
+    averageRating: dish.averageRating,
+    preparationTime: dish.preparationTime,
+    isAvailable: dish.isAvailable,
+    chef: {
+      displayName: dish.chef.displayName,
+      city: dish.chef.city,
+      avatarUrl: getAvatarUrl(dish.chef.avatarUrl || dish.chef.user.avatar),
     },
   }));
 
   return (
-    <div className="bg-[#FFF9F5] dark:bg-neutral-900 min-h-screen">
+    <div className="bg-background min-h-screen">
 
       {/* ── Desktop: two-column shell. Mobile: single column. ── */}
-      <div className="max-w-6xl mx-auto min-h-screen flex gap-8 px-0 lg:px-8 lg:py-8">
+      <div className="max-w-[90rem] mx-auto min-h-screen flex gap-8 px-0 lg:px-8 lg:py-8">
 
         {/* ── Left sidebar — desktop only ─────────────────────────────────── */}
         <aside className="hidden lg:flex flex-col w-64 flex-shrink-0 gap-6 sticky top-8 self-start">
@@ -97,7 +157,7 @@ export default async function HomePage() {
             <div className="w-9 h-9 rounded-xl bg-orange-500 flex items-center justify-center shadow-[0_4px_12px_rgba(255,138,0,0.38)]">
               <span className="text-white text-sm font-black">A</span>
             </div>
-            <span className="text-[17px] font-black text-gray-900 dark:text-neutral-100">AlloMyamMyam</span>
+            <span className="text-[17px] font-black text-foreground">AlloMyamMyam</span>
           </div>
 
           {/* Nav links */}
@@ -111,7 +171,7 @@ export default async function HomePage() {
               <Link
                 key={href}
                 href={href}
-                className="px-4 py-2.5 rounded-2xl text-[14px] font-semibold text-gray-600 dark:text-neutral-300 hover:bg-white dark:hover:bg-neutral-850 hover:text-orange-500 dark:hover:text-orange-400 hover:shadow-sm transition-all duration-150"
+                className="px-4 py-2.5 rounded-2xl text-[14px] font-semibold text-muted-foreground hover:bg-card hover:text-orange-500 hover:shadow-sm transition-all duration-150"
               >
                 {label}
               </Link>
@@ -119,9 +179,9 @@ export default async function HomePage() {
           </nav>
 
           {/* Location pill */}
-          <div className="flex items-center gap-2 px-4 py-3 bg-white dark:bg-neutral-800 rounded-2xl border border-gray-100 dark:border-neutral-700 shadow-sm">
+          <div className="flex items-center gap-2 px-4 py-3 bg-card rounded-2xl border border-border shadow-sm">
             <MapPin size={13} className="text-orange-500 flex-shrink-0" fill="currentColor" />
-            <span className="text-[13px] font-bold text-gray-700 dark:text-neutral-200 truncate">Oujda, Oriental</span>
+            <span className="text-[13px] font-bold text-foreground truncate">Oujda, Oriental</span>
           </div>
         </aside>
 
@@ -129,12 +189,12 @@ export default async function HomePage() {
         <div className="flex-1 min-w-0">
 
           {/* Mobile shell — unchanged */}
-          <div className="lg:hidden bg-white dark:bg-neutral-900 min-h-screen flex flex-col relative shadow-[0_0_80px_rgba(0,0,0,0.07)]">
+          <div className="lg:hidden bg-background min-h-screen flex flex-col relative shadow-[0_0_80px_rgba(0,0,0,0.07)]">
             <main className="flex-1 overflow-y-auto pb-[78px]">
               <MobileHeader />
               <SearchBar />
               <HeroBanner />
-              <HomeSections dishes={dishes} chefs={chefs} />
+              <HomeSections chefs={chefs} newDishes={newDishes} topRatedDishes={topRatedDishes} />
             </main>
             <BottomNav />
           </div>
@@ -143,7 +203,7 @@ export default async function HomePage() {
           <div className="hidden lg:block">
             <DesktopSearchBar />
             <HeroBanner />
-            <HomeSections dishes={dishes} chefs={chefs} />
+            <HomeSections chefs={chefs} newDishes={newDishes} topRatedDishes={topRatedDishes} />
             {/* Bottom padding so last section doesn't hug viewport edge */}
             <div className="h-12" />
           </div>
@@ -152,14 +212,20 @@ export default async function HomePage() {
 
         {/* ── Right panel — desktop only ───────────────────────────────────── */}
         <aside className="hidden xl:flex flex-col w-72 flex-shrink-0 gap-4 sticky top-8 self-start">
-          <div className="bg-white dark:bg-neutral-800 rounded-3xl border border-gray-100 dark:border-neutral-700 shadow-sm p-5">
-            <p className="text-[11px] font-extrabold text-gray-400 dark:text-neutral-400 uppercase tracking-wider mb-3">
+          <div className="bg-card rounded-3xl border border-border shadow-sm p-5">
+            <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider mb-3">
               Top Chefs
             </p>
             <div className="flex flex-col gap-3">
-              {chefs.slice(0, 4).map((chef) => (
-                <ChefCard key={chef.id} chef={chef} />
-              ))}
+              {chefs.length > 0 ? (
+                chefs.map((chef) => (
+                  <ChefCard key={chef.id} chef={chef} />
+                ))
+              ) : (
+                <div className="text-[11px] text-muted-foreground italic text-center py-4">
+                  No top chefs available.
+                </div>
+              )}
             </div>
           </div>
         </aside>
@@ -178,10 +244,10 @@ function SearchBar() {
     <div className="flex items-center gap-2.5 px-4 mb-4">
       <Link
         href="/dishes"
-        className="flex-1 flex items-center gap-2.5 bg-gray-100 dark:bg-neutral-800 rounded-2xl px-4 h-11 active:bg-gray-200 dark:active:bg-neutral-750 transition-colors"
+        className="flex-1 flex items-center gap-2.5 bg-secondary rounded-2xl px-4 h-11 active:bg-secondary/80 transition-colors"
       >
-        <Search size={15} className="text-gray-500 dark:text-neutral-400 flex-shrink-0" />
-        <span className="text-sm text-gray-500 dark:text-neutral-400 font-medium">Search dishes or chefs...</span>
+        <Search size={15} className="text-muted-foreground flex-shrink-0" />
+        <span className="text-sm text-muted-foreground font-medium">Search dishes or chefs...</span>
       </Link>
       <Link
         href="/dishes"
@@ -199,10 +265,10 @@ function DesktopSearchBar() {
     <div className="flex items-center gap-3 mb-6">
       <Link
         href="/dishes"
-        className="flex-1 flex items-center gap-3 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-2xl px-5 h-12 hover:border-orange-300 dark:hover:border-orange-500 transition-colors shadow-sm"
+        className="flex-1 flex items-center gap-3 bg-card border border-border rounded-2xl px-5 h-12 hover:border-orange-300 transition-colors shadow-sm"
       >
-        <Search size={16} className="text-gray-400 dark:text-neutral-400 flex-shrink-0" />
-        <span className="text-[14px] text-gray-400 dark:text-neutral-400 font-medium">Search dishes or chefs...</span>
+        <Search size={16} className="text-muted-foreground flex-shrink-0" />
+        <span className="text-[14px] text-muted-foreground font-medium">Search dishes or chefs...</span>
       </Link>
       <Link
         href="/dishes"
@@ -216,7 +282,15 @@ function DesktopSearchBar() {
   );
 }
 
-function HomeSections({ dishes, chefs }: { dishes: any[]; chefs: any[] }) {
+function HomeSections({
+  chefs,
+  newDishes,
+  topRatedDishes,
+}: {
+  chefs: any[];
+  newDishes: any[];
+  topRatedDishes: any[];
+}) {
   return (
     <>
       <HomeSection
@@ -224,9 +298,15 @@ function HomeSections({ dishes, chefs }: { dishes: any[]; chefs: any[] }) {
         subtitle="Fresh dishes added today"
         href="/dishes?filter=new"
       >
-        {dishes.map((dish) => (
-          <DishCard key={dish.id} dish={dish} variant="vertical" />
-        ))}
+        {newDishes.length > 0 ? (
+          newDishes.map((dish) => (
+            <DishCard key={dish.id} dish={dish} variant="vertical" />
+          ))
+        ) : (
+          <div className="text-[12px] text-muted-foreground italic px-4 py-2">
+            No new dishes available today.
+          </div>
+        )}
       </HomeSection>
 
       <HomeSection
@@ -234,12 +314,15 @@ function HomeSections({ dishes, chefs }: { dishes: any[]; chefs: any[] }) {
         subtitle="Highest rated dishes on the platform"
         href="/dishes?filter=top-rated"
       >
-        {dishes
-          .slice()
-          .sort((a, b) => b.averageRating - a.averageRating)
-          .map((dish) => (
+        {topRatedDishes.length > 0 ? (
+          topRatedDishes.map((dish) => (
             <DishCard key={dish.id} dish={dish} variant="vertical" />
-          ))}
+          ))
+        ) : (
+          <div className="text-[12px] text-muted-foreground italic px-4 py-2">
+            No top rated dishes available.
+          </div>
+        )}
       </HomeSection>
 
       {/* Booking Restaurant — hidden on desktop (moved to right sidebar) */}
@@ -250,9 +333,15 @@ function HomeSections({ dishes, chefs }: { dishes: any[]; chefs: any[] }) {
           href="/restaurants"
           scrollable={false}
         >
-          {chefs.slice(0, 4).map((chef) => (
-            <ChefCard key={chef.id} chef={chef} />
-          ))}
+          {chefs.length > 0 ? (
+            chefs.map((chef) => (
+              <ChefCard key={chef.id} chef={chef} />
+            ))
+          ) : (
+            <div className="text-[12px] text-muted-foreground italic px-4 py-2">
+              No restaurants available.
+            </div>
+          )}
         </HomeSection>
       </div>
     </>

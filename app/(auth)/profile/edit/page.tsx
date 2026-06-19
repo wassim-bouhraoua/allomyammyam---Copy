@@ -34,10 +34,17 @@ export default function EditProfilePage() {
   const [bio, setBio] = useState("");
   const [specialties, setSpecialties] = useState<string[]>([]);
 
+  const [banner, setBanner] = useState<string | null>(null);
+  const [bannerPreviewUrl, setBannerPreviewUrl] = useState<string | null>(null);
+  const [bannerFileError, setBannerFileError] = useState<string | null>(null);
+
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const [isDragOverAvatar, setIsDragOverAvatar] = useState(false);
+  const [isDragOverBanner, setIsDragOverBanner] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -58,6 +65,8 @@ export default function EditProfilePage() {
         setCity(user.chefProfile.city || "");
         setBio(user.chefProfile.bio || "");
         setSpecialties(user.chefProfile.specialties || []);
+        setBanner(user.chefProfile.bannerUrl || null);
+        setBannerPreviewUrl(user.chefProfile.bannerUrl || null);
       }
     }
   }, [user]);
@@ -70,11 +79,8 @@ export default function EditProfilePage() {
     );
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const processAvatarFile = (file: File) => {
     setFileError(null);
-    const file = e.target.files?.[0];
-    if (!file) return;
-
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (!validTypes.includes(file.type)) {
       setFileError("Please upload a valid image (JPG, JPEG, PNG, WEBP).");
@@ -99,11 +105,97 @@ export default function EditProfilePage() {
     reader.readAsDataURL(file);
   };
 
+  const processBannerFile = (file: File) => {
+    setBannerFileError(null);
+    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    if (!validTypes.includes(file.type)) {
+      setBannerFileError("Please upload a valid image (JPG, JPEG, PNG, WEBP).");
+      return;
+    }
+
+    const maxSize = 2 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setBannerFileError("Banner size must be less than 2MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result as string;
+      setBannerPreviewUrl(base64);
+      setBanner(base64);
+    };
+    reader.onerror = () => {
+      setBannerFileError("Error reading file. Please try again.");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processAvatarFile(file);
+    }
+  };
+
   const clearPhoto = () => {
     setPreviewUrl(null);
     setAvatar(null);
     setFileError(null);
     const input = document.getElementById("profile-photo-upload") as HTMLInputElement;
+    if (input) input.value = "";
+  };
+
+  const handleBannerFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processBannerFile(file);
+    }
+  };
+
+  const handleDragOverAvatar = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOverAvatar(true);
+  };
+
+  const handleDragLeaveAvatar = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOverAvatar(false);
+  };
+
+  const handleDropAvatar = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOverAvatar(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processAvatarFile(file);
+    }
+  };
+
+  const handleDragOverBanner = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOverBanner(true);
+  };
+
+  const handleDragLeaveBanner = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOverBanner(false);
+  };
+
+  const handleDropBanner = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOverBanner(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processBannerFile(file);
+    }
+  };
+
+  const clearBanner = () => {
+    setBannerPreviewUrl(null);
+    setBanner(null);
+    setBannerFileError(null);
+    const input = document.getElementById("profile-banner-upload") as HTMLInputElement;
     if (input) input.value = "";
   };
 
@@ -144,6 +236,7 @@ export default function EditProfilePage() {
         payload.city = city;
         payload.bio = bio;
         payload.specialties = specialties;
+        payload.banner = banner;
       }
 
       const res = await fetch("/api/auth/profile", {
@@ -203,13 +296,28 @@ export default function EditProfilePage() {
         
         {/* Photo Upload / Edit Section */}
         <div className="flex flex-col items-center py-2">
-          <div className="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-[0_8px_24px_rgba(255,138,0,0.30)] overflow-hidden mb-4">
+          <div
+            onDragOver={handleDragOverAvatar}
+            onDragLeave={handleDragLeaveAvatar}
+            onDrop={handleDropAvatar}
+            onClick={() => document.getElementById("profile-photo-upload")?.click()}
+            className={`relative w-24 h-24 rounded-3xl border-2 border-dashed flex items-center justify-center overflow-hidden cursor-pointer transition-all mb-4 ${
+              isDragOverAvatar
+                ? "border-orange-500 bg-orange-50/50"
+                : "border-gray-200 bg-gray-50 hover:bg-gray-100/70"
+            }`}
+          >
             {previewUrl ? (
               <img src={previewUrl} alt="Avatar Preview" className="w-full h-full object-cover" />
             ) : (
-              <span className="text-[34px] font-black text-white select-none leading-none">
-                {initials || <User size={34} />}
-              </span>
+              <div className="flex flex-col items-center justify-center text-gray-400">
+                {initials ? (
+                  <span className="text-[20px] font-bold leading-none mb-1">{initials}</span>
+                ) : (
+                  <User size={24} className="mb-0.5" />
+                )}
+                <span className="text-[8px] font-bold uppercase tracking-wider">Drop here</span>
+              </div>
             )}
           </div>
 
@@ -287,6 +395,59 @@ export default function EditProfilePage() {
               <p className="text-[11px] font-extrabold text-orange-500 uppercase tracking-wider mb-4 border-b border-gray-50 pb-2">
                 Chef Profile Details
               </p>
+            </div>
+
+            {/* Banner Upload Section */}
+            <div className="flex flex-col gap-2 mb-2 bg-gray-50/50 rounded-2xl border border-gray-150 p-4">
+              <label className={labelCls}>Chef Profile Cover Banner (Optional)</label>
+              
+              <div
+                onDragOver={handleDragOverBanner}
+                onDragLeave={handleDragLeaveBanner}
+                onDrop={handleDropBanner}
+                onClick={() => document.getElementById("profile-banner-upload")?.click()}
+                className={`relative w-full h-32 rounded-2xl border-2 border-dashed flex items-center justify-center overflow-hidden cursor-pointer transition-all ${
+                  isDragOverBanner
+                    ? "border-orange-500 bg-orange-50/50"
+                    : "border-gray-200 bg-gray-50 hover:bg-gray-100/70"
+                }`}
+              >
+                {bannerPreviewUrl ? (
+                  <img src={bannerPreviewUrl} alt="Banner Preview" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-[12px] font-bold text-gray-400">
+                    Drag & drop banner here or click to select
+                  </span>
+                )}
+              </div>
+
+              <div className="flex gap-2 mt-1">
+                <input
+                  type="file"
+                  accept="image/png, image/jpeg, image/jpg, image/webp"
+                  onChange={handleBannerFileChange}
+                  className="hidden"
+                  id="profile-banner-upload"
+                />
+                <label
+                  htmlFor="profile-banner-upload"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-xl bg-white text-[12px] font-bold text-gray-700 cursor-pointer hover:bg-gray-50 active:scale-95 transition-all"
+                >
+                  <Camera size={13} className="text-gray-500" />
+                  Choose Banner
+                </label>
+                {bannerPreviewUrl && (
+                  <button
+                    type="button"
+                    onClick={clearBanner}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 border border-red-100 rounded-xl bg-red-50 text-[12px] font-bold text-red-600 hover:bg-red-100 active:scale-95 transition-all"
+                  >
+                    <Trash2 size={13} />
+                    Remove Banner
+                  </button>
+                )}
+              </div>
+              {bannerFileError && <p className="text-[11px] text-red-500 font-semibold mt-1">{bannerFileError}</p>}
             </div>
 
             <div className="grid grid-cols-2 gap-2.5">

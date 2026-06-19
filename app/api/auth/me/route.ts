@@ -39,6 +39,8 @@ export async function GET() {
           specialties: true,
           city: true,
           status: true,
+          bannerUrl: true,
+          isAvailable: true,
           _count: {
             select: {
               orders: true,
@@ -79,6 +81,8 @@ export async function GET() {
             specialties: user.chefProfile.specialties,
             city: user.chefProfile.city,
             status: user.chefProfile.status,
+            bannerUrl: user.chefProfile.bannerUrl,
+            isAvailable: user.chefProfile.isAvailable,
           }
         : null,
     },

@@ -115,12 +115,12 @@ export default function AdminDashboardPage() {
       <div className="flex items-center justify-between py-4 mb-2">
         <Link
           href="/profile"
-          className="w-10 h-10 rounded-xl border border-gray-200 dark:border-neutral-700 flex items-center justify-center text-gray-600 dark:text-neutral-350 hover:text-orange-500 hover:border-orange-200 dark:hover:border-orange-900/35 transition-all active:scale-95"
+          className="w-10 h-10 rounded-xl border border-border flex items-center justify-center text-muted-foreground hover:text-orange-500 hover:border-orange-200 transition-all active:scale-95"
           aria-label="Back to profile"
         >
           <ArrowLeft size={18} />
         </Link>
-        <h1 className="text-[18px] font-black text-gray-900 dark:text-neutral-100 tracking-tight flex items-center gap-1.5">
+        <h1 className="text-[18px] font-black text-foreground tracking-tight flex items-center gap-1.5">
           <ShieldCheck size={18} className="text-purple-600" />
           Admin Dashboard
         </h1>
@@ -137,7 +137,7 @@ export default function AdminDashboardPage() {
 
       {/* List Container */}
       <div className="flex flex-col gap-3">
-        <p className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider mb-1 pl-1">
+        <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider mb-1 pl-1">
           Registered Chefs ({chefs.length})
         </p>
 
@@ -161,10 +161,10 @@ export default function AdminDashboardPage() {
               return (
                 <div
                   key={chef.id}
-                  className="bg-white dark:bg-neutral-800 rounded-3xl p-4 border border-gray-100 dark:border-neutral-700 shadow-[0_2px_16px_rgba(0,0,0,0.04)] flex flex-col justify-between gap-3"
+                  className="bg-card rounded-3xl p-4 border border-border shadow-[0_2px_16px_rgba(0,0,0,0.04)] flex flex-col justify-between gap-3"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-orange-100 dark:bg-neutral-900 flex items-center justify-center flex-shrink-0 relative overflow-hidden font-black text-[13px] text-orange-600">
+                    <div className="w-10 h-10 rounded-xl bg-orange-100/50 dark:bg-orange-950/30 flex items-center justify-center flex-shrink-0 relative overflow-hidden font-black text-[13px] text-orange-600 dark:text-orange-400">
                       {chef.user.avatar ? (
                         <img src={chef.user.avatar} alt={chef.displayName} className="w-full h-full object-cover" />
                       ) : (
@@ -174,7 +174,7 @@ export default function AdminDashboardPage() {
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 justify-between">
-                        <h3 className="text-[13px] font-extrabold text-gray-900 dark:text-neutral-100 truncate">
+                        <h3 className="text-[13px] font-extrabold text-foreground truncate">
                           {chef.displayName}
                         </h3>
                         <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${
@@ -188,29 +188,29 @@ export default function AdminDashboardPage() {
                         </span>
                       </div>
 
-                      <p className="text-[11px] text-gray-500 dark:text-neutral-300 font-semibold truncate mt-0.5">
+                      <p className="text-[11px] text-muted-foreground font-semibold truncate mt-0.5">
                         {chef.user.firstName} {chef.user.lastName}
                       </p>
-                      <p className="text-[10px] text-gray-400 dark:text-neutral-400 truncate">{chef.user.email}</p>
+                      <p className="text-[10px] text-muted-foreground truncate">{chef.user.email}</p>
                       
                       {chef.city && (
-                        <p className="text-[10px] text-gray-400 dark:text-neutral-450 font-medium mt-1">
-                          Location: <span className="text-gray-700 dark:text-neutral-200 font-semibold">{chef.city}</span>
+                        <p className="text-[10px] text-muted-foreground font-medium mt-1">
+                          Location: <span className="text-foreground font-semibold">{chef.city}</span>
                         </p>
                       )}
                       {chef.specialties.length > 0 && (
-                        <p className="text-[10px] text-gray-400 dark:text-neutral-450 font-medium mt-0.5 truncate">
-                          Specialties: <span className="capitalize text-gray-700 dark:text-neutral-200 font-semibold">{specialtiesLabel}</span>
+                        <p className="text-[10px] text-muted-foreground font-medium mt-0.5 truncate">
+                          Specialties: <span className="capitalize text-foreground font-semibold">{specialtiesLabel}</span>
                         </p>
                       )}
-                      <p className="text-[10px] text-gray-400 dark:text-neutral-450 font-medium mt-0.5 flex items-center gap-1">
-                        <Clock size={10} className="text-gray-300 dark:text-neutral-500" /> {registrationDate}
+                      <p className="text-[10px] text-muted-foreground font-medium mt-0.5 flex items-center gap-1">
+                        <Clock size={10} /> {registrationDate}
                       </p>
                     </div>
                   </div>
 
                   {/* Actions row */}
-                  <div className="flex items-center gap-2 border-t border-gray-50 dark:border-neutral-750 pt-2.5 mt-0.5">
+                  <div className="flex items-center gap-2 border-t border-border pt-2.5 mt-0.5">
                     {(chef.status === "PENDING" || chef.status === "SUSPENDED") && (
                       <button
                         onClick={() => handleUpdateStatus(chef.id, "APPROVED")}
@@ -237,7 +237,7 @@ export default function AdminDashboardPage() {
             })}
           </div>
         ) : (
-          <div className="bg-white dark:bg-neutral-800 rounded-3xl border border-gray-100 dark:border-neutral-700 p-8 text-center text-gray-500 dark:text-neutral-450 shadow-sm">
+          <div className="bg-card rounded-3xl border border-border p-8 text-center text-muted-foreground shadow-sm">
             No chef accounts registered in database.
           </div>
         )}

@@ -112,8 +112,8 @@ export default function RegisterPage() {
     }
   }
 
-  const inputCls = "h-12 px-4 rounded-2xl bg-gray-50 border border-gray-200 text-[14px] text-gray-900 placeholder-gray-400 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors w-full";
-  const labelCls = "text-[11px] font-bold text-gray-400 uppercase tracking-wider";
+  const inputCls = "h-12 px-4 rounded-2xl bg-secondary border border-border text-[14px] text-foreground placeholder:text-muted-foreground outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors w-full";
+  const labelCls = "text-[11px] font-bold text-muted-foreground uppercase tracking-wider";
 
   return (
     <div className="flex-1 flex flex-col lg:flex-row min-h-screen lg:min-h-0">
@@ -153,8 +153,8 @@ export default function RegisterPage() {
           <div className="w-16 h-16 rounded-3xl bg-orange-500 flex lg:hidden items-center justify-center shadow-[0_6px_20px_rgba(255,138,0,0.40)] mb-5">
             <UtensilsCrossed size={28} className="text-white" />
           </div>
-          <h1 className="text-[24px] font-black text-gray-900 tracking-tight">Create account</h1>
-          <p className="text-[13px] text-gray-400 mt-1.5">Order homemade food from local chefs</p>
+          <h1 className="text-[24px] font-black text-foreground tracking-tight">Create account</h1>
+          <p className="text-[13px] text-muted-foreground mt-1.5">Order homemade food from local chefs</p>
         </div>
 
         {/* Error */}
@@ -166,17 +166,17 @@ export default function RegisterPage() {
         )}
 
         {/* Google Sign-in Card */}
-        <div className="bg-white rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-gray-100 p-5 mb-3 flex flex-col gap-3">
+        <div className="bg-card rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-border p-5 mb-3 flex flex-col gap-3">
           <div id="google-signin-button" className="w-full flex justify-center min-h-[40px]" />
           <div className="flex items-center gap-2.5 my-0.5">
-            <div className="flex-1 h-px bg-gray-100" />
-            <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">or register with email</span>
-            <div className="flex-1 h-px bg-gray-100" />
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">or register with email</span>
+            <div className="flex-1 h-px bg-border" />
           </div>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-gray-100 p-5 flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="bg-card rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-border p-5 flex flex-col gap-4">
 
           <div className="grid grid-cols-2 gap-2.5">
             <div className="flex flex-col gap-1.5">
@@ -198,11 +198,11 @@ export default function RegisterPage() {
             <label className={labelCls}>Upload Profile Photo (Optional)</label>
             <div className="flex items-center gap-3">
               {/* Preview */}
-              <div className="relative w-12 h-12 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+              <div className="relative w-12 h-12 rounded-xl bg-secondary border border-border flex items-center justify-center overflow-hidden flex-shrink-0">
                 {previewUrl ? (
                   <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
-                  <User size={20} className="text-gray-300" />
+                  <User size={20} className="text-muted-foreground/50" />
                 )}
                 {previewUrl && (
                   <button
@@ -226,7 +226,7 @@ export default function RegisterPage() {
                 />
                 <label
                   htmlFor="profile-photo-upload"
-                  className="inline-flex items-center px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 text-[12px] font-bold text-gray-700 cursor-pointer hover:bg-gray-100 active:scale-95 transition-all"
+                  className="inline-flex items-center px-4 py-2 border border-border rounded-xl bg-secondary text-[12px] font-bold text-foreground cursor-pointer hover:bg-secondary/80 active:scale-95 transition-all"
                 >
                   Choose Photo
                 </label>
@@ -244,7 +244,7 @@ export default function RegisterPage() {
 
           <div className="flex flex-col gap-1.5">
             <label className={labelCls}>
-              Phone <span className="normal-case text-gray-400 font-normal">(optional)</span>
+              Phone <span className="normal-case text-muted-foreground font-normal">(optional)</span>
             </label>
             <input type="tel" autoComplete="tel"
               value={form.phoneNumber} onChange={set("phoneNumber")}
@@ -259,12 +259,12 @@ export default function RegisterPage() {
                 value={form.password} onChange={set("password")}
                 placeholder="Min. 8 characters" className={`${inputCls} pr-12`} />
               <button type="button" onClick={() => setShowPw(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
                 aria-label={showPw ? "Hide" : "Show"}>
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
-            <p className="text-[11px] text-gray-400">At least 8 characters</p>
+            <p className="text-[11px] text-muted-foreground">At least 8 characters</p>
           </div>
 
           <button type="submit" disabled={loading}
@@ -279,18 +279,18 @@ export default function RegisterPage() {
 
         {/* Divider */}
         <div className="flex items-center gap-3 my-5">
-          <div className="flex-1 h-px bg-gray-100" />
-          <span className="text-[11px] text-gray-400 font-medium">already a member?</span>
-          <div className="flex-1 h-px bg-gray-100" />
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-[11px] text-muted-foreground font-medium">already a member?</span>
+          <div className="flex-1 h-px bg-border" />
         </div>
 
         <div className="flex flex-col gap-2.5">
           <Link href="/login"
-            className="h-12 rounded-2xl border border-gray-200 text-gray-700 font-bold text-[14px] flex items-center justify-center active:scale-[0.98] transition-transform hover:border-orange-300 hover:text-orange-500">
+            className="h-12 rounded-2xl border border-border text-foreground bg-secondary/20 hover:bg-secondary/40 font-bold text-[14px] flex items-center justify-center active:scale-[0.98] transition-transform hover:border-orange-300 hover:text-orange-500">
             Sign In
           </Link>
           <Link href="/register-chef"
-            className="h-12 rounded-2xl border border-orange-100 bg-orange-50 text-orange-600 font-bold text-[14px] flex items-center justify-center active:scale-[0.98] transition-transform">
+            className="h-12 rounded-2xl border border-orange-100 dark:border-orange-900/30 bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 font-bold text-[14px] flex items-center justify-center active:scale-[0.98] transition-transform">
             Join as a Chef instead
           </Link>
         </div>
