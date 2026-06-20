@@ -17,6 +17,7 @@ export interface DishCardData {
     displayName: string;
     city: string | null;
     avatarUrl?: string | null;
+    isAvailable: boolean;
   };
 }
 
@@ -108,13 +109,19 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
                 <span className="text-2xl opacity-30">🍽️</span>
               </div>
             )}
-            {!dish.isAvailable && (
+            {!dish.chef.isAvailable ? (
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-xl p-1">
+                <span className="text-white text-[8px] font-bold uppercase tracking-wider bg-neutral-600/95 px-1 py-0.5 rounded-md text-center leading-tight">
+                  Chef Unavailable
+                </span>
+              </div>
+            ) : !dish.isAvailable ? (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-xl">
                 <span className="text-white text-[9px] font-bold uppercase tracking-widest">
                   Sold out
                 </span>
               </div>
-            )}
+            ) : null}
           </div>
 
           {/* Content
@@ -195,14 +202,20 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
               <span className="text-[9px] font-bold text-white">{dish.preparationTime}m</span>
             </div>
 
-            {/* Sold out overlay */}
-            {!dish.isAvailable && (
+            {/* Availability overlays */}
+            {!dish.chef.isAvailable ? (
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                <span className="text-white text-[9px] font-bold uppercase tracking-wider bg-neutral-600/95 px-2 py-0.5 rounded-md">
+                  Chef Unavailable
+                </span>
+              </div>
+            ) : !dish.isAvailable ? (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                 <span className="text-white text-[9px] font-bold uppercase tracking-widest">
                   Sold out
                 </span>
               </div>
-            )}
+            ) : null}
           </div>
 
           {/* Content — explicit padding so nothing collapses */}
@@ -285,14 +298,20 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
             <span className="text-[9px] font-bold text-white">{dish.preparationTime}m</span>
           </div>
 
-          {/* Sold out overlay */}
-          {!dish.isAvailable && (
+          {/* Availability overlays */}
+          {!dish.chef.isAvailable ? (
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+              <span className="text-white text-[10px] font-bold uppercase tracking-wider bg-neutral-600/95 px-2.5 py-1 rounded-md">
+                Chef Unavailable
+              </span>
+            </div>
+          ) : !dish.isAvailable ? (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
               <span className="text-white text-[9px] font-bold uppercase tracking-widest">
                 Sold out
               </span>
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Content — explicit padding so nothing collapses */}

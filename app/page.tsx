@@ -65,6 +65,7 @@ export default async function HomePage() {
           displayName: true,
           city: true,
           avatarUrl: true,
+          isAvailable: true,
           user: {
             select: {
               avatar: true,
@@ -92,6 +93,7 @@ export default async function HomePage() {
       displayName: dish.chef.displayName,
       city: dish.chef.city,
       avatarUrl: getAvatarUrl(dish.chef.avatarUrl || dish.chef.user.avatar),
+      isAvailable: dish.chef.isAvailable,
     },
   }));
 
@@ -112,6 +114,7 @@ export default async function HomePage() {
           displayName: true,
           city: true,
           avatarUrl: true,
+          isAvailable: true,
           user: {
             select: {
               avatar: true,
@@ -140,6 +143,7 @@ export default async function HomePage() {
       displayName: dish.chef.displayName,
       city: dish.chef.city,
       avatarUrl: getAvatarUrl(dish.chef.avatarUrl || dish.chef.user.avatar),
+      isAvailable: dish.chef.isAvailable,
     },
   }));
 

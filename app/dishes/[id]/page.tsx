@@ -88,6 +88,7 @@ export default async function DishDetailPage({ params }: { params: Promise<{ id:
       averageRating: dish.chef.averageRating,
       totalReviews: dish.chef.totalReviews,
       city: dish.chef.city,
+      isAvailable: dish.chef.isAvailable,
     },
   };
 
@@ -104,6 +105,7 @@ export default async function DishDetailPage({ params }: { params: Promise<{ id:
       displayName: d.chef.displayName,
       city: d.chef.city,
       avatarUrl: getAvatarUrl(d.chef.avatarUrl || d.chef.user.avatar),
+      isAvailable: d.chef.isAvailable,
     },
   }));
 

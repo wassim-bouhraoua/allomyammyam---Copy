@@ -100,6 +100,7 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
           displayName: dbChef.displayName,
           city: dbChef.city,
           avatarUrl: getAvatarUrl(dbChef.avatarUrl || dbChef.user.avatar),
+          isAvailable: dbChef.isAvailable,
         },
       }));
     }
@@ -288,6 +289,19 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
             </div>
           </div>
         </div>
+
+        {/* Chef Unavailable Status Banner */}
+        {!chef.isAvailable && (
+          <div className="px-4 lg:px-8 mt-4 z-10">
+            <div className="flex items-center gap-3 bg-secondary/80 border border-border rounded-2xl p-4 text-muted-foreground shadow-sm">
+              <AlertCircle size={20} className="text-muted-foreground flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm font-bold text-foreground">Currently Not Accepting Orders</p>
+                <p className="text-[12px] mt-0.5">This chef is offline. You can still browse the menu, but placing orders is temporarily disabled.</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Menu Section */}
         <div className="px-4 lg:px-8 mt-8 pb-6 flex flex-col gap-4">

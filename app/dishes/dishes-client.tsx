@@ -25,6 +25,7 @@ export interface ExploreDish {
     displayName: string;
     city: string | null;
     avatarUrl: string | null;
+    isAvailable: boolean;
   };
 }
 

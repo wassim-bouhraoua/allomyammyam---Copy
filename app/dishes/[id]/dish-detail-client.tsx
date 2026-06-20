@@ -59,6 +59,7 @@ export interface DetailDish {
     averageRating: number;
     totalReviews: number;
     city: string | null;
+    isAvailable: boolean;
   };
 }
 
@@ -186,23 +187,23 @@ function TagChip({ label }: { label: string }) {
   );
 }
 
-function QuantityStepper({ value, onChange, max }: { value: number; onChange: (v: number) => void; max?: number }) {
+function QuantityStepper({ value, onChange, max, disabled = false }: { value: number; onChange: (v: number) => void; max?: number; disabled?: boolean }) {
   return (
     <div className="flex items-center gap-3">
       <button
         onClick={() => onChange(Math.max(1, value - 1))}
-        disabled={value <= 1}
+        disabled={disabled || value <= 1}
         aria-label="Decrease quantity"
         className="w-9 h-9 rounded-full border-2 border-gray-200 dark:border-neutral-700 flex items-center justify-center transition-transform duration-150 active:scale-90 disabled:opacity-40"
       >
-        <Minus size={14} className="text-gray-600 dark:text-neutral-450" />
+        <Minus size={14} className="text-gray-600 dark:text-neutral-455" />
       </button>
       <span className="text-[16px] font-extrabold text-gray-900 dark:text-neutral-100 min-w-[20px] text-center tabular-nums">
         {value}
       </span>
       <button
         onClick={() => onChange(max !== undefined ? Math.min(max, value + 1) : value + 1)}
-        disabled={max !== undefined && value >= max}
+        disabled={disabled || (max !== undefined && value >= max)}
         aria-label="Increase quantity"
         className="w-9 h-9 rounded-full bg-orange-500 flex items-center justify-center shadow-[0_2px_10px_rgba(255,138,0,0.35)] transition-transform duration-150 active:scale-90 disabled:opacity-40"
       >
@@ -502,7 +503,7 @@ export default function DishDetailClient({ dish, related }: { dish: DetailDish; 
 
               <div className="bg-white dark:bg-neutral-800 rounded-2xl p-5 border border-gray-100/80 dark:border-neutral-700 shadow-[0_2px_18px_rgba(0,0,0,0.03)] flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                  <QuantityStepper value={qty} onChange={setQty} max={stockMax} />
+                  <QuantityStepper value={qty} onChange={setQty} max={stockMax} disabled={!dish.chef.isAvailable} />
                   <div className="text-right">
                     <p className="text-[11px] text-gray-400 dark:text-neutral-455 font-bold uppercase tracking-wider">Total Price</p>
                     <p className="text-[22px] font-black text-orange-600 leading-none mt-0.5">
@@ -511,14 +512,20 @@ export default function DishDetailClient({ dish, related }: { dish: DetailDish; 
                   </div>
                 </div>
 
+                {!dish.chef.isAvailable && (
+                  <p className="text-[12px] font-medium text-muted-foreground text-center">
+                    This chef is temporarily not accepting new orders.
+                  </p>
+                )}
+
                 <button
                   onClick={handleAddToCart}
-                  disabled={!dish.isAvailable}
+                  disabled={!dish.isAvailable || !dish.chef.isAvailable}
                   style={{ height: 52 }}
                   className={[
                     "w-full rounded-2xl flex items-center justify-center gap-2.5",
                     "font-extrabold text-[15px] text-white transition-all duration-150 active:scale-[0.983]",
-                    !dish.isAvailable
+                    (!dish.isAvailable || !dish.chef.isAvailable)
                       ? "bg-gray-300 dark:bg-neutral-700 cursor-not-allowed text-gray-500"
                       : added
                       ? "bg-orange-400 shadow-[0_4px_18px_rgba(255,138,0,0.38)]"
@@ -527,6 +534,8 @@ export default function DishDetailClient({ dish, related }: { dish: DetailDish; 
                 >
                   {added ? (
                     <><CheckCircle2 size={18} /> Added to cart!</>
+                  ) : !dish.chef.isAvailable ? (
+                    "Chef Not Accepting Orders"
                   ) : !dish.isAvailable ? (
                     "Sold Out"
                   ) : (

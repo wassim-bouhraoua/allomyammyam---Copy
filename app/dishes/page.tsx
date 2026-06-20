@@ -44,6 +44,7 @@ export default async function DishesPage() {
       displayName: dish.chef.displayName,
       city: dish.chef.city,
       avatarUrl: getAvatarUrl(dish.chef.avatarUrl || dish.chef.user.avatar),
+      isAvailable: dish.chef.isAvailable,
     },
   }));
 

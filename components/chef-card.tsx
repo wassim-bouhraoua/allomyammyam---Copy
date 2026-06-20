@@ -6,10 +6,9 @@ import { MockChefProfile } from "@/lib/mock-data";
 
 interface ChefCardProps {
   chef: MockChefProfile;
-  onBook?: (id: string) => void;
 }
 
-export default function ChefCard({ chef, onBook }: ChefCardProps) {
+export default function ChefCard({ chef }: ChefCardProps) {
   const rating = chef.averageRating.toFixed(1);
   const specialtiesLabel = chef.specialties
     .slice(0, 2)
@@ -17,11 +16,8 @@ export default function ChefCard({ chef, onBook }: ChefCardProps) {
     .join(" · ");
 
   return (
-    <article className="flex items-center gap-3 bg-card rounded-2xl p-3 shadow-[0_2px_14px_rgba(0,0,0,0.07)] border border-border">
-      <Link
-        href={`/chefs/${chef.id}`}
-        className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-90 transition-opacity active:scale-[0.99]"
-      >
+    <Link href={`/chefs/${chef.id}`} className="block group">
+      <article className="flex items-center gap-3 bg-card rounded-2xl p-3 shadow-[0_2px_14px_rgba(0,0,0,0.07)] border border-border transition-all duration-150 hover:shadow-[0_4px_22px_rgba(0,0,0,0.12)] hover:border-orange-200 dark:hover:border-neutral-800 active:scale-[0.99] cursor-pointer">
         {/* Chef thumbnail — banner as background, avatar as overlay */}
         <div className="relative w-[68px] h-[68px] rounded-xl overflow-hidden flex-shrink-0 bg-secondary">
           {chef.bannerUrl && (
@@ -66,20 +62,18 @@ export default function ChefCard({ chef, onBook }: ChefCardProps) {
             <span className="text-[10px] text-muted-foreground">· {specialtiesLabel}</span>
           </div>
         </div>
-      </Link>
 
-      {/* Book button */}
-      <button
-        onClick={() => onBook?.(chef.id)}
-        disabled={!chef.isAvailable}
-        className={`flex-shrink-0 text-[11px] font-bold px-4 py-2 rounded-xl transition-all duration-150 active:scale-95 ${
-          chef.isAvailable
-            ? "bg-orange-500 text-white shadow-[0_4px_12px_rgba(255,138,0,0.35)]"
-            : "bg-secondary text-muted-foreground cursor-not-allowed"
-        }`}
-      >
-        {chef.isAvailable ? "Book" : "Closed"}
-      </button>
-    </article>
+        {/* View Menu badge (styled span to avoid nesting button inside link) */}
+        <span
+          className={`flex-shrink-0 text-[11px] font-bold px-4 py-2 rounded-xl transition-all duration-150 ${
+            chef.isAvailable
+              ? "bg-orange-500 text-white shadow-[0_4px_12px_rgba(255,138,0,0.30)] group-hover:bg-orange-600 group-hover:shadow-[0_4px_14px_rgba(255,138,0,0.40)]"
+              : "bg-secondary text-muted-foreground"
+          }`}
+        >
+          {chef.isAvailable ? "View" : "Closed"}
+        </span>
+      </article>
+    </Link>
   );
 }
