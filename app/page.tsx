@@ -10,6 +10,7 @@ import MobileHeader from "@/components/mobile-header";
 
 import { prisma } from "@/lib/prisma";
 import { getAvatarUrl, getDishImageUrl } from "@/lib/upload";
+import { getChefAvatarUrl } from "@/lib/defaults-server";
 
 export default async function HomePage() {
   // Fetch approved chefs from database (Top Chefs / Booking Restaurant)
@@ -39,7 +40,7 @@ export default async function HomePage() {
     specialties: c.specialties,
     city: c.city,
     bannerUrl: c.bannerUrl,
-    avatarUrl: getAvatarUrl(c.avatarUrl || c.user.avatar),
+    avatarUrl: getChefAvatarUrl(c.avatarUrl || c.user.avatar),
     averageRating: c.averageRating,
     totalReviews: c.totalReviews,
     status: c.status,
@@ -92,7 +93,7 @@ export default async function HomePage() {
     chef: {
       displayName: dish.chef.displayName,
       city: dish.chef.city,
-      avatarUrl: getAvatarUrl(dish.chef.avatarUrl || dish.chef.user.avatar),
+      avatarUrl: getChefAvatarUrl(dish.chef.avatarUrl || dish.chef.user.avatar),
       isAvailable: dish.chef.isAvailable,
     },
   }));
@@ -142,7 +143,7 @@ export default async function HomePage() {
     chef: {
       displayName: dish.chef.displayName,
       city: dish.chef.city,
-      avatarUrl: getAvatarUrl(dish.chef.avatarUrl || dish.chef.user.avatar),
+      avatarUrl: getChefAvatarUrl(dish.chef.avatarUrl || dish.chef.user.avatar),
       isAvailable: dish.chef.isAvailable,
     },
   }));

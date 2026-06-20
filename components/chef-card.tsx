@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Star, MapPin } from "lucide-react";
 import { MockChefProfile } from "@/lib/mock-data";
+import { getChefAvatarUrl } from "@/lib/defaults";
 
 interface ChefCardProps {
   chef: MockChefProfile;
@@ -18,29 +19,15 @@ export default function ChefCard({ chef }: ChefCardProps) {
   return (
     <Link href={`/chefs/${chef.id}`} className="block group">
       <article className="flex items-center gap-3 bg-card rounded-2xl p-3 shadow-[0_2px_14px_rgba(0,0,0,0.07)] border border-border transition-all duration-150 hover:shadow-[0_4px_22px_rgba(0,0,0,0.12)] hover:border-orange-200 dark:hover:border-neutral-800 active:scale-[0.99] cursor-pointer">
-        {/* Chef thumbnail — banner as background, avatar as overlay */}
+        {/* Chef thumbnail — avatar as main image */}
         <div className="relative w-[68px] h-[68px] rounded-xl overflow-hidden flex-shrink-0 bg-secondary">
-          {chef.bannerUrl && (
-            <Image
-              src={chef.bannerUrl}
-              alt={chef.displayName}
-              fill
-              sizes="68px"
-              className="object-cover"
-            />
-          )}
-          {/* Avatar overlay */}
-          {chef.avatarUrl && (
-            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full border-2 border-card overflow-hidden shadow-sm">
-              <Image
-                src={chef.avatarUrl}
-                alt={chef.displayName}
-                fill
-                sizes="28px"
-                className="object-cover"
-              />
-            </div>
-          )}
+          <Image
+            src={getChefAvatarUrl(chef.avatarUrl)}
+            alt={chef.displayName}
+            fill
+            sizes="68px"
+            className="object-cover"
+          />
           {/* Availability dot */}
           <div
             className={`absolute top-1.5 left-1.5 w-2 h-2 rounded-full border-[1.5px] border-card ${

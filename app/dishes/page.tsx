@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import DishesClient from "./dishes-client";
 import { getAvatarUrl, getDishImageUrl } from "@/lib/upload";
+import { getChefAvatarUrl } from "@/lib/defaults-server";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +44,7 @@ export default async function DishesPage() {
     chef: {
       displayName: dish.chef.displayName,
       city: dish.chef.city,
-      avatarUrl: getAvatarUrl(dish.chef.avatarUrl || dish.chef.user.avatar),
+      avatarUrl: getChefAvatarUrl(dish.chef.avatarUrl || dish.chef.user.avatar),
       isAvailable: dish.chef.isAvailable,
     },
   }));

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import DishDetailClient from "./dish-detail-client";
 import { getAvatarUrl, getDishImageUrl } from "@/lib/upload";
+import { getChefBannerUrl, getChefAvatarUrl } from "@/lib/defaults-server";
 
 export const dynamic = "force-dynamic";
 
@@ -82,8 +83,8 @@ export default async function DishDetailPage({ params }: { params: Promise<{ id:
     chef: {
       id: dish.chef.id,
       displayName: dish.chef.displayName,
-      avatarUrl: getAvatarUrl(dish.chef.avatarUrl || dish.chef.user.avatar),
-      bannerUrl: dish.chef.bannerUrl,
+      avatarUrl: getChefAvatarUrl(dish.chef.avatarUrl || dish.chef.user.avatar),
+      bannerUrl: getChefBannerUrl(dish.chef.bannerUrl),
       bio: dish.chef.bio,
       averageRating: dish.chef.averageRating,
       totalReviews: dish.chef.totalReviews,
@@ -104,7 +105,7 @@ export default async function DishDetailPage({ params }: { params: Promise<{ id:
     chef: {
       displayName: d.chef.displayName,
       city: d.chef.city,
-      avatarUrl: getAvatarUrl(d.chef.avatarUrl || d.chef.user.avatar),
+      avatarUrl: getChefAvatarUrl(d.chef.avatarUrl || d.chef.user.avatar),
       isAvailable: d.chef.isAvailable,
     },
   }));

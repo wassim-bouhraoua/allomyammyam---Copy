@@ -1,4 +1,5 @@
 import fs from "fs/promises";
+import fsSync from "fs";
 import path from "path";
 import crypto from "crypto";
 
@@ -73,9 +74,22 @@ export async function saveBanner(base64Data: string): Promise<string> {
   return activeStorageProvider.uploadFile(base64Data, "banners");
 }
 
+function localFileExists(relativePath: string): boolean {
+  if (relativePath.startsWith("http://") || relativePath.startsWith("https://")) {
+    return true;
+  }
+  try {
+    const filePath = path.join(process.cwd(), "public", relativePath);
+    return fsSync.existsSync(filePath);
+  } catch {
+    return false;
+  }
+}
+
 export function getAvatarUrl(pathOrKey: string | null): string | null {
   if (!pathOrKey) return null;
-  return activeStorageProvider.getFileUrl(pathOrKey);
+  const url = activeStorageProvider.getFileUrl(pathOrKey);
+  return localFileExists(url) ? url : null;
 }
 
 export async function saveDishImage(base64Data: string): Promise<string> {
@@ -84,6 +98,7 @@ export async function saveDishImage(base64Data: string): Promise<string> {
 
 export function getDishImageUrl(pathOrKey: string | null): string | null {
   if (!pathOrKey) return null;
-  return activeStorageProvider.getFileUrl(pathOrKey);
+  const url = activeStorageProvider.getFileUrl(pathOrKey);
+  return localFileExists(url) ? url : null;
 }
 

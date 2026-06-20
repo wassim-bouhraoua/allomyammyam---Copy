@@ -7,6 +7,7 @@ import { ArrowLeft, Star, MapPin, ChefHat, Calendar, MessageSquare, AlertCircle 
 import BottomNav from "@/components/bottom-nav";
 import DishCard from "@/components/dish-card";
 import { getAvatarUrl, getDishImageUrl } from "@/lib/upload";
+import { getChefBannerUrl, getChefAvatarUrl } from "@/lib/defaults-server";
 
 interface ResolvedChef {
   id: string;
@@ -14,8 +15,8 @@ interface ResolvedChef {
   bio: string | null;
   city: string | null;
   specialties: string[];
-  bannerUrl: string | null;
-  avatarUrl: string | null;
+  bannerUrl: string;
+  avatarUrl: string;
   averageRating: number;
   totalReviews: number;
   isAvailable: boolean;
@@ -37,8 +38,8 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
       bio: mockChef.bio,
       city: mockChef.city,
       specialties: mockChef.specialties,
-      bannerUrl: mockChef.bannerUrl,
-      avatarUrl: mockChef.avatarUrl,
+      bannerUrl: getChefBannerUrl(mockChef.bannerUrl),
+      avatarUrl: getChefAvatarUrl(mockChef.avatarUrl),
       averageRating: mockChef.averageRating,
       totalReviews: mockChef.totalReviews,
       isAvailable: mockChef.isAvailable,
@@ -68,8 +69,8 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
         bio: dbChef.bio,
         city: dbChef.city,
         specialties: dbChef.specialties,
-        bannerUrl: dbChef.bannerUrl || "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80",
-        avatarUrl: getAvatarUrl(dbChef.avatarUrl || dbChef.user.avatar),
+        bannerUrl: getChefBannerUrl(dbChef.bannerUrl),
+        avatarUrl: getChefAvatarUrl(dbChef.avatarUrl || dbChef.user.avatar),
         averageRating: dbChef.averageRating,
         totalReviews: dbChef.totalReviews,
         isAvailable: dbChef.isAvailable,
@@ -99,7 +100,7 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
         chef: {
           displayName: dbChef.displayName,
           city: dbChef.city,
-          avatarUrl: getAvatarUrl(dbChef.avatarUrl || dbChef.user.avatar),
+          avatarUrl: getChefAvatarUrl(dbChef.avatarUrl || dbChef.user.avatar),
           isAvailable: dbChef.isAvailable,
         },
       }));
@@ -124,7 +125,7 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
         {/* Banner Section */}
         <div className="relative h-48 lg:h-64 w-full bg-gray-100 flex-shrink-0">
           <Image
-            src={chef.bannerUrl || "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80"}
+            src={chef.bannerUrl}
             alt={chef.displayName}
             fill
             priority
@@ -154,20 +155,14 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
                 
                 {/* Avatar container */}
                 <div className="relative w-24 h-24 lg:w-28 lg:h-28 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-[0_8px_24px_rgba(255,138,0,0.25)] overflow-hidden border-4 border-card mb-4 -mt-16 lg:-mt-22">
-                  {chef.avatarUrl ? (
-                    <Image
-                      src={chef.avatarUrl}
-                      alt={chef.displayName}
-                      fill
-                      sizes="(max-width: 768px) 96px, 112px"
-                      unoptimized
-                      className="object-cover"
-                    />
-                  ) : (
-                    <span className="text-[36px] lg:text-[42px] font-black text-white select-none leading-none">
-                      {initials}
-                    </span>
-                  )}
+                  <Image
+                    src={chef.avatarUrl}
+                    alt={chef.displayName}
+                    fill
+                    sizes="(max-width: 768px) 96px, 112px"
+                    unoptimized
+                    className="object-cover"
+                  />
                 </div>
 
                 {/* Name & Badge */}

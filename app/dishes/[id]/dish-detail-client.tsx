@@ -54,7 +54,7 @@ export interface DetailDish {
     id: string;
     displayName: string;
     avatarUrl: string | null;
-    bannerUrl: string | null;
+    bannerUrl: string;
     bio: string | null;
     averageRating: number;
     totalReviews: number;

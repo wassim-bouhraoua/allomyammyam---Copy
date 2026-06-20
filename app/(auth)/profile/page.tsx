@@ -11,6 +11,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import BackToHome from "@/components/auth/back-to-home";
+import { getChefBannerUrl, getChefAvatarUrl } from "@/lib/defaults";
 
 const ROLE_LABELS: Record<string, string> = {
   USER: "Customer", CHEF: "Chef", ADMIN: "Administrator",
@@ -104,18 +105,20 @@ export default function ProfilePage() {
     router.refresh();
   }
 
+  const bannerUrl = user.role === "CHEF" ? getChefBannerUrl(user.chefProfile?.bannerUrl) : null;
+
   return (
     <div className="flex-1 flex flex-col">
       <BackToHome />
 
       {/* Banner */}
       <div
-        style={user.role === "CHEF" && user.chefProfile?.bannerUrl ? { backgroundImage: `url(${user.chefProfile.bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+        style={bannerUrl ? { backgroundImage: `url(${bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
         className={`bg-gradient-to-br from-orange-400 to-orange-600 px-5 pt-10 pb-20 lg:pb-16 text-white lg:rounded-2xl lg:mx-6 lg:mt-6 ${
-          user.role === "CHEF" && user.chefProfile?.bannerUrl ? "relative overflow-hidden before:absolute before:inset-0 before:bg-black/45 before:z-0" : ""
+          bannerUrl ? "relative overflow-hidden before:absolute before:inset-0 before:bg-black/45 before:z-0" : ""
         }`}
       >
-        <div className={user.role === "CHEF" && user.chefProfile?.bannerUrl ? "relative z-10" : ""}>
+        <div className={bannerUrl ? "relative z-10" : ""}>
           <p className="text-[12px] font-bold text-orange-100 uppercase tracking-wider mb-2">My Profile</p>
           <div className="flex flex-col gap-1.5">
             <h1 className="text-[26px] lg:text-[32px] font-black leading-none tracking-tight">
@@ -160,17 +163,11 @@ export default function ProfilePage() {
             {/* Identity card */}
             <div className="bg-card text-foreground rounded-3xl shadow-[0_4px_28px_rgba(0,0,0,0.10)] border border-border p-5 flex flex-col items-center lg:items-start text-center lg:text-left gap-4">
               <div className="w-[72px] h-[72px] rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center flex-shrink-0 shadow-[0_4px_16px_rgba(255,138,0,0.40)] overflow-hidden relative">
-                {user.avatar ? (
-                  <img
-                    src={user.avatar}
-                    alt={`${user.firstName} ${user.lastName}`}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-[28px] font-black text-white select-none leading-none">
-                    {initials}
-                  </span>
-                )}
+                <img
+                  src={getChefAvatarUrl(user.avatar)}
+                  alt={`${user.firstName} ${user.lastName}`}
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider ${ROLE_COLORS[user.role] ?? "bg-secondary text-muted-foreground border-border"}`}>
