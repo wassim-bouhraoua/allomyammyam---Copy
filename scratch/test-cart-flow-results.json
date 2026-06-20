@@ -1,0 +1,49 @@
+{
+  "allPassed": true,
+  "results": [
+    {
+      "name": "Initialize E2E test state via helper API",
+      "passed": true
+    },
+    {
+      "name": "Add initial quantity to cart",
+      "passed": true
+    },
+    {
+      "name": "Aggregate same dish in cart",
+      "passed": true
+    },
+    {
+      "name": "Block addition exceeding stockCount",
+      "passed": true
+    },
+    {
+      "name": "Block quantity update exceeding stockCount",
+      "passed": true
+    },
+    {
+      "name": "Successfully decrease quantity via PATCH",
+      "passed": true
+    },
+    {
+      "name": "Unavailable dish remains visible in cart with isAvailable: false",
+      "passed": true
+    },
+    {
+      "name": "Block quantity increase on unavailable dish",
+      "passed": true
+    },
+    {
+      "name": "Allow quantity decrease on unavailable dish",
+      "passed": true
+    },
+    {
+      "name": "Remove item from cart",
+      "passed": true
+    },
+    {
+      "name": "Clean up E2E test state via helper API",
+      "passed": true
+    }
+  ]
+}

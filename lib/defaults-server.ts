@@ -33,3 +33,25 @@ export function getChefAvatarUrl(pathOrKey: string | null | undefined): string {
   }
   return pathOrKey;
 }
+
+/**
+ * Resolves a user's avatar image URL based on their role, validating that the file exists on the server's disk.
+ */
+export function getUserAvatarUrl(pathOrKey: string | null | undefined, role: string): string | null {
+  if (pathOrKey && localFileExists(pathOrKey)) {
+    return pathOrKey;
+  }
+  if (role === "CHEF") return DEFAULT_CHEF_AVATAR;
+  return null;
+}
+
+/**
+ * Resolves a user's banner image URL based on their role, validating that the file exists on the server's disk.
+ */
+export function getUserBannerUrl(pathOrKey: string | null | undefined, role: string): string | null {
+  if (pathOrKey && localFileExists(pathOrKey)) {
+    return pathOrKey;
+  }
+  if (role === "CHEF") return DEFAULT_CHEF_BANNER;
+  return null;
+}

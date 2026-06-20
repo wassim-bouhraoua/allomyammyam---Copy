@@ -7,10 +7,10 @@ import HomeSection from "@/components/home-section";
 import DishCard from "@/components/dish-card";
 import ChefCard from "@/components/chef-card";
 import MobileHeader from "@/components/mobile-header";
+import DesktopNavLinks from "@/components/desktop-nav-links";
 
 import { prisma } from "@/lib/prisma";
 import { getAvatarUrl, getDishImageUrl } from "@/lib/upload";
-import { getChefAvatarUrl } from "@/lib/defaults-server";
 
 export default async function HomePage() {
   // Fetch approved chefs from database (Top Chefs / Booking Restaurant)
@@ -40,7 +40,7 @@ export default async function HomePage() {
     specialties: c.specialties,
     city: c.city,
     bannerUrl: c.bannerUrl,
-    avatarUrl: getChefAvatarUrl(c.avatarUrl || c.user.avatar),
+    avatarUrl: getAvatarUrl(c.avatarUrl || c.user.avatar),
     averageRating: c.averageRating,
     totalReviews: c.totalReviews,
     status: c.status,
@@ -93,7 +93,7 @@ export default async function HomePage() {
     chef: {
       displayName: dish.chef.displayName,
       city: dish.chef.city,
-      avatarUrl: getChefAvatarUrl(dish.chef.avatarUrl || dish.chef.user.avatar),
+      avatarUrl: getAvatarUrl(dish.chef.avatarUrl || dish.chef.user.avatar),
       isAvailable: dish.chef.isAvailable,
     },
   }));
@@ -143,7 +143,7 @@ export default async function HomePage() {
     chef: {
       displayName: dish.chef.displayName,
       city: dish.chef.city,
-      avatarUrl: getChefAvatarUrl(dish.chef.avatarUrl || dish.chef.user.avatar),
+      avatarUrl: getAvatarUrl(dish.chef.avatarUrl || dish.chef.user.avatar),
       isAvailable: dish.chef.isAvailable,
     },
   }));
@@ -166,22 +166,7 @@ export default async function HomePage() {
           </div>
 
           {/* Nav links */}
-          <nav className="flex flex-col gap-1">
-            {[
-              { label: "Home", href: "/" },
-              { label: "Dishes", href: "/dishes" },
-              { label: "Orders", href: "/orders" },
-              { label: "Profile", href: "/profile" },
-            ].map(({ label, href }) => (
-              <Link
-                key={href}
-                href={href}
-                className="px-4 py-2.5 rounded-2xl text-[14px] font-semibold text-muted-foreground hover:bg-card hover:text-orange-500 hover:shadow-sm transition-all duration-150"
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
+          <DesktopNavLinks />
 
           {/* Location pill */}
           <div className="flex items-center gap-2 px-4 py-3 bg-card rounded-2xl border border-border shadow-sm">

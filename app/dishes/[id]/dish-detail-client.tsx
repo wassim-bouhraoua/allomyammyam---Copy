@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -54,7 +55,7 @@ export interface DetailDish {
     id: string;
     displayName: string;
     avatarUrl: string | null;
-    bannerUrl: string;
+    bannerUrl: string | null;
     bio: string | null;
     averageRating: number;
     totalReviews: number;
@@ -355,21 +356,59 @@ export default function DishDetailClient({ dish, related }: { dish: DetailDish; 
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const [showAllReviews, setShowAllReviews] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const { user } = useAuth();
+  const { cartItems, addToCart } = useCart();
   const router = useRouter();
 
-  const totalPrice = (dish.price * qty).toLocaleString("fr-MA");
-  const stockMax = dish.stockCount ?? undefined;
+  const existingItem = cartItems.find((item) => item.dish.id === dish.id);
+  const existingQty = existingItem ? existingItem.quantity : 0;
 
-  function handleAddToCart() {
+  const remainingStock = dish.stockCount !== null ? Math.max(0, dish.stockCount - existingQty) : null;
+  const isOutOfStock = dish.stockCount !== null && existingQty >= dish.stockCount;
+  const maxStepperQty = remainingStock !== null ? remainingStock : undefined;
+
+  // Adjust selected quantity if it exceeds remaining stock
+  useEffect(() => {
+    if (remainingStock !== null) {
+      if (remainingStock === 0) {
+        setQty(0);
+      } else if (qty > remainingStock) {
+        setQty(remainingStock);
+      } else if (qty === 0 && remainingStock > 0) {
+        setQty(1);
+      }
+    }
+  }, [remainingStock, qty]);
+
+  const showToast = (message: string, type: "success" | "error") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const totalPrice = (dish.price * qty).toLocaleString("fr-MA");
+
+  async function handleAddToCart() {
     if (!user) {
       router.push("/login?from=" + encodeURIComponent(window.location.pathname));
       return;
     }
 
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2200);
+    if (qty <= 0) return;
+
+    try {
+      const result = await addToCart(dish.id, qty);
+      if (result.success) {
+        setAdded(true);
+        showToast("Successfully added to cart!", "success");
+        setTimeout(() => setAdded(false), 2200);
+      } else {
+        showToast(result.error ?? "Failed to add to cart.", "error");
+      }
+    } catch {
+      showToast("Something went wrong.", "error");
+    }
   }
 
   const isSpicy = dish.tags.some((t) => ["spicy", "harissa"].includes(t.toLowerCase()));
@@ -503,7 +542,7 @@ export default function DishDetailClient({ dish, related }: { dish: DetailDish; 
 
               <div className="bg-white dark:bg-neutral-800 rounded-2xl p-5 border border-gray-100/80 dark:border-neutral-700 shadow-[0_2px_18px_rgba(0,0,0,0.03)] flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                  <QuantityStepper value={qty} onChange={setQty} max={stockMax} disabled={!dish.chef.isAvailable} />
+                  <QuantityStepper value={qty} onChange={setQty} max={maxStepperQty} disabled={!dish.chef.isAvailable || isOutOfStock} />
                   <div className="text-right">
                     <p className="text-[11px] text-gray-400 dark:text-neutral-455 font-bold uppercase tracking-wider">Total Price</p>
                     <p className="text-[22px] font-black text-orange-600 leading-none mt-0.5">
@@ -520,12 +559,12 @@ export default function DishDetailClient({ dish, related }: { dish: DetailDish; 
 
                 <button
                   onClick={handleAddToCart}
-                  disabled={!dish.isAvailable || !dish.chef.isAvailable}
+                  disabled={!dish.isAvailable || !dish.chef.isAvailable || isOutOfStock}
                   style={{ height: 52 }}
                   className={[
                     "w-full rounded-2xl flex items-center justify-center gap-2.5",
                     "font-extrabold text-[15px] text-white transition-all duration-150 active:scale-[0.983]",
-                    (!dish.isAvailable || !dish.chef.isAvailable)
+                    (!dish.isAvailable || !dish.chef.isAvailable || isOutOfStock)
                       ? "bg-gray-300 dark:bg-neutral-700 cursor-not-allowed text-gray-500"
                       : added
                       ? "bg-orange-400 shadow-[0_4px_18px_rgba(255,138,0,0.38)]"
@@ -538,6 +577,8 @@ export default function DishDetailClient({ dish, related }: { dish: DetailDish; 
                     "Chef Not Accepting Orders"
                   ) : !dish.isAvailable ? (
                     "Sold Out"
+                  ) : isOutOfStock ? (
+                    "Max Quantity in Cart"
                   ) : (
                     <><ShoppingBag size={18} /> Add to Cart · {totalPrice} MAD</>
                   )}
@@ -636,6 +677,16 @@ export default function DishDetailClient({ dish, related }: { dish: DetailDish; 
           </div>
 
         </main>
+        {toast && (
+          <div className={`fixed bottom-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-lg border backdrop-blur-md transition-all duration-300 animate-in fade-in slide-in-from-bottom-5 ${
+            toast.type === "success"
+              ? "bg-green-50/90 dark:bg-green-950/90 border-green-200 dark:border-green-900/30 text-green-800 dark:text-green-300"
+              : "bg-red-50/90 dark:bg-red-950/90 border-red-200 dark:border-red-900/30 text-red-800 dark:text-red-300"
+          }`}>
+            {toast.type === "success" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+            <span className="text-[13px] font-bold">{toast.message}</span>
+          </div>
+        )}
         <BottomNav />
       </div>
     </div>

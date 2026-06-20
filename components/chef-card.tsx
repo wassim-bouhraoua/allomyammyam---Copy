@@ -2,11 +2,20 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Star, MapPin } from "lucide-react";
-import { MockChefProfile } from "@/lib/mock-data";
 import { getChefAvatarUrl } from "@/lib/defaults";
 
+export interface ChefCardData {
+  id: string;
+  displayName: string;
+  avatarUrl: string | null;
+  isAvailable: boolean;
+  city: string | null;
+  averageRating: number;
+  specialties: string[];
+}
+
 interface ChefCardProps {
-  chef: MockChefProfile;
+  chef: ChefCardData;
 }
 
 export default function ChefCard({ chef }: ChefCardProps) {

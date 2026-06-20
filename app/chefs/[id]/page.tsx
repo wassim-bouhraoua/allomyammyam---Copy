@@ -1,12 +1,11 @@
 import { prisma } from "@/lib/prisma";
-import { mockChefs, mockDishes } from "@/lib/mock-data";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Star, MapPin, ChefHat, Calendar, MessageSquare, AlertCircle } from "lucide-react";
+import { ArrowLeft, Star, MapPin, ChefHat, Calendar, AlertCircle } from "lucide-react";
 import BottomNav from "@/components/bottom-nav";
 import DishCard from "@/components/dish-card";
-import { getAvatarUrl, getDishImageUrl } from "@/lib/upload";
+import { getDishImageUrl } from "@/lib/upload";
 import { getChefBannerUrl, getChefAvatarUrl } from "@/lib/defaults-server";
 
 interface ResolvedChef {
@@ -27,84 +26,65 @@ interface ResolvedChef {
 export default async function ChefProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  const mockChef = mockChefs.find((c) => c.id === id);
   let chef: ResolvedChef | null = null;
   let chefDishes: any[] = [];
 
-  if (mockChef) {
-    chef = {
-      id: mockChef.id,
-      displayName: mockChef.displayName,
-      bio: mockChef.bio,
-      city: mockChef.city,
-      specialties: mockChef.specialties,
-      bannerUrl: getChefBannerUrl(mockChef.bannerUrl),
-      avatarUrl: getChefAvatarUrl(mockChef.avatarUrl),
-      averageRating: mockChef.averageRating,
-      totalReviews: mockChef.totalReviews,
-      isAvailable: mockChef.isAvailable,
-      createdAt: mockChef.createdAt,
-      status: mockChef.status,
-    };
-    chefDishes = mockDishes.filter((d) => d.chefId === id);
-  } else {
-    const dbChef = await prisma.chefProfile.findUnique({
-      where: { id },
-      include: {
-        user: {
-          select: {
-            firstName: true,
-            lastName: true,
-            avatar: true,
-            createdAt: true,
-          },
+  const dbChef = await prisma.chefProfile.findUnique({
+    where: { id },
+    include: {
+      user: {
+        select: {
+          firstName: true,
+          lastName: true,
+          avatar: true,
+          createdAt: true,
         },
+      },
+    },
+  });
+
+  if (dbChef) {
+    chef = {
+      id: dbChef.id,
+      displayName: dbChef.displayName,
+      bio: dbChef.bio,
+      city: dbChef.city,
+      specialties: dbChef.specialties,
+      bannerUrl: getChefBannerUrl(dbChef.bannerUrl),
+      avatarUrl: getChefAvatarUrl(dbChef.avatarUrl || dbChef.user.avatar),
+      averageRating: dbChef.averageRating,
+      totalReviews: dbChef.totalReviews,
+      isAvailable: dbChef.isAvailable,
+      createdAt: dbChef.createdAt,
+      status: dbChef.status,
+    };
+    const dbDishes = await prisma.dish.findMany({
+      where: {
+        chefId: dbChef.id,
+        deletedAt: null,
+        isAvailable: true,
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
 
-    if (dbChef) {
-      chef = {
-        id: dbChef.id,
+    chefDishes = dbDishes.map((dish) => ({
+      id: dish.id,
+      name: dish.name,
+      price: Number(dish.price),
+      category: dish.category,
+      imageUrl: getDishImageUrl(dish.imageUrl),
+      averageRating: dish.averageRating,
+      preparationTime: dish.preparationTime,
+      isAvailable: dish.isAvailable,
+      chef: {
         displayName: dbChef.displayName,
-        bio: dbChef.bio,
         city: dbChef.city,
-        specialties: dbChef.specialties,
-        bannerUrl: getChefBannerUrl(dbChef.bannerUrl),
         avatarUrl: getChefAvatarUrl(dbChef.avatarUrl || dbChef.user.avatar),
-        averageRating: dbChef.averageRating,
-        totalReviews: dbChef.totalReviews,
         isAvailable: dbChef.isAvailable,
-        createdAt: dbChef.createdAt,
-        status: dbChef.status,
-      };
-      const dbDishes = await prisma.dish.findMany({
-        where: {
-          chefId: dbChef.id,
-          deletedAt: null,
-          isAvailable: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
-
-      chefDishes = dbDishes.map((dish) => ({
-        id: dish.id,
-        name: dish.name,
-        price: Number(dish.price),
-        category: dish.category,
-        imageUrl: getDishImageUrl(dish.imageUrl),
-        averageRating: dish.averageRating,
-        preparationTime: dish.preparationTime,
-        isAvailable: dish.isAvailable,
-        chef: {
-          displayName: dbChef.displayName,
-          city: dbChef.city,
-          avatarUrl: getChefAvatarUrl(dbChef.avatarUrl || dbChef.user.avatar),
-          isAvailable: dbChef.isAvailable,
-        },
-      }));
-    }
+      },
+    }));
   }
 
   if (!chef) {
@@ -112,7 +92,6 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
   }
 
   const rating = chef.averageRating.toFixed(1);
-  const initials = chef.displayName[0]?.toUpperCase() || "C";
   const formattedDate = new Date(chef.createdAt).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",

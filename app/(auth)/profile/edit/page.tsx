@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, Loader2, User, X, Trash2, Camera } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import BackToHome from "@/components/auth/back-to-home";
-import { getChefAvatarUrl } from "@/lib/defaults";
+import { getUserAvatarUrl } from "@/lib/defaults";
 
 const SPECIALTY_OPTIONS = [
   "Moroccan",
@@ -308,11 +308,22 @@ export default function EditProfilePage() {
                 : "border-gray-200 bg-gray-50 hover:bg-gray-100/70"
             }`}
           >
-            <img
-              src={getChefAvatarUrl(previewUrl)}
-              alt="Avatar Preview"
-              className="w-full h-full object-cover"
-            />
+            {getUserAvatarUrl(previewUrl, user.role) ? (
+              <img
+                src={getUserAvatarUrl(previewUrl, user.role)!}
+                alt="Avatar Preview"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center text-gray-400">
+                {initials ? (
+                  <span className="text-[20px] font-bold leading-none mb-1">{initials}</span>
+                ) : (
+                  <User size={24} className="mb-0.5" />
+                )}
+                <span className="text-[8px] font-bold uppercase tracking-wider">Drop here</span>
+              </div>
+            )}
           </div>
 
           <div className="flex gap-2">

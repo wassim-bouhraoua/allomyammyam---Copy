@@ -14,3 +14,21 @@ export function getChefBannerUrl(pathOrKey: string | null | undefined): string {
 export function getChefAvatarUrl(pathOrKey: string | null | undefined): string {
   return pathOrKey || DEFAULT_CHEF_AVATAR;
 }
+
+/**
+ * Resolves a user's avatar image URL based on their role (client-safe).
+ */
+export function getUserAvatarUrl(pathOrKey: string | null | undefined, role: string): string | null {
+  if (pathOrKey) return pathOrKey;
+  if (role === "CHEF") return DEFAULT_CHEF_AVATAR;
+  return null;
+}
+
+/**
+ * Resolves a user's banner image URL based on their role (client-safe).
+ */
+export function getUserBannerUrl(pathOrKey: string | null | undefined, role: string): string | null {
+  if (pathOrKey) return pathOrKey;
+  if (role === "CHEF") return DEFAULT_CHEF_BANNER;
+  return null;
+}

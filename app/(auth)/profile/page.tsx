@@ -11,7 +11,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import BackToHome from "@/components/auth/back-to-home";
-import { getChefBannerUrl, getChefAvatarUrl } from "@/lib/defaults";
+import { getChefBannerUrl, getChefAvatarUrl, getUserAvatarUrl, getUserBannerUrl } from "@/lib/defaults";
 
 const ROLE_LABELS: Record<string, string> = {
   USER: "Customer", CHEF: "Chef", ADMIN: "Administrator",
@@ -105,7 +105,7 @@ export default function ProfilePage() {
     router.refresh();
   }
 
-  const bannerUrl = user.role === "CHEF" ? getChefBannerUrl(user.chefProfile?.bannerUrl) : null;
+  const bannerUrl = getUserBannerUrl(user.chefProfile?.bannerUrl, user.role);
 
   return (
     <div className="flex-1 flex flex-col">
@@ -163,11 +163,17 @@ export default function ProfilePage() {
             {/* Identity card */}
             <div className="bg-card text-foreground rounded-3xl shadow-[0_4px_28px_rgba(0,0,0,0.10)] border border-border p-5 flex flex-col items-center lg:items-start text-center lg:text-left gap-4">
               <div className="w-[72px] h-[72px] rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center flex-shrink-0 shadow-[0_4px_16px_rgba(255,138,0,0.40)] overflow-hidden relative">
-                <img
-                  src={getChefAvatarUrl(user.avatar)}
-                  alt={`${user.firstName} ${user.lastName}`}
-                  className="w-full h-full object-cover"
-                />
+                {getUserAvatarUrl(user.avatar, user.role) ? (
+                  <img
+                    src={getUserAvatarUrl(user.avatar, user.role)!}
+                    alt={`${user.firstName} ${user.lastName}`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-[28px] font-black text-white select-none leading-none">
+                    {initials}
+                  </span>
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider ${ROLE_COLORS[user.role] ?? "bg-secondary text-muted-foreground border-border"}`}>
