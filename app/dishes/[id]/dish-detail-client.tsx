@@ -359,7 +359,7 @@ export default function DishDetailClient({ dish, related }: { dish: DetailDish; 
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const { user } = useAuth();
-  const { cartItems, addToCart } = useCart();
+  const { cartItems, addToCart, cartCount } = useCart();
   const router = useRouter();
 
   const existingItem = cartItems.find((item) => item.dish.id === dish.id);
@@ -398,10 +398,16 @@ export default function DishDetailClient({ dish, related }: { dish: DetailDish; 
     if (qty <= 0) return;
 
     try {
-      const result = await addToCart(dish.id, qty);
+      const result = await addToCart(dish.id, qty, {
+        name: dish.name,
+        price: dish.price,
+        imageUrl: dish.imageUrl,
+        category: dish.category,
+        isAvailable: dish.isAvailable,
+        chef: { displayName: dish.chef.displayName }
+      });
       if (result.success) {
         setAdded(true);
-        showToast("Successfully added to cart!", "success");
         setTimeout(() => setAdded(false), 2200);
       } else {
         showToast(result.error ?? "Failed to add to cart.", "error");
@@ -557,32 +563,49 @@ export default function DishDetailClient({ dish, related }: { dish: DetailDish; 
                   </p>
                 )}
 
-                <button
-                  onClick={handleAddToCart}
-                  disabled={!dish.isAvailable || !dish.chef.isAvailable || isOutOfStock}
-                  style={{ height: 52 }}
-                  className={[
-                    "w-full rounded-2xl flex items-center justify-center gap-2.5",
-                    "font-extrabold text-[15px] text-white transition-all duration-150 active:scale-[0.983]",
-                    (!dish.isAvailable || !dish.chef.isAvailable || isOutOfStock)
-                      ? "bg-gray-300 dark:bg-neutral-700 cursor-not-allowed text-gray-500"
-                      : added
-                      ? "bg-orange-400 shadow-[0_4px_18px_rgba(255,138,0,0.38)]"
-                      : "bg-orange-500 shadow-[0_4px_18px_rgba(255,138,0,0.40)]",
-                  ].join(" ")}
-                >
-                  {added ? (
-                    <><CheckCircle2 size={18} /> Added to cart!</>
-                  ) : !dish.chef.isAvailable ? (
-                    "Chef Not Accepting Orders"
-                  ) : !dish.isAvailable ? (
-                    "Sold Out"
-                  ) : isOutOfStock ? (
-                    "Max Quantity in Cart"
-                  ) : (
-                    <><ShoppingBag size={18} /> Add to Cart · {totalPrice} MAD</>
-                  )}
-                </button>
+                <div className="flex gap-2.5">
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={!dish.isAvailable || !dish.chef.isAvailable || isOutOfStock}
+                    style={{ height: 52 }}
+                    className={[
+                      "flex-1 rounded-2xl flex items-center justify-center gap-2.5",
+                      "font-extrabold text-[15px] text-white transition-all duration-150 active:scale-[0.983]",
+                      (!dish.isAvailable || !dish.chef.isAvailable || isOutOfStock)
+                        ? "bg-gray-300 dark:bg-neutral-700 cursor-not-allowed text-gray-500"
+                        : added
+                        ? "bg-orange-400 shadow-[0_4px_18px_rgba(255,138,0,0.38)]"
+                        : "bg-orange-500 shadow-[0_4px_18px_rgba(255,138,0,0.40)]",
+                    ].join(" ")}
+                  >
+                    {added ? (
+                      <><CheckCircle2 size={18} /> Added ✓</>
+                    ) : !dish.chef.isAvailable ? (
+                      "Chef Not Accepting Orders"
+                    ) : !dish.isAvailable ? (
+                      "Sold Out"
+                    ) : isOutOfStock ? (
+                      "Max Quantity in Cart"
+                    ) : (
+                      <><ShoppingBag size={18} /> Add to Cart · {totalPrice} MAD</>
+                    )}
+                  </button>
+
+                  <Link
+                    href="/cart"
+                    style={{ height: 52 }}
+                    className="px-5 rounded-2xl border border-border flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground font-extrabold text-[14px] bg-card hover:bg-secondary active:scale-[0.98] transition-all flex-shrink-0 relative"
+                    aria-label="View Cart"
+                  >
+                    <ShoppingBag size={16} />
+                    <span>Cart</span>
+                    {cartCount > 0 && (
+                      <span className="bg-orange-500 text-white font-extrabold text-[10px] min-w-[20px] h-[20px] px-1 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-neutral-900 animate-in zoom-in duration-200 ml-0.5">
+                        {cartCount}
+                      </span>
+                    )}
+                  </Link>
+                </div>
               </div>
 
             </div>
@@ -687,6 +710,7 @@ export default function DishDetailClient({ dish, related }: { dish: DetailDish; 
             <span className="text-[13px] font-bold">{toast.message}</span>
           </div>
         )}
+
         <BottomNav />
       </div>
     </div>

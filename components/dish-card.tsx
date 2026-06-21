@@ -3,7 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { Star, Clock, MapPin } from "lucide-react";
+import { Star, Clock, MapPin, Plus, Check } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
+import { useRouter } from "next/navigation";
 export interface DishCardData {
   id: string;
   name: string;
@@ -80,6 +83,43 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
   const formattedPrice = `${dish.price} MAD`;
   const rating = dish.averageRating.toFixed(1);
 
+  const { user } = useAuth();
+  const { addToCart } = useCart();
+  const router = useRouter();
+
+  const [adding, setAdding] = useState(false);
+  const [added, setAdded] = useState(false);
+
+  const handleQuickAdd = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      router.push("/login?from=" + encodeURIComponent(window.location.pathname));
+      return;
+    }
+
+    setAdding(true);
+    try {
+      const res = await addToCart(dish.id, 1, {
+        name: dish.name,
+        price: dish.price,
+        imageUrl: dish.imageUrl,
+        category: dish.category,
+        isAvailable: dish.isAvailable,
+        chef: { displayName: dish.chef.displayName }
+      });
+      if (res.success) {
+        setAdded(true);
+        setTimeout(() => setAdded(false), 2000);
+      }
+    } catch (err) {
+      console.error("Failed to quick add to cart:", err);
+    } finally {
+      setAdding(false);
+    }
+  };
+
   // ── Horizontal variant — used in the dishes listing page ─────────────────
   if (variant === "horizontal") {
     return (
@@ -151,9 +191,31 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
                   {dish.preparationTime}m
                 </span>
               </div>
-              <span className="text-[13px] font-extrabold text-orange-600">
-                {formattedPrice}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[13px] font-extrabold text-orange-600">
+                  {formattedPrice}
+                </span>
+                {dish.isAvailable && dish.chef.isAvailable && (
+                  <button
+                    onClick={handleQuickAdd}
+                    disabled={adding}
+                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer ${
+                      added
+                        ? "bg-green-500 text-white shadow-md shadow-green-500/20"
+                        : "bg-orange-500 text-white shadow-md shadow-orange-500/20 hover:bg-orange-600 hover:scale-105 active:scale-95"
+                    }`}
+                    aria-label="Quick add to cart"
+                  >
+                    {adding ? (
+                      <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : added ? (
+                      <Check size={11} strokeWidth={3} />
+                    ) : (
+                      <Plus size={11} strokeWidth={3} />
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -253,10 +315,32 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
                 <Star size={9} className="text-amber-400 fill-amber-400" />
                 <span className="text-[10px] font-bold text-foreground">{rating}</span>
               </div>
-              <span className="flex items-baseline gap-[2px] whitespace-nowrap">
-                <span className="text-[12px] font-extrabold text-orange-600">{dish.price}</span>
-                <span className="text-[9px] font-bold text-orange-400">MAD</span>
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="flex items-baseline gap-[2px] whitespace-nowrap">
+                  <span className="text-[12px] font-extrabold text-orange-600">{dish.price}</span>
+                  <span className="text-[9px] font-bold text-orange-400">MAD</span>
+                </span>
+                {dish.isAvailable && dish.chef.isAvailable && (
+                  <button
+                    onClick={handleQuickAdd}
+                    disabled={adding}
+                    className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer ${
+                      added
+                        ? "bg-green-500 text-white shadow-sm"
+                        : "bg-orange-500 text-white shadow-sm hover:bg-orange-600 hover:scale-105 active:scale-95"
+                    }`}
+                    aria-label="Quick add to cart"
+                  >
+                    {adding ? (
+                      <div className="w-2.5 h-2.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : added ? (
+                      <Check size={9} strokeWidth={3} />
+                    ) : (
+                      <Plus size={9} strokeWidth={3} />
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -349,10 +433,32 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
               <Star className="w-2.5 h-2.5 lg:w-3.5 lg:h-3.5 text-amber-400 fill-amber-400" />
               <span className="text-[10px] lg:text-[12px] font-bold text-foreground">{rating}</span>
             </div>
-            <span className="flex items-baseline gap-[2px] whitespace-nowrap">
-              <span className="text-[12px] lg:text-[16px] font-extrabold text-orange-600">{dish.price}</span>
-              <span className="text-[9px] lg:text-[11px] font-bold text-orange-400">MAD</span>
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="flex items-baseline gap-[2px] whitespace-nowrap">
+                <span className="text-[12px] lg:text-[16px] font-extrabold text-orange-600">{dish.price}</span>
+                <span className="text-[9px] lg:text-[11px] font-bold text-orange-400">MAD</span>
+              </span>
+              {dish.isAvailable && dish.chef.isAvailable && (
+                <button
+                  onClick={handleQuickAdd}
+                  disabled={adding}
+                  className={`w-6 h-6 lg:w-7 lg:h-7 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer ${
+                    added
+                      ? "bg-green-500 text-white shadow-md shadow-green-500/20"
+                      : "bg-orange-500 text-white shadow-md shadow-orange-500/20 hover:bg-orange-600 hover:scale-105 active:scale-95"
+                  }`}
+                  aria-label="Quick add to cart"
+                >
+                  {adding ? (
+                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : added ? (
+                    <Check className="w-2.5 h-2.5 lg:w-3 lg:h-3" strokeWidth={3} />
+                  ) : (
+                    <Plus className="w-2.5 h-2.5 lg:w-3 lg:h-3" strokeWidth={3} />
+                  )}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 

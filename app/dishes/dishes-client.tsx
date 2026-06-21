@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, SlidersHorizontal, ShoppingBag } from "lucide-react";
+import { useCart } from "@/context/CartContext";
 import { DishCategory } from "@prisma/client";
 
 import DishCard from "@/components/dish-card";
@@ -96,6 +97,8 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
   const [minRating,    setMinRating]    = useState<number>(0);
   const [sortKey,      setSortKey]      = useState<SortKey>("default");
   const [showRefine,   setShowRefine]   = useState(false);
+
+  const { cartCount } = useCart();
 
   const refineCount =
     (minRating > 0 ? 1 : 0) +
@@ -283,6 +286,19 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
                     </span>
                   )}
                 </button>
+
+                <Link
+                  href="/cart"
+                  className="w-11 h-11 rounded-2xl bg-secondary flex items-center justify-center flex-shrink-0 active:scale-95 transition-transform relative text-muted-foreground"
+                  aria-label="View Cart"
+                >
+                  <ShoppingBag size={18} />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-orange-500 text-white font-extrabold text-[8px] min-w-[15px] h-[15px] px-0.5 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-neutral-900 animate-in zoom-in duration-200">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
               </div>
 
               {showRefine && (
@@ -366,9 +382,23 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
           {/* ── Desktop view ────────────────────────────────────────────── */}
           <div className="hidden lg:block">
             {/* Header + Search bar */}
-            <div className="flex items-center justify-between mb-6">
-              <SearchBar value={query} onChange={setQuery} />
-              <span className="text-[13px] font-extrabold text-muted-foreground uppercase tracking-widest ml-4">
+            <div className="flex items-center justify-between mb-6 gap-4">
+              <div className="flex-1 flex items-center gap-3">
+                <SearchBar value={query} onChange={setQuery} />
+                <Link
+                  href="/cart"
+                  className="w-12 h-12 rounded-2xl border border-border flex items-center justify-center hover:bg-secondary relative text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+                  aria-label="View Cart"
+                >
+                  <ShoppingBag size={20} />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-orange-500 text-white font-extrabold text-[9px] min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-neutral-900 animate-in zoom-in duration-200">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+              </div>
+              <span className="text-[13px] font-extrabold text-muted-foreground uppercase tracking-widest flex-shrink-0">
                 {filtered.length} dishes found
               </span>
             </div>
