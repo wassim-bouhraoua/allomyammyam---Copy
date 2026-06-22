@@ -2,19 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, ShoppingBag, ClipboardList, User } from "lucide-react";
-import { useCart } from "@/context/CartContext";
+import { Home, UtensilsCrossed, ClipboardList, User } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/", icon: Home, label: "Home" },
-  { href: "/cart", icon: ShoppingBag, label: "Cart" },
+  { href: "/dishes", icon: UtensilsCrossed, label: "Dishes" },
   { href: "/orders", icon: ClipboardList, label: "Orders" },
   { href: "/profile", icon: User, label: "Profile" },
 ] as const;
 
 export default function BottomNav() {
   const pathname = usePathname();
-  const { cartCount } = useCart();
 
   return (
     // lg:hidden — on desktop the sidebar nav replaces the bottom bar
@@ -40,11 +38,6 @@ export default function BottomNav() {
                   strokeWidth={isActive ? 2.5 : 2}
                   className={isActive ? "text-white" : "text-muted-foreground"}
                 />
-                {label === "Cart" && cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-orange-500 text-white font-extrabold text-[8px] min-w-[15px] h-[15px] px-0.5 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-neutral-900 animate-in zoom-in duration-200">
-                    {cartCount}
-                  </span>
-                )}
               </div>
               <span
                 className={`text-[10px] font-semibold tracking-tight ${
