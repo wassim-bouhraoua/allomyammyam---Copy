@@ -123,6 +123,7 @@ export async function POST(req: NextRequest) {
       sub: user.id,
       email: user.email,
       role: user.role,
+      city: user.city,
     });
 
     const response = NextResponse.json({

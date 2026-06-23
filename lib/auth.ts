@@ -27,5 +27,6 @@ export function sessionUserFromPayload(payload: JwtPayload): SessionUser {
     id: payload.sub,
     email: payload.email,
     role: payload.role,
+    city: payload.city,
   }
 }

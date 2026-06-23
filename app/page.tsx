@@ -11,13 +11,18 @@ import DesktopNavLinks from "@/components/desktop-nav-links";
 
 import { prisma } from "@/lib/prisma";
 import { getAvatarUrl, getDishImageUrl } from "@/lib/upload";
+import { getSession } from "@/lib/session";
 
 export default async function HomePage() {
+  const session = await getSession();
+  const userCity = session?.city;
+
   // Fetch approved chefs from database (Top Chefs / Booking Restaurant)
   const dbChefs = await prisma.chefProfile.findMany({
     where: {
       status: "APPROVED",
       deletedAt: null,
+      ...(userCity ? { city: userCity } : {}),
     },
     include: {
       user: {
@@ -58,6 +63,7 @@ export default async function HomePage() {
       chef: {
         status: "APPROVED",
         deletedAt: null,
+        ...(userCity ? { city: userCity } : {}),
       },
     },
     include: {
@@ -107,6 +113,7 @@ export default async function HomePage() {
       chef: {
         status: "APPROVED",
         deletedAt: null,
+        ...(userCity ? { city: userCity } : {}),
       },
     },
     include: {

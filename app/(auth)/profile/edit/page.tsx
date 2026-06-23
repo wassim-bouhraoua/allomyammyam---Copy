@@ -60,10 +60,11 @@ export default function EditProfilePage() {
       setPhoneNumber(user.phoneNumber || "");
       setAvatar(user.avatar || null);
       setPreviewUrl(user.avatar || null);
+      setCity(user.city || "");
       
       if (user.chefProfile) {
         setDisplayName(user.chefProfile.displayName || "");
-        setCity(user.chefProfile.city || "");
+        setCity(user.chefProfile.city || user.city || "");
         setBio(user.chefProfile.bio || "");
         setSpecialties(user.chefProfile.specialties || []);
         setBanner(user.chefProfile.bannerUrl || null);
@@ -230,6 +231,7 @@ export default function EditProfilePage() {
         lastName,
         phoneNumber: phoneNumber || null,
         avatar,
+        city: city || null,
       };
 
       if (user.role === "CHEF") {
@@ -392,6 +394,20 @@ export default function EditProfilePage() {
             className={inputCls}
           />
         </div>
+
+        {/* City Field for Customers */}
+        {user.role !== "CHEF" && (
+          <div className="flex flex-col gap-1.5">
+            <label className={labelCls}>City</label>
+            <input
+              type="text"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              placeholder="Casablanca"
+              className={inputCls}
+            />
+          </div>
+        )}
 
         {/* Chef Profile Section */}
         {user?.role === "CHEF" && (

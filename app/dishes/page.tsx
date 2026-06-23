@@ -2,16 +2,22 @@ import { prisma } from "@/lib/prisma";
 import DishesClient from "./dishes-client";
 import { getAvatarUrl, getDishImageUrl } from "@/lib/upload";
 import { getChefAvatarUrl } from "@/lib/defaults-server";
+import { getSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 export default async function DishesPage() {
+  const session = await getSession();
+  const userCity = session?.city;
+
   const dishes = await prisma.dish.findMany({
     where: {
       deletedAt: null,
       isAvailable: true,
       chef: {
         status: "APPROVED",
+        deletedAt: null,
+        ...(userCity ? { city: userCity } : {}),
       },
     },
     include: {

@@ -19,6 +19,7 @@ export interface AuthUser {
   avatar: string | null;
   phoneNumber: string | null;
   chefId?: string;
+  city?: string | null;
   createdAt: string;
   ordersCount?: number;
   chefProfile?: {

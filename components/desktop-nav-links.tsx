@@ -12,7 +12,7 @@ export default function DesktopNavLinks() {
     { label: "Home", href: "/" },
     { label: "Dishes", href: "/dishes" },
     { label: "Cart", href: "/cart", badge: cartCount },
-    { label: "Orders", href: "/orders" },
+    { label: "Orders", href: "/profile/orders" },
     { label: "Profile", href: "/profile" },
   ];
 

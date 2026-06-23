@@ -13,6 +13,7 @@ model User {
   firstName        String
   lastName         String
   phoneNumber      String?
+  city             String?
   role             Role          @default(USER)
   avatar           String?
   isActive         Boolean       @default(true)

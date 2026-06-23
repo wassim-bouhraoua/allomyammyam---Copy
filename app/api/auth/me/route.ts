@@ -25,6 +25,7 @@ export async function GET() {
       phoneNumber: true,
       avatar: true,
       role: true,
+      city: true,
       createdAt: true,
       _count: {
         select: {
@@ -71,6 +72,7 @@ export async function GET() {
       phoneNumber: user.phoneNumber,
       avatar: getAvatarUrl(user.avatar),
       role: user.role,
+      city: user.city,
       createdAt: user.createdAt.toISOString(),
       ordersCount,
       chefProfile: user.chefProfile

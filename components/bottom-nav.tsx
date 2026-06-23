@@ -7,7 +7,7 @@ import { Home, UtensilsCrossed, ClipboardList, User } from "lucide-react";
 const NAV_ITEMS = [
   { href: "/", icon: Home, label: "Home" },
   { href: "/dishes", icon: UtensilsCrossed, label: "Dishes" },
-  { href: "/orders", icon: ClipboardList, label: "Orders" },
+  { href: "/profile/orders", icon: ClipboardList, label: "Orders" },
   { href: "/profile", icon: User, label: "Profile" },
 ] as const;
 

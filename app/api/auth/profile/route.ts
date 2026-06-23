@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { saveAvatar, saveBanner, getAvatarUrl } from "@/lib/upload";
+import { signToken, COOKIE_NAME } from "@/lib/auth";
 
 export async function PUT(req: NextRequest) {
   try {
@@ -77,6 +78,7 @@ export async function PUT(req: NextRequest) {
     if (body.hasOwnProperty("firstName")) dataToUpdate.firstName = firstName.trim();
     if (body.hasOwnProperty("lastName")) dataToUpdate.lastName = lastName.trim();
     if (body.hasOwnProperty("phoneNumber")) dataToUpdate.phoneNumber = phoneNumber ? phoneNumber.trim() : null;
+    if (body.hasOwnProperty("city")) dataToUpdate.city = city ? city.trim() : null;
 
     let bannerPath: string | null | undefined = undefined;
     if (body.hasOwnProperty("banner")) {
@@ -133,11 +135,19 @@ export async function PUT(req: NextRequest) {
         phoneNumber: true,
         avatar: true,
         role: true,
+        city: true,
         createdAt: true,
       },
     });
 
-    return NextResponse.json({
+    const token = signToken({
+      sub: updatedUser.id,
+      email: updatedUser.email,
+      role: updatedUser.role,
+      city: updatedUser.city,
+    });
+
+    const response = NextResponse.json({
       user: {
         id: updatedUser.id,
         email: updatedUser.email,
@@ -150,6 +160,16 @@ export async function PUT(req: NextRequest) {
       },
       message: "Profile updated successfully.",
     });
+
+    response.cookies.set(COOKIE_NAME, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+    });
+
+    return response;
   } catch (error) {
     console.error("Profile update error:", error);
     return NextResponse.json(

@@ -8,8 +8,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // ── Routes that require a valid session ──────────────────────────────────────
-const PROTECTED_ROUTES = ["/orders", "/cart"];
-const CHEF_ROUTES = ["/chef/dashboard", "/chef/dishes", "/chef/orders"];
+const PROTECTED_ROUTES = ["/orders", "/cart", "/checkout", "/profile"];
+const CHEF_ROUTES = ["/chef/dashboard", "/chef/dishes", "/chef/orders", "/profile/chef-orders"];
 const ADMIN_ROUTES = ["/admin"];
 
 // ── Paths middleware never touches ────────────────────────────────────────────

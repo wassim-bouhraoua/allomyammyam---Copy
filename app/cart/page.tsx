@@ -287,8 +287,15 @@ export default function CartPage() {
                       </span>
                     </div>
 
+                    <Link
+                      href="/checkout"
+                      className="w-full h-12 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-[15px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-[0_4px_14px_rgba(255,138,0,0.38)] mb-3"
+                    >
+                      Proceed to Checkout
+                    </Link>
+
                     <p className="text-[11px] text-muted-foreground text-center italic mt-2 leading-relaxed">
-                      Delivery fees and order validation will be available in future updates.
+                      Delivery fees and order validation will be calculated at checkout.
                     </p>
                   </div>
                 </div>

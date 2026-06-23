@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   Mail, Phone, ShieldCheck, ChefHat,
   LogOut, LogIn, UserPlus, Loader2, User, Pencil,
-  Sun, Moon, Laptop,
+  Sun, Moon, Laptop, MapPin,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -246,6 +246,18 @@ export default function ProfilePage() {
                     <div className="min-w-0">
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Phone</p>
                       <p className="text-[13px] font-semibold text-foreground truncate mt-0.5">{user.phoneNumber}</p>
+                    </div>
+                  </div>
+                )}
+
+                {user.city && (
+                  <div className="flex items-center gap-3 bg-secondary border border-border rounded-2xl px-4 py-3.5">
+                    <div className="w-8 h-8 rounded-xl bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 flex items-center justify-center flex-shrink-0">
+                      <MapPin size={14} className="text-orange-500" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">City</p>
+                      <p className="text-[13px] font-semibold text-foreground truncate mt-0.5">{user.city}</p>
                     </div>
                   </div>
                 )}
