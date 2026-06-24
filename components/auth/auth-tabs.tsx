@@ -6,8 +6,11 @@ interface AuthTabsProps {
   activeTab: "login" | "register";
 }
 
+import { useTranslation } from "@/context/I18nContext";
+
 export default function AuthTabs({ activeTab }: AuthTabsProps) {
   const isLogin = activeTab === "login";
+  const { dict } = useTranslation();
 
   const baseTabClass = "flex-1 text-center py-3 text-[14px] font-bold transition-all relative";
   const activeClass = "text-orange-500";
@@ -19,7 +22,7 @@ export default function AuthTabs({ activeTab }: AuthTabsProps) {
         href="/register"
         className={`${baseTabClass} ${!isLogin ? activeClass : inactiveClass}`}
       >
-        Create Account
+        {dict.auth.register.title}
         {!isLogin && (
           <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-[3px] bg-orange-500 rounded-t-full" />
         )}
@@ -28,7 +31,7 @@ export default function AuthTabs({ activeTab }: AuthTabsProps) {
         href="/login"
         className={`${baseTabClass} ${isLogin ? activeClass : inactiveClass}`}
       >
-        Login
+        {dict.profile.signIn}
         {isLogin && (
           <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-[3px] bg-orange-500 rounded-t-full" />
         )}

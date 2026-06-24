@@ -7,9 +7,13 @@ import { Star, Clock, MapPin, Plus, Check } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/context/I18nContext";
+import { getLocalizedName } from "@/lib/i18n";
 export interface DishCardData {
   id: string;
   name: string;
+  name_en?: string | null;
+  name_ar?: string | null;
   price: number;
   category: string;
   imageUrl: string | null;
@@ -80,7 +84,9 @@ function ImageWithFade({
 }
 
 export default function DishCard({ dish, variant = "vertical" }: DishCardProps) {
-  const formattedPrice = `${dish.price} MAD`;
+  const { locale, dict } = useTranslation();
+  const localizedName = getLocalizedName(dish, locale);
+  const formattedPrice = `${dish.price} ${dict.common.currency}`;
   const rating = dish.averageRating.toFixed(1);
 
   const { user } = useAuth();
@@ -102,7 +108,7 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
     setAdding(true);
     try {
       const res = await addToCart(dish.id, 1, {
-        name: dish.name,
+        name: localizedName,
         price: dish.price,
         imageUrl: dish.imageUrl,
         category: dish.category,
@@ -140,7 +146,7 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
             {dish.imageUrl ? (
               <ImageWithFade
                 src={dish.imageUrl}
-                alt={dish.name}
+                alt={localizedName}
                 sizes="84px"
               />
             ) : (
@@ -152,13 +158,13 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
             {!dish.chef.isAvailable ? (
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-xl p-1">
                 <span className="text-white text-[8px] font-bold uppercase tracking-wider bg-neutral-600/95 px-1 py-0.5 rounded-md text-center leading-tight">
-                  Chef Unavailable
+                  {dict.common.chefUnavailableShort}
                 </span>
               </div>
             ) : !dish.isAvailable ? (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-xl">
                 <span className="text-white text-[9px] font-bold uppercase tracking-widest">
-                  Sold out
+                  {dict.common.soldOut}
                 </span>
               </div>
             ) : null}
@@ -171,7 +177,7 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
           <div className="flex-1 min-w-0 py-0.5 flex flex-col justify-between">
             <div>
               <h3 className="text-[13px] font-bold text-foreground leading-snug truncate">
-                {dish.name}
+                {localizedName}
               </h3>
               <div className="flex items-center gap-1 mt-0.5">
                 <MapPin size={9} className="text-orange-500 flex-shrink-0" />
@@ -248,7 +254,7 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
             {dish.imageUrl ? (
               <ImageWithFade
                 src={dish.imageUrl}
-                alt={dish.name}
+                alt={localizedName}
                 sizes="200px"
                 priority
               />
@@ -268,13 +274,13 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
             {!dish.chef.isAvailable ? (
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                 <span className="text-white text-[9px] font-bold uppercase tracking-wider bg-neutral-600/95 px-2 py-0.5 rounded-md">
-                  Chef Unavailable
+                  {dict.common.chefUnavailableShort}
                 </span>
               </div>
             ) : !dish.isAvailable ? (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                 <span className="text-white text-[9px] font-bold uppercase tracking-widest">
-                  Sold out
+                  {dict.common.soldOut}
                 </span>
               </div>
             ) : null}
@@ -283,7 +289,7 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
           {/* Content — explicit padding so nothing collapses */}
           <div className="p-2.5 pt-2">
             <h3 className="text-[12px] font-bold text-foreground leading-tight line-clamp-1">
-              {dish.name}
+              {localizedName}
             </h3>
 
             {/* Chef row */}
@@ -318,7 +324,7 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
               <div className="flex items-center gap-1.5">
                 <span className="flex items-baseline gap-[2px] whitespace-nowrap">
                   <span className="text-[12px] font-extrabold text-orange-600">{dish.price}</span>
-                  <span className="text-[9px] font-bold text-orange-400">MAD</span>
+                  <span className="text-[9px] font-bold text-orange-400">{dict.common.currency}</span>
                 </span>
                 {dish.isAvailable && dish.chef.isAvailable && (
                   <button
@@ -366,7 +372,7 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
           {dish.imageUrl ? (
             <ImageWithFade
               src={dish.imageUrl}
-              alt={dish.name}
+              alt={localizedName}
               sizes="(max-width: 1024px) 200px, 400px"
               priority
             />
@@ -386,13 +392,13 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
           {!dish.chef.isAvailable ? (
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
               <span className="text-white text-[10px] font-bold uppercase tracking-wider bg-neutral-600/95 px-2.5 py-1 rounded-md">
-                Chef Unavailable
+                {dict.common.chefUnavailableShort}
               </span>
             </div>
           ) : !dish.isAvailable ? (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
               <span className="text-white text-[9px] font-bold uppercase tracking-widest">
-                Sold out
+                {dict.common.soldOut}
               </span>
             </div>
           ) : null}
@@ -401,7 +407,7 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
         {/* Content — explicit padding so nothing collapses */}
         <div className="p-2.5 lg:p-4 pt-2">
           <h3 className="text-[12px] lg:text-[15px] font-bold text-foreground leading-tight line-clamp-1">
-            {dish.name}
+            {localizedName}
           </h3>
 
           {/* Chef row */}
@@ -436,7 +442,7 @@ export default function DishCard({ dish, variant = "vertical" }: DishCardProps) 
             <div className="flex items-center gap-2">
               <span className="flex items-baseline gap-[2px] whitespace-nowrap">
                 <span className="text-[12px] lg:text-[16px] font-extrabold text-orange-600">{dish.price}</span>
-                <span className="text-[9px] lg:text-[11px] font-bold text-orange-400">MAD</span>
+                <span className="text-[9px] lg:text-[11px] font-bold text-orange-400">{dict.common.currency}</span>
               </span>
               {dish.isAvailable && dish.chef.isAvailable && (
                 <button

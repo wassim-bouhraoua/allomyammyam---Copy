@@ -12,6 +12,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import BackToHome from "@/components/auth/back-to-home";
 import { getChefBannerUrl, getChefAvatarUrl, getUserAvatarUrl, getUserBannerUrl } from "@/lib/defaults";
+import LanguageSwitcher from "@/components/language-switcher";
+import { useTranslation } from "@/context/I18nContext";
 
 const ROLE_LABELS: Record<string, string> = {
   USER: "Customer", CHEF: "Chef", ADMIN: "Administrator",
@@ -24,8 +26,15 @@ const ROLE_COLORS: Record<string, string> = {
 };
 
 export default function ProfilePage() {
+  const { locale, dict } = useTranslation();
   const { user, loading, logout, refreshUser } = useAuth();
   const { theme, setTheme } = useTheme();
+  
+  const roleLabels: Record<string, string> = {
+    USER: dict.profile.customerBadge,
+    CHEF: dict.profile.chefBadge,
+    ADMIN: dict.profile.adminBadge,
+  };
   const router = useRouter();
   const [toggling, setToggling] = useState(false);
 
@@ -69,23 +78,23 @@ export default function ProfilePage() {
           <User size={32} className="text-muted-foreground" />
         </div>
         <h1 className="text-[20px] font-black text-foreground text-center">
-          You&apos;re not signed in
+          {dict.profile.notSignedIn}
         </h1>
         <p className="text-[13px] text-muted-foreground mt-2 text-center mb-8 leading-relaxed">
-          Sign in to access your profile, track orders and more.
+          {dict.profile.notSignedInSub}
         </p>
         <div className="w-full flex flex-col gap-2.5">
           <Link href="/login"
             className="h-12 rounded-2xl bg-orange-500 text-white font-extrabold text-[15px] shadow-[0_4px_14px_rgba(255,138,0,0.38)] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
-            <LogIn size={17} /> Sign In
+            <LogIn size={17} /> {dict.profile.signIn}
           </Link>
           <Link href="/register"
             className="h-12 rounded-2xl bg-secondary text-foreground font-extrabold text-[15px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
-            <UserPlus size={17} /> Create Account
+            <UserPlus size={17} /> {dict.auth.register.title}
           </Link>
           <Link href="/register-chef"
             className="h-12 rounded-2xl border border-orange-100 bg-orange-50 text-orange-600 font-bold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
-            <ChefHat size={17} /> Join as a Chef
+            <ChefHat size={17} /> {dict.auth.chef.submit}
           </Link>
         </div>
       </main>
@@ -96,7 +105,7 @@ export default function ProfilePage() {
   const initials = `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase();
 
   const formattedDate = user.createdAt
-    ? new Date(user.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short" })
+    ? new Date(user.createdAt).toLocaleDateString(locale === "ar" ? "ar-MA" : locale === "en" ? "en-US" : "fr-FR", { year: "numeric", month: "short" })
     : "";
 
   async function handleLogout() {
@@ -119,7 +128,7 @@ export default function ProfilePage() {
         }`}
       >
         <div className={bannerUrl ? "relative z-10" : ""}>
-          <p className="text-[12px] font-bold text-orange-100 uppercase tracking-wider mb-2">My Profile</p>
+          <p className="text-[12px] font-bold text-orange-100 uppercase tracking-wider mb-2">{dict.profile.title}</p>
           <div className="flex flex-col gap-1.5">
             <h1 className="text-[26px] lg:text-[32px] font-black leading-none tracking-tight">
               {user.firstName} {user.lastName}
@@ -128,7 +137,7 @@ export default function ProfilePage() {
             <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 mt-2">
               {/* Role Badge */}
               <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-white/20 text-white text-[10px] font-bold uppercase tracking-wide">
-                {ROLE_LABELS[user.role] ?? user.role}
+                {roleLabels[user.role] ?? user.role}
               </span>
 
               {/* Dot Separator */}
@@ -136,7 +145,7 @@ export default function ProfilePage() {
 
               {/* Member Since */}
               <span className="text-[12px] text-orange-100 font-semibold">
-                Member since {formattedDate}
+                {locale === "ar" ? "عضو منذ" : locale === "en" ? "Member since" : "Membre depuis"} {formattedDate}
               </span>
 
               {/* Orders count */}
@@ -144,7 +153,7 @@ export default function ProfilePage() {
                 <>
                   <span className="w-1 h-1 rounded-full bg-white/40" />
                   <span className="text-[12px] text-orange-100 font-semibold">
-                    {user.ordersCount} {user.ordersCount === 1 ? "order" : "orders"}
+                    {user.ordersCount} {user.ordersCount === 1 ? (locale === "ar" ? "طلب" : locale === "en" ? "order" : "commande") : (locale === "ar" ? "طلب" : locale === "en" ? "orders" : "commandes")}
                   </span>
                 </>
               )}
@@ -179,7 +188,7 @@ export default function ProfilePage() {
                 <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider ${ROLE_COLORS[user.role] ?? "bg-secondary text-muted-foreground border-border"}`}>
                   {user.role === "CHEF"  && <ChefHat    size={9} />}
                   {user.role === "ADMIN" && <ShieldCheck size={9} />}
-                  {ROLE_LABELS[user.role] ?? user.role}
+                  {roleLabels[user.role] ?? user.role}
                 </span>
                 <p className="text-[13px] text-muted-foreground mt-2 truncate w-full">{user.email}</p>
               </div>
@@ -190,7 +199,7 @@ export default function ProfilePage() {
               <Link href="/profile/edit"
                 className="w-full h-12 rounded-2xl bg-orange-500 text-white font-extrabold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-orange-600 shadow-[0_4px_14px_rgba(255,138,0,0.38)]">
                 <Pencil size={15} />
-                Edit Profile
+                {dict.profile.editBtn}
               </Link>
 
               {user.role === "CHEF" && (
@@ -198,12 +207,12 @@ export default function ProfilePage() {
                   <Link href="/profile/dishes"
                     className="w-full h-12 rounded-2xl border border-orange-100 dark:border-orange-900/30 bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 font-extrabold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-orange-100/80 dark:hover:bg-orange-900/40 shadow-[0_2px_10px_rgba(255,138,0,0.1)]">
                     <ChefHat size={15} />
-                    My Dishes
+                    {dict.profile.myDishes}
                   </Link>
                   <Link href="/profile/chef-orders"
                     className="w-full h-12 rounded-2xl border border-orange-100 dark:border-orange-900/30 bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 font-extrabold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-orange-100/80 dark:hover:bg-orange-900/40 shadow-[0_2px_10px_rgba(255,138,0,0.1)]">
                     <ShoppingBag size={15} />
-                    Orders Dashboard
+                    {dict.profile.ordersDashboard}
                   </Link>
                 </>
               )}
@@ -212,7 +221,7 @@ export default function ProfilePage() {
                 <Link href="/profile/orders"
                   className="w-full h-12 rounded-2xl border border-orange-100 dark:border-orange-900/30 bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 font-extrabold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-orange-100/80 dark:hover:bg-orange-900/40 shadow-[0_2px_10px_rgba(255,138,0,0.1)]">
                   <ShoppingBag size={15} />
-                  My Orders
+                  {dict.orders.list.title}
                 </Link>
               )}
 
@@ -220,14 +229,14 @@ export default function ProfilePage() {
                 <Link href="/admin"
                   className="w-full h-12 rounded-2xl bg-purple-600 text-white font-extrabold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-purple-700 shadow-[0_4px_14px_rgba(147,51,234,0.38)]">
                   <ShieldCheck size={15} />
-                  Admin Dashboard
+                  {dict.admin.title}
                 </Link>
               )}
 
               <button onClick={handleLogout}
                 className="w-full h-12 rounded-2xl bg-secondary border border-border text-foreground font-bold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-secondary/80">
                 <LogOut size={15} className="text-muted-foreground" />
-                Sign Out
+                {dict.profile.signOut}
               </button>
             </div>
 
@@ -238,20 +247,20 @@ export default function ProfilePage() {
             
             {user.role === "CHEF" && (user as any).pendingOrdersCount !== undefined && (user as any).pendingOrdersCount > 0 && (
               <div className="flex flex-col gap-2">
-                <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider mb-1 pl-1">
-                  Active Tasks
+                <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider mb-1 pl-1 text-start">
+                  {locale === "ar" ? "المهام النشطة" : locale === "en" ? "Active Tasks" : "Tâches Actives"}
                 </p>
                 <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-900/45 rounded-3xl p-5 shadow-[0_4px_20px_rgba(255,138,0,0.08)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-2xl bg-orange-500 text-white flex items-center justify-center flex-shrink-0 shadow-[0_4px_12px_rgba(255,138,0,0.3)]">
                       <ShoppingBag size={20} />
                     </div>
-                    <div className="text-left">
+                    <div className="text-start">
                       <h3 className="text-[15px] font-black text-foreground">
-                        Pending Orders: {(user as any).pendingOrdersCount}
+                        {locale === "ar" ? "الطلب المعلق:" : locale === "en" ? "Pending Orders:" : "Commandes en attente :"} {(user as any).pendingOrdersCount}
                       </h3>
                       <p className="text-[12px] text-muted-foreground mt-0.5">
-                        You have orders waiting for action or delivery.
+                        {locale === "ar" ? "لديك طلبات بانتظار الإجراء أو التوصيل." : locale === "en" ? "You have orders waiting for action or delivery." : "Vous avez des commandes en attente d'action ou de livraison."}
                       </p>
                     </div>
                   </div>
@@ -259,7 +268,7 @@ export default function ProfilePage() {
                     href="/profile/chef-orders"
                     className="h-10 px-5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-[12px] flex items-center justify-center gap-1.5 shadow-[0_2px_8px_rgba(255,138,0,0.2)] active:scale-[0.98] transition-all self-start sm:self-auto"
                   >
-                    Manage Orders
+                    {dict.profile.ordersDashboard}
                   </Link>
                 </div>
               </div>
@@ -267,40 +276,40 @@ export default function ProfilePage() {
 
             {/* Account Details */}
             <div className="flex flex-col gap-2">
-              <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider mb-1 pl-1">
-                Account details
+              <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider mb-1 pl-1 text-start">
+                {locale === "ar" ? "تفاصيل الحساب" : locale === "en" ? "Account details" : "Détails du compte"}
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="flex items-center gap-3 bg-secondary border border-border rounded-2xl px-4 py-3.5">
+                <div className="flex items-center gap-3 bg-secondary border border-border rounded-2xl px-4 py-3.5 text-start">
                   <div className="w-8 h-8 rounded-xl bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 flex items-center justify-center flex-shrink-0">
                     <Mail size={14} className="text-orange-500" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Email</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">{dict.profile.email}</p>
                     <p className="text-[13px] font-semibold text-foreground truncate mt-0.5">{user.email}</p>
                   </div>
                 </div>
 
                 {user.phoneNumber && (
-                  <div className="flex items-center gap-3 bg-secondary border border-border rounded-2xl px-4 py-3.5">
+                  <div className="flex items-center gap-3 bg-secondary border border-border rounded-2xl px-4 py-3.5 text-start">
                     <div className="w-8 h-8 rounded-xl bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 flex items-center justify-center flex-shrink-0">
                       <Phone size={14} className="text-orange-500" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Phone</p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">{dict.profile.phone}</p>
                       <p className="text-[13px] font-semibold text-foreground truncate mt-0.5">{user.phoneNumber}</p>
                     </div>
                   </div>
                 )}
 
                 {user.city && (
-                  <div className="flex items-center gap-3 bg-secondary border border-border rounded-2xl px-4 py-3.5">
+                  <div className="flex items-center gap-3 bg-secondary border border-border rounded-2xl px-4 py-3.5 text-start">
                     <div className="w-8 h-8 rounded-xl bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 flex items-center justify-center flex-shrink-0">
                       <MapPin size={14} className="text-orange-500" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">City</p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">{dict.profile.city}</p>
                       <p className="text-[13px] font-semibold text-foreground truncate mt-0.5">{user.city}</p>
                     </div>
                   </div>
@@ -308,10 +317,20 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            {/* Language Settings */}
+            <div className="flex flex-col gap-2">
+              <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider mb-1 pl-1 text-start">
+                {dict.profile.language}
+              </p>
+              <div className="flex flex-col gap-2.5 bg-card border border-border rounded-3xl p-5 shadow-[0_2px_24px_rgba(0,0,0,0.06)]">
+                <LanguageSwitcher />
+              </div>
+            </div>
+
             {/* Theme Settings */}
             <div className="flex flex-col gap-2">
-              <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider mb-1 pl-1">
-                Theme Preferences
+              <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider mb-1 pl-1 text-start">
+                {dict.profile.theme}
               </p>
               <div className="flex flex-wrap gap-2.5 bg-card border border-border rounded-3xl p-5 shadow-[0_2px_24px_rgba(0,0,0,0.06)]">
                 <button
@@ -322,7 +341,7 @@ export default function ProfilePage() {
                       : "bg-secondary text-muted-foreground border border-border hover:bg-secondary/80"
                   }`}
                 >
-                  <Sun size={15} /> Light
+                  <Sun size={15} /> {dict.profile.themes.light}
                 </button>
                 <button
                   onClick={() => setTheme("dark")}
@@ -332,7 +351,7 @@ export default function ProfilePage() {
                       : "bg-secondary text-muted-foreground border border-border hover:bg-secondary/80"
                   }`}
                 >
-                  <Moon size={15} /> Dark
+                  <Moon size={15} /> {dict.profile.themes.dark}
                 </button>
                 <button
                   onClick={() => setTheme("system")}
@@ -342,7 +361,7 @@ export default function ProfilePage() {
                       : "bg-secondary text-muted-foreground border border-border hover:bg-secondary/80"
                   }`}
                 >
-                  <Laptop size={15} /> System
+                  <Laptop size={15} /> {dict.profile.themes.system}
                 </button>
               </div>
             </div>
@@ -350,14 +369,14 @@ export default function ProfilePage() {
             {/* Chef Profile Details */}
             {user.role === "CHEF" && user.chefProfile && (
               <div className="flex flex-col gap-2">
-                <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider mb-1 pl-1">
-                  Chef profile details
+                <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider mb-1 pl-1 text-start">
+                  {dict.profile.chefDetails.title}
                 </p>
 
-                <div className="flex flex-col gap-3.5 bg-card border border-border rounded-3xl p-5 shadow-[0_2px_24px_rgba(0,0,0,0.06)]">
+                <div className="flex flex-col gap-3.5 bg-card border border-border rounded-3xl p-5 shadow-[0_2px_24px_rgba(0,0,0,0.06)] text-start">
                   <div className="flex justify-between items-center border-b border-border pb-3">
                     <div>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Display Name</p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">{dict.profile.chefDetails.displayName}</p>
                       <p className="text-[14px] font-extrabold text-foreground mt-0.5">{user.chefProfile.displayName}</p>
                     </div>
                     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
@@ -373,11 +392,11 @@ export default function ProfilePage() {
 
                   <div className="flex justify-between items-center border-b border-border pb-3.5 pt-0.5">
                     <div>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Availability</p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">{dict.profile.chefDetails.availability}</p>
                       <div className="flex items-center gap-1.5 mt-1">
                         <span className={`w-2.5 h-2.5 rounded-full ${user.chefProfile.isAvailable ? "bg-green-500" : "bg-gray-400"}`} />
                         <span className="text-[13px] font-bold text-foreground">
-                          {user.chefProfile.isAvailable ? "Accepting Orders" : "Not Accepting Orders"}
+                          {user.chefProfile.isAvailable ? dict.profile.chefDetails.accepting : dict.profile.chefDetails.notAccepting}
                         </span>
                       </div>
                     </div>
@@ -391,34 +410,34 @@ export default function ProfilePage() {
                           : "bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/40"
                       }`}
                     >
-                      {user.chefProfile.isAvailable ? "Set Unavailable" : "Set Available"}
+                      {user.chefProfile.isAvailable ? dict.profile.chefDetails.setUnavailable : dict.profile.chefDetails.setAvailable}
                     </button>
                   </div>
 
                   {user.chefProfile.city && (
                     <div>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">City</p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">{dict.profile.city}</p>
                       <p className="text-[13px] font-semibold text-foreground mt-0.5">{user.chefProfile.city}</p>
                     </div>
                   )}
 
                   {user.chefProfile.bio && (
                     <div>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Bio</p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">{dict.profile.chefDetails.bio}</p>
                       <p className="text-[13px] text-foreground mt-0.5 whitespace-pre-wrap leading-relaxed">{user.chefProfile.bio}</p>
                     </div>
                   )}
 
                   {user.chefProfile.specialties && user.chefProfile.specialties.length > 0 && (
                     <div>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mb-1.5">Specialties</p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mb-1.5">{dict.profile.chefDetails.specialties}</p>
                       <div className="flex flex-wrap gap-1.5">
                         {user.chefProfile.specialties.map((s) => (
                           <span
                             key={s}
                             className="px-2.5 py-1 rounded-lg bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 text-orange-600 dark:text-orange-400 text-[11px] font-bold"
                           >
-                            {s.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}
+                            {dict.dishes.tags[s.toLowerCase()] || s.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}
                           </span>
                         ))}
                       </div>

@@ -127,6 +127,10 @@
     overflow-x: hidden;
   }
 
+  html[dir="rtl"] {
+    font-family: var(--font-cairo), system-ui, -apple-system, sans-serif;
+  }
+
   body {
     @apply bg-background text-foreground;
     overflow-x: hidden;

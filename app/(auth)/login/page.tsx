@@ -7,8 +7,10 @@ import { Eye, EyeOff, Loader2, UtensilsCrossed } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import BackToHome from "@/components/auth/back-to-home";
 import { useGoogleSignIn } from "@/hooks/useGoogleSignIn";
+import { useTranslation } from "@/context/I18nContext";
 
 export default function LoginPage() {
+  const { locale, dict } = useTranslation();
   const router = useRouter();
   const { refreshUser } = useAuth();
 
@@ -89,15 +91,15 @@ export default function LoginPage() {
 
         <div className="my-auto relative z-10">
           <h2 className="text-[32px] font-black leading-tight tracking-tight mb-4">
-            Order delicious home-cooked meals.
+            {dict.auth.login.welcomeGraphicTitle}
           </h2>
           <p className="text-[14px] text-orange-50/90 leading-relaxed font-medium max-w-sm">
-            Discover passionate local chefs preparing healthy, fresh, and authentic food delivered straight to your door.
+            {dict.auth.login.welcomeGraphicDesc}
           </p>
         </div>
 
         <p className="text-[11px] text-orange-100/70 font-semibold relative z-10">
-          © 2026 AlloMyamMyam. All rights reserved.
+          © 2026 AlloMyamMyam. {locale === "ar" ? "جميع الحقوق محفوظة." : locale === "en" ? "All rights reserved." : "Tous droits réservés."}
         </p>
       </div>
 
@@ -110,8 +112,8 @@ export default function LoginPage() {
           <div className="w-16 h-16 rounded-3xl bg-orange-500 flex lg:hidden items-center justify-center shadow-[0_6px_20px_rgba(255,138,0,0.40)] mb-5">
             <UtensilsCrossed size={28} className="text-white" />
           </div>
-          <h1 className="text-[24px] font-black text-foreground tracking-tight">Welcome back</h1>
-          <p className="text-[13px] text-muted-foreground mt-1.5">Sign in to continue ordering</p>
+          <h1 className="text-[24px] font-black text-foreground tracking-tight">{dict.auth.login.welcomeBackForm}</h1>
+          <p className="text-[13px] text-muted-foreground mt-1.5">{dict.auth.login.signInToContinue}</p>
         </div>
 
         {/* Error */}
@@ -125,8 +127,8 @@ export default function LoginPage() {
         {/* Form */}
         <div className="bg-card rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-border p-5 flex flex-col gap-4">
 
-          <div className="flex flex-col gap-1.5">
-            <label className={labelCls}>Email</label>
+          <div className="flex flex-col gap-1.5 text-start">
+            <label className={labelCls}>{dict.auth.fields.email}</label>
             <input
               type="email" autoComplete="email" required
               value={email} onChange={e => setEmail(e.target.value)}
@@ -134,18 +136,18 @@ export default function LoginPage() {
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className={labelCls}>Password</label>
+          <div className="flex flex-col gap-1.5 text-start">
+            <label className={labelCls}>{dict.auth.fields.password}</label>
             <div className="relative">
               <input
                 type={showPw ? "text" : "password"} autoComplete="current-password" required
                 value={password} onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••" className={`${inputCls} pr-12`}
+                placeholder="••••••••" className={`${inputCls} ${locale === "ar" ? "pl-12 pr-4" : "pr-12 pl-4"}`}
               />
               <button
                 type="button" onClick={() => setShowPw(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-                aria-label={showPw ? "Hide" : "Show"}
+                className={`absolute top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors ${locale === "ar" ? "left-3" : "right-3"}`}
+                aria-label={showPw ? (locale === "ar" ? "إخفاء" : "Hide") : (locale === "ar" ? "عرض" : "Show")}
               >
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -158,14 +160,14 @@ export default function LoginPage() {
             className="h-12 rounded-2xl bg-orange-500 text-white font-extrabold text-[15px] shadow-[0_4px_14px_rgba(255,138,0,0.38)] transition-all duration-150 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-1"
           >
             {loading
-              ? <><Loader2 size={17} className="animate-spin" /> Signing in…</>
-              : "Sign In"
+              ? <><Loader2 size={17} className="animate-spin" /> {dict.auth.login.signingIn}</>
+              : dict.auth.login.submit
             }
           </button>
 
           <div className="flex items-center gap-2.5 my-1">
             <div className="flex-1 h-px bg-border" />
-            <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">or sign in with</span>
+            <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">{dict.auth.login.orSignInWith}</span>
             <div className="flex-1 h-px bg-border" />
           </div>
 
@@ -176,7 +178,7 @@ export default function LoginPage() {
         {/* Divider */}
         <div className="flex items-center gap-3 my-5">
           <div className="flex-1 h-px bg-border" />
-          <span className="text-[11px] text-muted-foreground font-medium">or</span>
+          <span className="text-[11px] text-muted-foreground font-medium">{locale === "ar" ? "أو" : locale === "en" ? "or" : "ou"}</span>
           <div className="flex-1 h-px bg-border" />
         </div>
 
@@ -186,13 +188,13 @@ export default function LoginPage() {
             href="/register"
             className="h-12 rounded-2xl border border-border text-foreground font-bold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform hover:border-orange-300 hover:text-orange-500"
           >
-            Create an account
+            {dict.auth.register.title}
           </Link>
           <Link
             href="/register-chef"
             className="h-12 rounded-2xl border border-orange-100 dark:border-orange-900/30 bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 font-bold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
           >
-            Join as a Chef
+            {dict.auth.chef.submit}
           </Link>
         </div>
 

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Star, X, Loader2, MessageSquare } from 'lucide-react';
+import { useTranslation } from '@/context/I18nContext';
 
 interface ReviewModalButtonProps {
   orderItemId: string;
@@ -20,6 +21,7 @@ export default function ReviewModalButton({
   onReviewSubmit,
 }: ReviewModalButtonProps) {
   const router = useRouter();
+  const { dict } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [rating, setRating] = useState(initialRating || 5);
   const [hoverRating, setHoverRating] = useState<number | null>(null);
@@ -39,7 +41,7 @@ export default function ReviewModalButton({
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to submit review.');
+        throw new Error(data.error || dict.reviews.toast.failed);
       }
       setIsOpen(false);
       router.refresh();
@@ -47,7 +49,7 @@ export default function ReviewModalButton({
         onReviewSubmit(rating, comment);
       }
     } catch (err: any) {
-      setError(err.message || 'Something went wrong.');
+      setError(err.message || dict.common.errorTitle);
     } finally {
       setLoading(false);
     }
@@ -72,7 +74,7 @@ export default function ReviewModalButton({
         }`}
       >
         <Star size={13} fill={initialRating ? 'currentColor' : 'none'} className={initialRating ? 'text-amber-500' : ''} />
-        {initialRating ? `Edit Review ⭐ ${initialRating}` : 'Leave Review'}
+        {initialRating ? `${dict.reviews.editReview} ⭐ ${initialRating}` : dict.reviews.leaveReview}
       </button>
 
       {/* Review Modal Dialog Overlay */}
@@ -82,7 +84,7 @@ export default function ReviewModalButton({
           <div className="absolute inset-0" onClick={() => setIsOpen(false)} />
 
           {/* Modal box */}
-          <div className="relative bg-card text-foreground w-full max-w-md rounded-[28px] border border-border shadow-[0_8px_32px_rgba(0,0,0,0.15)] p-6 z-10 animate-in zoom-in-95 duration-200 flex flex-col gap-5 text-left">
+          <div className="relative bg-card text-foreground w-full max-w-md rounded-[28px] border border-border shadow-[0_8px_32px_rgba(0,0,0,0.15)] p-6 z-10 animate-in zoom-in-95 duration-200 flex flex-col gap-5 text-start">
             
             {/* Close Button */}
             <button
@@ -97,11 +99,14 @@ export default function ReviewModalButton({
             <div>
               <h2 className="text-[17px] font-black tracking-tight flex items-center gap-2">
                 <MessageSquare size={18} className="text-orange-500" />
-                Write a Review
+                {dict.reviews.modalTitle}
               </h2>
-              <p className="text-[12px] text-muted-foreground mt-1 leading-snug">
-                How was the <span className="font-semibold text-foreground">{dishName}</span>? Share your rating and taste experience.
-              </p>
+              <div className="text-[12px] text-muted-foreground mt-1 leading-snug">
+                {dict.reviews.howWas.split('{dish}')[0]}
+                <span className="font-semibold text-foreground">{dishName}</span>
+                {dict.reviews.howWas.split('{dish}')[1] || ''}
+                <div className="mt-0.5">{dict.reviews.howWasSub}</div>
+              </div>
             </div>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -109,7 +114,7 @@ export default function ReviewModalButton({
               {/* Star Rating Select Input */}
               <div className="flex flex-col items-center gap-2 py-2 bg-secondary/35 rounded-2xl border border-border/80">
                 <span className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider">
-                  Select Rating
+                  {dict.reviews.selectRating}
                 </span>
                 
                 <div className="flex items-center gap-1.5">
@@ -141,10 +146,10 @@ export default function ReviewModalButton({
               {/* Text comment input */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wide pl-0.5">
-                  Review Comment
+                  {dict.reviews.commentLabel}
                 </label>
                 <textarea
-                  placeholder="Tell us what you liked or how the dish could be improved..."
+                  placeholder={dict.reviews.commentPlaceholder}
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   className="w-full h-24 p-3 bg-secondary/40 border border-border focus:border-orange-500 focus:ring-1 focus:ring-orange-500 rounded-2xl text-[13px] font-semibold transition-all resize-none outline-none leading-relaxed"
@@ -165,7 +170,7 @@ export default function ReviewModalButton({
                   onClick={() => setIsOpen(false)}
                   className="flex-1 h-11 rounded-2xl bg-secondary border border-border hover:bg-secondary/80 text-foreground font-bold text-[13px]"
                 >
-                  Cancel
+                  {dict.common.cancel}
                 </button>
                 <button
                   type="submit"
@@ -173,7 +178,7 @@ export default function ReviewModalButton({
                   className="flex-1 h-11 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-[13px] flex items-center justify-center gap-1.5 shadow-[0_4px_12px_rgba(255,138,0,0.25)] active:scale-[0.98] disabled:opacity-50"
                 >
                   {loading && <Loader2 size={13} className="animate-spin" />}
-                  Submit Review
+                  {dict.reviews.submit}
                 </button>
               </div>
 

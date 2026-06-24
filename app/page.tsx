@@ -8,17 +8,21 @@ import DishCard from "@/components/dish-card";
 import ChefCard from "@/components/chef-card";
 import MobileHeader from "@/components/mobile-header";
 import DesktopNavLinks from "@/components/desktop-nav-links";
+import LanguageSwitcher from "@/components/language-switcher";
 
 import { cookies } from "next/headers";
 import LocationPill from "@/components/location-pill";
 import { prisma } from "@/lib/prisma";
 import { getAvatarUrl, getDishImageUrl } from "@/lib/upload";
 import { getSession } from "@/lib/session";
+import { getDictionary, getLocalizedBio, getLocalizedName } from "@/lib/i18n";
 
 export default async function HomePage() {
   const session = await getSession();
   const cookieStore = await cookies();
   const userCity = session?.city || cookieStore.get("user_city")?.value || "Oujda";
+  const locale = cookieStore.get("user_locale")?.value || "fr";
+  const dict = getDictionary(locale);
 
   // Fetch approved chefs from database (Top Chefs / Booking Restaurant)
   const dbChefs = await prisma.chefProfile.findMany({
@@ -44,7 +48,7 @@ export default async function HomePage() {
     id: c.id,
     userId: c.userId,
     displayName: c.displayName,
-    bio: c.bio,
+    bio: getLocalizedBio(c, locale),
     specialties: c.specialties,
     city: c.city,
     bannerUrl: c.bannerUrl,
@@ -92,7 +96,7 @@ export default async function HomePage() {
 
   const newDishes = dbNewDishes.map((dish) => ({
     id: dish.id,
-    name: dish.name,
+    name: getLocalizedName(dish, locale),
     price: Number(dish.price),
     category: dish.category,
     imageUrl: getDishImageUrl(dish.imageUrl),
@@ -143,7 +147,7 @@ export default async function HomePage() {
 
   const topRatedDishes = dbTopRatedDishes.map((dish) => ({
     id: dish.id,
-    name: dish.name,
+    name: getLocalizedName(dish, locale),
     price: Number(dish.price),
     category: dish.category,
     imageUrl: getDishImageUrl(dish.imageUrl),
@@ -180,6 +184,9 @@ export default async function HomePage() {
 
           {/* Location pill */}
           <LocationPill />
+
+          {/* Language Switcher */}
+          <LanguageSwitcher />
         </aside>
 
         {/* ── Main content column ──────────────────────────────────────────── */}
@@ -189,18 +196,18 @@ export default async function HomePage() {
           <div className="lg:hidden bg-background min-h-screen flex flex-col relative shadow-[0_0_80px_rgba(0,0,0,0.07)]">
             <main className="flex-1 overflow-y-auto pb-[78px]">
               <MobileHeader />
-              <SearchBar />
+              <SearchBar dict={dict} />
               <HeroBanner />
-              <HomeSections chefs={chefs} newDishes={newDishes} topRatedDishes={topRatedDishes} />
+              <HomeSections chefs={chefs} newDishes={newDishes} topRatedDishes={topRatedDishes} dict={dict} />
             </main>
             <BottomNav />
           </div>
 
           {/* Desktop content — no mobile chrome ─────────────────────────── */}
           <div className="hidden lg:block">
-            <DesktopSearchBar />
+            <DesktopSearchBar dict={dict} />
             <HeroBanner />
-            <HomeSections chefs={chefs} newDishes={newDishes} topRatedDishes={topRatedDishes} />
+            <HomeSections chefs={chefs} newDishes={newDishes} topRatedDishes={topRatedDishes} dict={dict} />
             {/* Bottom padding so last section doesn't hug viewport edge */}
             <div className="h-12" />
           </div>
@@ -211,7 +218,7 @@ export default async function HomePage() {
         <aside className="hidden xl:flex flex-col w-72 flex-shrink-0 gap-4 sticky top-8 self-start">
           <div className="bg-card rounded-3xl border border-border shadow-sm p-5">
             <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider mb-3">
-              Top Chefs
+              {dict.home.topChefs}
             </p>
             <div className="flex flex-col gap-3">
               {chefs.length > 0 ? (
@@ -220,7 +227,7 @@ export default async function HomePage() {
                 ))
               ) : (
                 <div className="text-[11px] text-muted-foreground italic text-center py-4">
-                  No top chefs available.
+                  {dict.home.noTopChefs}
                 </div>
               )}
             </div>
@@ -236,7 +243,7 @@ export default async function HomePage() {
 
 
 
-function SearchBar() {
+function SearchBar({ dict }: { dict: any }) {
   return (
     <div className="flex items-center gap-2.5 px-4 mb-4">
       <Link
@@ -244,7 +251,7 @@ function SearchBar() {
         className="flex-1 flex items-center gap-2.5 bg-secondary rounded-2xl px-4 h-11 active:bg-secondary/80 transition-colors"
       >
         <Search size={15} className="text-muted-foreground flex-shrink-0" />
-        <span className="text-sm text-muted-foreground font-medium">Search dishes or chefs...</span>
+        <span className="text-sm text-muted-foreground font-medium">{dict.home.searchPlaceholder}</span>
       </Link>
       <Link
         href="/dishes"
@@ -257,7 +264,7 @@ function SearchBar() {
   );
 }
 
-function DesktopSearchBar() {
+function DesktopSearchBar({ dict }: { dict: any }) {
   return (
     <div className="flex items-center gap-3 mb-6">
       <Link
@@ -265,7 +272,7 @@ function DesktopSearchBar() {
         className="flex-1 flex items-center gap-3 bg-card border border-border rounded-2xl px-5 h-12 hover:border-orange-300 transition-colors shadow-sm"
       >
         <Search size={16} className="text-muted-foreground flex-shrink-0" />
-        <span className="text-[14px] text-muted-foreground font-medium">Search dishes or chefs...</span>
+        <span className="text-[14px] text-muted-foreground font-medium">{dict.home.searchPlaceholder}</span>
       </Link>
       <Link
         href="/dishes"
@@ -273,7 +280,7 @@ function DesktopSearchBar() {
         aria-label="Filter dishes"
       >
         <SlidersHorizontal size={16} className="text-white" />
-        <span className="text-[14px] font-bold text-white">Filter</span>
+        <span className="text-[14px] font-bold text-white">{dict.nav.filter}</span>
       </Link>
     </div>
   );
@@ -283,16 +290,18 @@ function HomeSections({
   chefs,
   newDishes,
   topRatedDishes,
+  dict,
 }: {
   chefs: any[];
   newDishes: any[];
   topRatedDishes: any[];
+  dict: any;
 }) {
   return (
     <>
       <HomeSection
-        title="New Today Arrivals"
-        subtitle="Fresh dishes added today"
+        title={dict.home.newToday}
+        subtitle={dict.home.newTodaySub}
         href="/dishes?filter=new"
       >
         {newDishes.length > 0 ? (
@@ -301,14 +310,14 @@ function HomeSections({
           ))
         ) : (
           <div className="text-[12px] text-muted-foreground italic px-4 py-2">
-            No new dishes available today.
+            {dict.home.noNewDishes}
           </div>
         )}
       </HomeSection>
 
       <HomeSection
-        title="Top Rated"
-        subtitle="Highest rated dishes on the platform"
+        title={dict.home.topRated}
+        subtitle={dict.home.topRatedSub}
         href="/dishes?filter=top-rated"
       >
         {topRatedDishes.length > 0 ? (
@@ -317,7 +326,7 @@ function HomeSections({
           ))
         ) : (
           <div className="text-[12px] text-muted-foreground italic px-4 py-2">
-            No top rated dishes available.
+            {dict.home.noTopRated}
           </div>
         )}
       </HomeSection>
@@ -325,8 +334,8 @@ function HomeSections({
       {/* Booking Restaurant — hidden on desktop (moved to right sidebar) */}
       <div className="lg:hidden">
         <HomeSection
-          title="Booking Restaurant"
-          subtitle="Check your city nearby restaurants"
+          title={dict.home.bookingRestaurant}
+          subtitle={dict.home.bookingRestaurantSub}
           href="/restaurants"
           scrollable={false}
         >
@@ -336,7 +345,7 @@ function HomeSections({
             ))
           ) : (
             <div className="text-[12px] text-muted-foreground italic px-4 py-2">
-              No restaurants available.
+              {dict.home.noRestaurants}
             </div>
           )}
         </HomeSection>

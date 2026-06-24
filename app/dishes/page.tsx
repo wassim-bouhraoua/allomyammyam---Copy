@@ -42,6 +42,8 @@ export default async function DishesPage() {
   const exploreDishes = dishes.map((dish) => ({
     id: dish.id,
     name: dish.name,
+    name_en: dish.name_en,
+    name_ar: dish.name_ar,
     price: Number(dish.price),
     category: dish.category,
     imageUrl: getDishImageUrl(dish.imageUrl),

@@ -8,9 +8,13 @@ import { useAuth } from "@/context/AuthContext";
 import BottomNav from "@/components/bottom-nav";
 import DesktopNavLinks from "@/components/desktop-nav-links";
 import LocationPill from "@/components/location-pill";
+import LanguageSwitcher from "@/components/language-switcher";
+import { useTranslation } from "@/context/I18nContext";
+import { getLocalizedName } from "@/lib/i18n";
 
 export default function CartPage() {
   const { user } = useAuth();
+  const { dict, locale } = useTranslation();
   const { cartItems, cartCount, loading, updateQuantity, removeFromCart } = useCart();
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
@@ -27,10 +31,13 @@ export default function CartPage() {
   const subtotal = cartItems.reduce((acc, item) => acc + item.dish.price * item.quantity, 0);
 
   const handleDecreaseQuantity = async (item: CartItem) => {
-    if (item.quantity <= 1) return;
+    if (item.quantity <= 1) {
+      handleRemoveItem(item.dish.id);
+      return;
+    }
     const res = await updateQuantity(item.dish.id, item.quantity - 1);
     if (!res.success) {
-      showToast(res.error ?? "Failed to update quantity.", "error");
+      showToast(res.error ?? dict.cart.toast.updateFailed, "error");
     }
   };
 
@@ -40,22 +47,22 @@ export default function CartPage() {
     
     // Check if stock count limit is reached
     if (item.dish.stockCount !== null && item.quantity >= item.dish.stockCount) {
-      showToast(`Only ${item.dish.stockCount} portions available in stock.`, "error");
+      showToast(dict.dishDetail.stock.low.replace("{count}", String(item.dish.stockCount)), "error");
       return;
     }
 
     const res = await updateQuantity(item.dish.id, item.quantity + 1);
     if (!res.success) {
-      showToast(res.error ?? "Failed to update quantity.", "error");
+      showToast(res.error ?? dict.cart.toast.updateFailed, "error");
     }
   };
 
   const handleRemoveItem = async (dishId: string) => {
     const res = await removeFromCart(dishId);
     if (res.success) {
-      showToast("Item removed from cart.", "success");
+      showToast(dict.cart.toast.removed, "success");
     } else {
-      showToast(res.error ?? "Failed to remove item.", "error");
+      showToast(res.error ?? dict.cart.toast.removeFailed, "error");
     }
   };
 
@@ -91,6 +98,7 @@ export default function CartPage() {
 
           {/* Location pill */}
           <LocationPill />
+          <LanguageSwitcher />
         </aside>
 
         {/* ── Main Column ── */}
@@ -103,12 +111,12 @@ export default function CartPage() {
                 className="w-8 h-8 rounded-xl bg-card border border-border flex items-center justify-center active:scale-95 transition-transform"
                 aria-label="Go back"
               >
-                <ArrowLeft size={16} className="text-foreground" />
+                <ArrowLeft size={16} className="text-foreground rtl:rotate-180" />
               </Link>
-              <h1 className="text-[17px] font-extrabold text-foreground">My Cart</h1>
+              <h1 className="text-[17px] font-extrabold text-foreground">{dict.cart.title}</h1>
             </div>
             <span className="text-[12px] font-bold text-muted-foreground bg-secondary px-2.5 py-1 rounded-full">
-              {cartCount} {cartCount === 1 ? "item" : "items"}
+              {dict.cart.itemCount.replace("{count}", String(cartCount))}
             </span>
           </div>
 
@@ -117,16 +125,16 @@ export default function CartPage() {
             
             {/* Desktop Header */}
             <div className="hidden lg:flex items-center justify-between mb-6">
-              <div>
-                <h1 className="text-[24px] font-black text-foreground leading-tight">My Cart</h1>
-                <p className="text-[13px] text-muted-foreground mt-0.5">Manage items in your shopping bag</p>
+              <div className="text-start">
+                <h1 className="text-[24px] font-black text-foreground leading-tight">{dict.cart.title}</h1>
+                <p className="text-[13px] text-muted-foreground mt-0.5">{dict.cart.sub}</p>
               </div>
             </div>
 
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20 gap-3">
                 <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
-                <p className="text-[13px] font-medium text-muted-foreground">Loading your cart...</p>
+                <p className="text-[13px] font-medium text-muted-foreground">{dict.common.loading}</p>
               </div>
             ) : cartItems.length === 0 ? (
               /* Empty Cart State */
@@ -134,15 +142,15 @@ export default function CartPage() {
                 <div className="w-16 h-16 rounded-full bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 flex items-center justify-center mb-5 animate-bounce">
                   <ShoppingBag size={28} className="text-orange-500" />
                 </div>
-                <h2 className="text-[18px] font-extrabold text-foreground">Your cart is empty</h2>
+                <h2 className="text-[18px] font-extrabold text-foreground">{dict.cart.empty}</h2>
                 <p className="text-[13px] text-muted-foreground mt-2 max-w-xs leading-relaxed">
-                  Looks like you haven't added any dishes to your cart yet. Let's find some delicious home-cooked meals!
+                  {dict.cart.emptySub}
                 </p>
                 <Link
                   href="/dishes"
                   className="mt-6 inline-flex items-center justify-center px-6 h-11 bg-orange-500 text-white font-extrabold text-[14px] rounded-2xl shadow-[0_4px_16px_rgba(255,138,0,0.35)] active:scale-98 transition-transform"
                 >
-                  Explore Dishes
+                  {dict.cart.browse}
                 </Link>
               </div>
             ) : (
@@ -168,7 +176,7 @@ export default function CartPage() {
                           {item.dish.imageUrl ? (
                             <img
                               src={item.dish.imageUrl}
-                              alt={item.dish.name}
+                              alt={getLocalizedName(item.dish, locale)}
                               className="w-full h-full object-cover"
                             />
                           ) : (
@@ -180,17 +188,17 @@ export default function CartPage() {
                           {unavailable && (
                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-center">
                               <span className="text-[8.5px] font-black text-white uppercase tracking-wider px-1 py-0.5 bg-red-600 rounded">
-                                Sold Out
+                                {dict.common.soldOut}
                               </span>
                             </div>
                           )}
                         </div>
 
                         {/* Details */}
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 text-start">
                           <div className="flex items-start justify-between gap-2">
                             <h3 className="text-[13px] sm:text-[14px] font-extrabold text-foreground leading-snug truncate">
-                              {item.dish.name}
+                              {getLocalizedName(item.dish, locale)}
                             </h3>
                             <button
                               onClick={() => handleRemoveItem(item.dish.id)}
@@ -202,16 +210,16 @@ export default function CartPage() {
                           </div>
                           
                           <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
-                            Chef: <span className="font-semibold">{item.dish.chef.displayName}</span>
+                            {dict.cart.chefLabel} <span className="font-semibold">{item.dish.chef.displayName}</span>
                           </p>
 
                           <div className="flex items-center justify-between gap-3 mt-2 flex-wrap sm:flex-nowrap">
                             <div className="flex items-center gap-1.5">
                               <span className="text-[13px] font-extrabold text-orange-600">
-                                {item.dish.price} MAD
+                                {item.dish.price} {dict.common.currency}
                               </span>
                               <span className="text-[10px] text-muted-foreground font-medium">
-                                / serving
+                                {dict.cart.perServing}
                               </span>
                             </div>
 
@@ -242,7 +250,7 @@ export default function CartPage() {
 
                               {/* Subtotal of Item */}
                               <span className="text-[13px] font-extrabold text-foreground tabular-nums font-black text-orange-600">
-                                {itemSubtotal} MAD
+                                {itemSubtotal} {dict.common.currency}
                               </span>
                             </div>
                           </div>
@@ -251,11 +259,11 @@ export default function CartPage() {
                           {unavailable ? (
                             <p className="flex items-center gap-1 text-[10px] font-bold text-red-500 mt-2">
                               <AlertCircle size={10} />
-                              This dish is currently unavailable. Please remove it.
+                              {dict.cart.dishUnavailable}
                             </p>
                           ) : item.dish.stockCount !== null && item.quantity >= item.dish.stockCount ? (
                             <p className="text-[10px] text-amber-500 font-semibold mt-2">
-                              Maximum available portions reached
+                              {dict.cart.maxStockReached}
                             </p>
                           ) : null}
                         </div>
@@ -266,22 +274,22 @@ export default function CartPage() {
 
                 {/* Subtotal Display Panel */}
                 <div className="flex flex-col gap-4">
-                  <div className="bg-card rounded-[24px] border border-border shadow-sm p-5 sticky top-8">
+                  <div className="bg-card rounded-[24px] border border-border shadow-sm p-5 sticky top-8 text-start">
                     <h2 className="text-[14px] font-black text-foreground uppercase tracking-widest mb-4">
-                      Summary
+                      {dict.cart.summary}
                     </h2>
                     
                     <div className="flex flex-col gap-2.5 border-b border-border pb-4 mb-4">
                       <div className="flex items-center justify-between text-[13px] text-muted-foreground">
-                        <span>Total Items</span>
+                        <span>{dict.cart.totalItems}</span>
                         <span className="font-extrabold text-foreground tabular-nums">{cartCount}</span>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-[14px] font-bold text-foreground">Subtotal</span>
+                      <span className="text-[14px] font-bold text-foreground">{dict.cart.subtotal}</span>
                       <span className="text-[20px] font-black text-orange-600 tabular-nums">
-                        {subtotal.toLocaleString("fr-MA")} MAD
+                        {subtotal.toLocaleString("fr-MA")} {dict.common.currency}
                       </span>
                     </div>
 
@@ -289,11 +297,11 @@ export default function CartPage() {
                       href="/checkout"
                       className="w-full h-12 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-[15px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-[0_4px_14px_rgba(255,138,0,0.38)] mb-3"
                     >
-                      Proceed to Checkout
+                      {dict.cart.checkout}
                     </Link>
 
                     <p className="text-[11px] text-muted-foreground text-center italic mt-2 leading-relaxed">
-                      Delivery fees and order validation will be calculated at checkout.
+                      {dict.cart.checkoutNotice}
                     </p>
                   </div>
                 </div>

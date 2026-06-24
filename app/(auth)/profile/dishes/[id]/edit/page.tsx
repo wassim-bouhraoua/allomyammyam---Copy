@@ -10,6 +10,7 @@ import { ArrowLeft, Loader2, Camera, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import BackToHome from "@/components/auth/back-to-home";
 import { ALLOWED_TAGS, CATEGORY_OPTIONS } from "@/lib/dish-tags";
+import { useTranslation } from "@/context/I18nContext";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Page
@@ -22,10 +23,15 @@ export default function EditDishPage({
   const { id: dishId } = use(params);
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const { dict } = useTranslation();
 
   // Form fields
   const [name, setName] = useState("");
+  const [nameEn, setNameEn] = useState("");
+  const [nameAr, setNameAr] = useState("");
   const [description, setDescription] = useState("");
+  const [descriptionEn, setDescriptionEn] = useState("");
+  const [descriptionAr, setDescriptionAr] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
   const [preparationTime, setPreparationTime] = useState("");
@@ -74,12 +80,16 @@ export default function EditDishPage({
         });
         const data = await res.json();
         if (!res.ok) {
-          setFetchError(data.error ?? "Failed to load dish.");
+          setFetchError(data.error ?? dict.chefDishes.loadFailed);
           return;
         }
         const d = data.dish;
         setName(d.name ?? "");
+        setNameEn(d.name_en ?? "");
+        setNameAr(d.name_ar ?? "");
         setDescription(d.description ?? "");
+        setDescriptionEn(d.description_en ?? "");
+        setDescriptionAr(d.description_ar ?? "");
         setPrice(String(d.price ?? ""));
         setCategory(d.category ?? "");
         setPreparationTime(String(d.preparationTime ?? ""));
@@ -98,14 +108,14 @@ export default function EditDishPage({
           setImageUrlInput(d.imageUrl);
         }
       } catch {
-        setFetchError("Connection error. Could not load dish.");
+        setFetchError(dict.chefDishes.connError);
       } finally {
         setFetchLoading(false);
       }
     }
 
     load();
-  }, [dishId, user]);
+  }, [dishId, user, dict]);
 
   // ── Guards ─────────────────────────────────────────────────────────────────
   if (authLoading || !user || user.role !== "CHEF") {
@@ -126,24 +136,24 @@ export default function EditDishPage({
 
   if (fetchError) {
     return (
-      <div className="flex flex-col min-h-full px-4 pt-4 pb-8">
+      <div className="flex flex-col min-h-full px-4 pt-4 pb-8 text-start">
         <div className="flex items-center py-4 mb-4">
           <Link
             href="/profile/dishes"
-            className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600"
+            className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600 active:scale-95 transition-transform"
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={18} className="rtl:rotate-180" />
           </Link>
-          <h1 className="text-[18px] font-black text-gray-900 ml-4">Edit Dish</h1>
+          <h1 className="text-[18px] font-black text-gray-900 ml-4 rtl:ml-0 rtl:mr-4">{dict.chefDishes.form.editTitle}</h1>
         </div>
         <div className="px-4 py-3 rounded-2xl bg-red-50 border border-red-100">
           <p className="text-[13px] font-semibold text-red-650">{fetchError}</p>
         </div>
         <Link
           href="/profile/dishes"
-          className="mt-4 h-12 rounded-2xl bg-gray-100 text-gray-700 font-bold text-[14px] flex items-center justify-center"
+          className="mt-4 h-12 rounded-2xl bg-gray-100 text-gray-750 dark:text-neutral-300 font-bold text-[14px] flex items-center justify-center text-center hover:bg-gray-200 dark:hover:bg-neutral-800 transition-colors"
         >
-          Back to Dishes
+          {dict.common.back}
         </Link>
       </div>
     );
@@ -158,12 +168,12 @@ export default function EditDishPage({
 
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (!validTypes.includes(file.type)) {
-      setFileError("Please upload a valid image (JPG, JPEG, PNG, WEBP).");
+      setFileError(dict.auth.register.validImageError);
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      setFileError("Image size must be less than 2MB.");
+      setFileError(dict.auth.register.photoSizeError);
       return;
     }
 
@@ -173,7 +183,7 @@ export default function EditDishPage({
       setPreviewUrl(base64);
       setImage(base64); // new upload
     };
-    reader.onerror = () => setFileError("Error reading file. Please try again.");
+    reader.onerror = () => setFileError(dict.auth.register.fileReadError);
     reader.readAsDataURL(file);
   };
 
@@ -212,7 +222,7 @@ export default function EditDishPage({
     }
 
     if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
-      setUrlError("URL must start with http:// or https://");
+      setUrlError(dict.chefDishes.form.urlFormatError);
       setPreviewUrl(null);
       setImage(null);
       return;
@@ -224,7 +234,7 @@ export default function EditDishPage({
 
   const handleImageError = () => {
     if (previewUrl && (previewUrl.startsWith("http://") || previewUrl.startsWith("https://"))) {
-      setUrlError("Failed to load image from URL. Please check the URL.");
+      setUrlError(dict.chefDishes.form.urlLoadError);
     }
   };
 
@@ -273,7 +283,11 @@ export default function EditDishPage({
     try {
       const payload: any = {
         name: name.trim(),
+        name_en: nameEn.trim() || null,
+        name_ar: nameAr.trim() || null,
         description: description.trim() || null,
+        description_en: descriptionEn.trim() || null,
+        description_ar: descriptionAr.trim() || null,
         price: Number(price),
         category,
         preparationTime: Number(preparationTime),
@@ -304,27 +318,27 @@ export default function EditDishPage({
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? "Failed to update dish.");
+        setError(data.error ?? dict.chefDishes.form.updateFailed);
         return;
       }
 
       router.push("/profile/dishes");
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(dict.chefDishes.form.genericError);
     } finally {
       setSaving(false);
     }
   }
 
   // ── Styles ─────────────────────────────────────────────────────────────────
-  const inputCls = "h-12 px-4 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 text-[14px] text-gray-900 dark:text-neutral-100 placeholder-gray-400 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors w-full";
-  const labelCls = "text-[11px] font-bold text-gray-400 dark:text-neutral-450 uppercase tracking-wider";
+  const inputCls = "h-12 px-4 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 text-[14px] text-gray-900 dark:text-neutral-100 placeholder-gray-400 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors w-full text-start";
+  const labelCls = "text-[11px] font-bold text-gray-400 dark:text-neutral-450 uppercase tracking-wider text-start pl-1 rtl:pl-0 rtl:pr-1";
 
   // Determine what the image section should display
   const imageRemoved = image === null;
 
   return (
-    <div className="flex flex-col min-h-full px-4 pt-4 pb-8">
+    <div className="flex flex-col min-h-full px-4 pt-4 pb-8 text-start">
       <BackToHome />
 
       {/* Header */}
@@ -332,11 +346,11 @@ export default function EditDishPage({
         <Link
           href="/profile/dishes"
           className="w-10 h-10 rounded-xl border border-gray-200 dark:border-neutral-700 flex items-center justify-center text-gray-600 dark:text-neutral-300 hover:text-orange-500 hover:border-orange-200 dark:hover:border-orange-900/35 transition-all active:scale-95"
-          aria-label="Back to dishes"
+          aria-label={dict.chefDishes.title}
         >
-          <ArrowLeft size={18} />
+          <ArrowLeft size={18} className="rtl:rotate-180" />
         </Link>
-        <h1 className="text-[18px] font-black text-gray-900 dark:text-neutral-100 tracking-tight">Edit Dish</h1>
+        <h1 className="text-[18px] font-black text-gray-900 dark:text-neutral-100 tracking-tight">{dict.chefDishes.form.editTitle}</h1>
         <div className="w-10" />
       </div>
 
@@ -348,11 +362,11 @@ export default function EditDishPage({
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-white dark:bg-neutral-800 rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-gray-100 dark:border-neutral-700 p-5 flex flex-col gap-5">
+      <form onSubmit={handleSubmit} className="bg-white dark:bg-neutral-800 rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-gray-100 dark:border-neutral-700 p-5 flex flex-col gap-5 text-start">
 
         {/* Dish image upload and URL paste */}
         <div className="flex flex-col gap-3">
-          <label className={labelCls}>Dish Image</label>
+          <label className={labelCls}>{dict.chefDishes.form.image}</label>
           
           {/* Drag & Drop Area */}
           <div
@@ -392,7 +406,7 @@ export default function EditDishPage({
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-red-100 dark:border-red-900/30 rounded-xl bg-red-50 dark:bg-red-950/20 text-[11px] font-bold text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 active:scale-95 transition-all"
                   >
                     <Trash2 size={12} />
-                    Remove Image
+                    {dict.chefDishes.form.removeImage}
                   </button>
                   {image !== undefined && (
                     <button
@@ -400,7 +414,7 @@ export default function EditDishPage({
                       onClick={restoreImage}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-green-100 dark:border-green-900/30 rounded-xl bg-green-50 dark:bg-green-950/20 text-[11px] font-bold text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/40 active:scale-95 transition-all"
                     >
-                      Restore Original
+                      {dict.chefDishes.form.restoreBtn}
                     </button>
                   )}
                 </div>
@@ -409,13 +423,13 @@ export default function EditDishPage({
               <div className="flex flex-col items-center justify-center w-full text-center">
                 {imageRemoved ? (
                   <div className="flex flex-col items-center gap-3 py-2">
-                    <span className="text-[12px] font-bold text-red-500 bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 px-3 py-1 rounded-full uppercase tracking-wider">Removed</span>
+                    <span className="text-[12px] font-bold text-red-500 bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 px-3 py-1 rounded-full uppercase tracking-wider">{dict.chefDishes.form.removedOverlay}</span>
                     <button
                       type="button"
                       onClick={restoreImage}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-green-100 dark:border-green-900/30 rounded-xl bg-green-50 dark:bg-green-950/20 text-[11px] font-bold text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/40 active:scale-95 transition-all"
                     >
-                      Restore Original
+                      {dict.chefDishes.form.restoreBtn}
                     </button>
                   </div>
                 ) : (
@@ -424,8 +438,8 @@ export default function EditDishPage({
                     className="flex flex-col items-center justify-center cursor-pointer w-full h-full text-center py-2"
                   >
                     <Camera size={26} className="text-gray-400 mb-2" />
-                    <span className="text-[13px] font-bold text-gray-700 dark:text-neutral-300">Drag & drop new photo here</span>
-                    <span className="text-[11px] text-gray-400 mt-1">or click to browse (JPG, JPEG, PNG, WEBP up to 2MB)</span>
+                    <span className="text-[13px] font-bold text-gray-700 dark:text-neutral-300">{dict.chefDishes.form.dragDropImage}</span>
+                    <span className="text-[11px] text-gray-400 mt-1">{dict.chefDishes.form.browseNotice}</span>
                   </label>
                 )}
               </div>
@@ -435,7 +449,7 @@ export default function EditDishPage({
           {/* OR Separator */}
           <div className="flex items-center gap-3 px-1 my-1">
             <div className="h-px bg-gray-100 dark:bg-neutral-700 flex-1" />
-            <span className="text-[10px] font-bold text-gray-400 dark:text-neutral-450 uppercase tracking-widest">or</span>
+            <span className="text-[10px] font-bold text-gray-400 dark:text-neutral-450 uppercase tracking-widest">{dict.chefDishes.form.or}</span>
             <div className="h-px bg-gray-100 dark:bg-neutral-700 flex-1" />
           </div>
 
@@ -445,7 +459,7 @@ export default function EditDishPage({
               type="text"
               value={imageUrlInput}
               onChange={(e) => handleUrlChange(e.target.value)}
-              placeholder="Paste image URL (starts with http:// or https://)"
+              placeholder={dict.chefDishes.form.pasteUrlPlaceholder}
               className={inputCls}
             />
           </div>
@@ -458,43 +472,93 @@ export default function EditDishPage({
           )}
         </div>
 
-        {/* Name */}
+        {/* Name FR */}
         <div className="flex flex-col gap-1.5">
-          <label className={labelCls}>Dish Name *</label>
+          <label className={labelCls}>{dict.chefDishes.form.name} *</label>
           <input
             type="text"
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Moroccan Lamb Tagine"
+            placeholder={dict.chefDishes.form.namePlaceholder}
             className={inputCls}
           />
         </div>
 
-        {/* Description */}
+        {/* Name EN */}
         <div className="flex flex-col gap-1.5">
-          <label className={labelCls}>Description</label>
+          <label className={labelCls}>{dict.chefDishes.form.nameEn}</label>
+          <input
+            type="text"
+            value={nameEn}
+            onChange={(e) => setNameEn(e.target.value)}
+            placeholder={dict.chefDishes.form.namePlaceholder}
+            className={inputCls}
+          />
+        </div>
+
+        {/* Name AR */}
+        <div className="flex flex-col gap-1.5">
+          <label className={labelCls}>{dict.chefDishes.form.nameAr}</label>
+          <input
+            type="text"
+            value={nameAr}
+            onChange={(e) => setNameAr(e.target.value)}
+            placeholder={dict.chefDishes.form.namePlaceholder}
+            className={inputCls}
+          />
+        </div>
+
+        {/* Description FR */}
+        <div className="flex flex-col gap-1.5">
+          <label className={labelCls}>{dict.chefDishes.form.description}</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            placeholder="Describe your dish..."
-            className="px-4 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 text-[14px] text-gray-900 dark:text-neutral-100 placeholder-gray-400 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors resize-none w-full"
+            placeholder={dict.chefDishes.form.descriptionPlaceholder}
+            className="px-4 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-750 text-[14px] text-gray-900 dark:text-neutral-100 placeholder-gray-400 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors resize-none w-full text-start"
+          />
+        </div>
+
+        {/* Description EN */}
+        <div className="flex flex-col gap-1.5">
+          <label className={labelCls}>{dict.chefDishes.form.descriptionEn}</label>
+          <textarea
+            value={descriptionEn}
+            onChange={(e) => setDescriptionEn(e.target.value)}
+            rows={3}
+            placeholder={dict.chefDishes.form.descriptionPlaceholder}
+            className="px-4 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-750 text-[14px] text-gray-900 dark:text-neutral-100 placeholder-gray-400 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors resize-none w-full text-start"
+          />
+        </div>
+
+        {/* Description AR */}
+        <div className="flex flex-col gap-1.5">
+          <label className={labelCls}>{dict.chefDishes.form.descriptionAr}</label>
+          <textarea
+            value={descriptionAr}
+            onChange={(e) => setDescriptionAr(e.target.value)}
+            rows={3}
+            placeholder={dict.chefDishes.form.descriptionPlaceholder}
+            className="px-4 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-750 text-[14px] text-gray-900 dark:text-neutral-100 placeholder-gray-400 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors resize-none w-full text-start"
           />
         </div>
 
         {/* Category */}
         <div className="flex flex-col gap-1.5">
-          <label className={labelCls}>Category *</label>
+          <label className={labelCls}>{dict.chefDishes.form.category} *</label>
           <select
             required
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             className={`${inputCls} cursor-pointer`}
           >
-            <option value="">Select a category…</option>
+            <option value="">{dict.chefDishes.form.categoryPlaceholder}</option>
             {CATEGORY_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
+              <option key={opt.value} value={opt.value}>
+                {dict.dishes.categories[opt.value.toLowerCase()] || opt.label}
+              </option>
             ))}
           </select>
         </div>
@@ -502,7 +566,7 @@ export default function EditDishPage({
         {/* Price + Prep time */}
         <div className="grid grid-cols-2 gap-2.5">
           <div className="flex flex-col gap-1.5">
-            <label className={labelCls}>Price (MAD) *</label>
+            <label className={labelCls}>{dict.chefDishes.form.price} *</label>
             <input
               type="number"
               required
@@ -510,12 +574,12 @@ export default function EditDishPage({
               step="0.01"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              placeholder="e.g. 120"
+              placeholder={dict.chefDishes.form.pricePlaceholder}
               className={inputCls}
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className={labelCls}>Prep Time (min) *</label>
+            <label className={labelCls}>{dict.chefDishes.form.prepTime} *</label>
             <input
               type="number"
               required
@@ -523,7 +587,7 @@ export default function EditDishPage({
               step="1"
               value={preparationTime}
               onChange={(e) => setPreparationTime(e.target.value)}
-              placeholder="e.g. 30"
+              placeholder={dict.chefDishes.form.prepTimePlaceholder}
               className={inputCls}
             />
           </div>
@@ -531,24 +595,24 @@ export default function EditDishPage({
 
         {/* Stock count */}
         <div className="flex flex-col gap-1.5">
-          <label className={labelCls}>Stock Count (optional)</label>
+          <label className={labelCls}>{dict.chefDishes.form.stock}</label>
           <input
             type="number"
             min="0"
             step="1"
             value={stockCount}
             onChange={(e) => setStockCount(e.target.value)}
-            placeholder="Leave blank for unlimited"
+            placeholder={dict.chefDishes.form.stockPlaceholder}
             className={inputCls}
           />
         </div>
 
         {/* Nutrition Facts */}
-        <div className="flex flex-col gap-3">
-          <label className={labelCls}>Nutrition Facts (optional)</label>
+        <div className="flex flex-col gap-3 text-start">
+          <label className={labelCls}>{dict.chefDishes.form.nutritionTitle}</label>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 p-4 bg-gray-50 dark:bg-neutral-900 border border-gray-100 dark:border-neutral-750 rounded-2xl">
             <div className="flex flex-col gap-1.5 col-span-2 sm:col-span-1">
-              <span className="text-[10px] font-bold text-gray-500 dark:text-neutral-450 pl-1">Calories (kcal)</span>
+              <span className="text-[10px] font-bold text-gray-500 dark:text-neutral-450 pl-1 rtl:pl-0 rtl:pr-1">{dict.dishDetail.nutrition.calories} (kcal)</span>
               <input
                 type="number"
                 min="0"
@@ -560,7 +624,7 @@ export default function EditDishPage({
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <span className="text-[10px] font-bold text-gray-500 dark:text-neutral-455 pl-1">Protein (g)</span>
+              <span className="text-[10px] font-bold text-gray-500 dark:text-neutral-455 pl-1 rtl:pl-0 rtl:pr-1">{dict.dishDetail.nutrition.protein} (g)</span>
               <input
                 type="number"
                 min="0"
@@ -572,7 +636,7 @@ export default function EditDishPage({
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <span className="text-[10px] font-bold text-gray-500 dark:text-neutral-455 pl-1">Carbs (g)</span>
+              <span className="text-[10px] font-bold text-gray-500 dark:text-neutral-455 pl-1 rtl:pl-0 rtl:pr-1">{dict.dishDetail.nutrition.carbs} (g)</span>
               <input
                 type="number"
                 min="0"
@@ -584,7 +648,7 @@ export default function EditDishPage({
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <span className="text-[10px] font-bold text-gray-500 dark:text-neutral-455 pl-1">Fat (g)</span>
+              <span className="text-[10px] font-bold text-gray-500 dark:text-neutral-455 pl-1 rtl:pl-0 rtl:pr-1">{dict.dishDetail.nutrition.fat} (g)</span>
               <input
                 type="number"
                 min="0"
@@ -596,7 +660,7 @@ export default function EditDishPage({
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <span className="text-[10px] font-bold text-gray-500 dark:text-neutral-455 pl-1">Sugar (g)</span>
+              <span className="text-[10px] font-bold text-gray-500 dark:text-neutral-455 pl-1 rtl:pl-0 rtl:pr-1">{dict.dishDetail.nutrition.sugar} (g)</span>
               <input
                 type="number"
                 min="0"
@@ -611,15 +675,16 @@ export default function EditDishPage({
         </div>
 
         {/* Tags */}
-        <div className="flex flex-col gap-3">
-          <label className={labelCls}>Tags (optional)</label>
+        <div className="flex flex-col gap-3 text-start">
+          <label className={labelCls}>{dict.chefDishes.form.tagsLabel}</label>
           
           {/* Cuisine Origin */}
           <div className="flex flex-col gap-1">
-            <span className="text-[11px] font-extrabold text-gray-400 dark:text-neutral-455 uppercase tracking-wider pl-1">Cuisine Origin</span>
+            <span className="text-[11px] font-extrabold text-gray-400 dark:text-neutral-455 uppercase tracking-wider pl-1 rtl:pl-0 rtl:pr-1">{dict.chefDishes.form.cuisineOrigin}</span>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 p-4 bg-gray-50 dark:bg-neutral-900 border border-gray-100 dark:border-neutral-750 rounded-2xl">
               {ALLOWED_TAGS.filter(t => t.group === "cuisine").map((tag) => {
                 const isChecked = tags.includes(tag.value);
+                const tagLabel = dict.dishes.tags[tag.value] || tag.label;
                 return (
                   <label
                     key={tag.value}
@@ -637,7 +702,7 @@ export default function EditDishPage({
                       }}
                       className="w-4 h-4 rounded text-orange-500 border-gray-350 dark:border-neutral-600 focus:ring-orange-500 cursor-pointer accent-orange-500"
                     />
-                    <span>{tag.emoji} {tag.label}</span>
+                    <span>{tag.emoji} {tagLabel}</span>
                   </label>
                 );
               })}
@@ -646,10 +711,11 @@ export default function EditDishPage({
 
           {/* Vibe & Attributes */}
           <div className="flex flex-col gap-1">
-            <span className="text-[11px] font-extrabold text-gray-400 dark:text-neutral-455 uppercase tracking-wider pl-1">Vibe & Attributes</span>
+            <span className="text-[11px] font-extrabold text-gray-400 dark:text-neutral-455 uppercase tracking-wider pl-1 rtl:pl-0 rtl:pr-1">{dict.chefDishes.form.vibeAttributes}</span>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 p-4 bg-gray-50 dark:bg-neutral-900 border border-gray-100 dark:border-neutral-755 rounded-2xl">
               {ALLOWED_TAGS.filter(t => t.group === "vibe").map((tag) => {
                 const isChecked = tags.includes(tag.value);
+                const tagLabel = dict.dishes.tags[tag.value] || tag.label;
                 return (
                   <label
                     key={tag.value}
@@ -667,7 +733,7 @@ export default function EditDishPage({
                       }}
                       className="w-4 h-4 rounded text-orange-500 border-gray-350 dark:border-neutral-600 focus:ring-orange-500 cursor-pointer accent-orange-500"
                     />
-                    <span>{tag.emoji} {tag.label}</span>
+                    <span>{tag.emoji} {tagLabel}</span>
                   </label>
                 );
               })}
@@ -683,9 +749,9 @@ export default function EditDishPage({
             className="h-12 rounded-2xl bg-orange-500 text-white font-extrabold text-[15px] shadow-[0_4px_14px_rgba(255,138,0,0.38)] transition-all duration-150 active:scale-[0.98] disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {saving ? (
-              <><Loader2 size={17} className="animate-spin" /> Saving…</>
+              <><Loader2 size={17} className="animate-spin" /> {dict.chefDishes.form.saving}</>
             ) : (
-              "Save Changes"
+              dict.chefDishes.form.editBtn
             )}
           </button>
 
@@ -693,7 +759,7 @@ export default function EditDishPage({
             href="/profile/dishes"
             className="h-12 rounded-2xl border border-gray-200 dark:border-neutral-700 text-gray-700 dark:text-neutral-300 font-bold text-[14px] flex items-center justify-center active:scale-[0.98] transition-transform hover:bg-gray-50 dark:hover:bg-neutral-800"
           >
-            Cancel
+            {dict.common.cancel}
           </Link>
         </div>
       </form>

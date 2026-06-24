@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { ReactNode } from "react";
 
+import { useTranslation } from "@/context/I18nContext";
+
 interface HomeSectionProps {
   title: string;
   subtitle?: string;
@@ -18,6 +20,8 @@ export default function HomeSection({
   children,
   scrollable = true,
 }: HomeSectionProps) {
+  const { dict } = useTranslation();
+
   return (
     <section className="mb-7">
       <div className="flex items-start justify-between px-4 mb-3">
@@ -30,7 +34,7 @@ export default function HomeSection({
             href={href}
             className="flex items-center gap-0.5 text-[11px] font-semibold text-orange-500 mt-0.5 active:opacity-70"
           >
-            See All <ChevronRight size={12} strokeWidth={2.5} />
+            {dict.dishDetail.related.seeAll} <ChevronRight size={12} strokeWidth={2.5} className="rtl:rotate-180" />
           </Link>
         )}
       </div>

@@ -7,6 +7,7 @@ import { Eye, EyeOff, Loader2, ChefHat, X, User } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import BackToHome from "@/components/auth/back-to-home";
 import { useGoogleSignIn } from "@/hooks/useGoogleSignIn";
+import { useTranslation } from "@/context/I18nContext";
 
 const SPECIALTY_OPTIONS = [
   "Moroccan",
@@ -22,6 +23,7 @@ const SPECIALTY_OPTIONS = [
 ];
 
 export default function RegisterChefPage() {
+  const { locale, dict } = useTranslation();
   const router = useRouter();
   const { refreshUser } = useAuth();
 
@@ -46,13 +48,13 @@ export default function RegisterChefPage() {
 
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (!validTypes.includes(file.type)) {
-      setFileError("Please upload a valid image (JPG, JPEG, PNG, WEBP).");
+      setFileError(dict.auth.register.validImageError);
       return;
     }
 
     const maxSize = 2 * 1024 * 1024;
     if (file.size > maxSize) {
-      setFileError("Photo size must be less than 2MB.");
+      setFileError(dict.auth.register.photoSizeError);
       return;
     }
 
@@ -62,7 +64,7 @@ export default function RegisterChefPage() {
       setForm(prev => ({ ...prev, avatar: reader.result as string }));
     };
     reader.onerror = () => {
-      setFileError("Error reading file. Please try again.");
+      setFileError(dict.auth.register.fileReadError);
     };
     reader.readAsDataURL(file);
   };
@@ -121,7 +123,7 @@ export default function RegisterChefPage() {
     e.preventDefault();
     setError(null);
     if (specialties.length === 0) {
-      setError("Please select at least one specialty.");
+      setError(dict.auth.chef.selectSpecialtyError);
       return;
     }
     setLoading(true);
@@ -154,6 +156,13 @@ export default function RegisterChefPage() {
 
   const labelClass = "text-[11px] font-bold text-muted-foreground uppercase tracking-wider";
 
+  const getSpecialtyLabel = (s: string) => {
+    const key = s.toLowerCase();
+    if (key === "grill") return dict.dishes.tags.grilled || s;
+    if (key === "soups") return dict.dishes.categories.soup || s;
+    return dict.dishes.tags[key] || dict.dishes.categories[key] || s;
+  };
+
   return (
     <div className="flex-1 flex flex-col lg:flex-row min-h-screen lg:min-h-0">
       {/* Left side: Premium Welcome Graphic (Hidden on mobile) */}
@@ -170,15 +179,15 @@ export default function RegisterChefPage() {
 
         <div className="my-auto relative z-10">
           <h2 className="text-[32px] font-black leading-tight tracking-tight mb-4">
-            Cook. Share. Earn.
+            {dict.auth.chef.welcomeGraphicTitle}
           </h2>
           <p className="text-[14px] text-orange-50/90 leading-relaxed font-medium max-w-sm">
-            Become a partner chef, showcase your culinary specialties, manage your kitchen, and reach local hungry customers.
+            {dict.auth.chef.welcomeGraphicDesc}
           </p>
         </div>
 
         <p className="text-[11px] text-orange-100/70 font-semibold relative z-10">
-          © 2026 AlloMyamMyam. All rights reserved.
+          © 2026 AlloMyamMyam. {locale === "ar" ? "جميع الحقوق محفوظة." : locale === "en" ? "All rights reserved." : "Tous droits réservés."}
         </p>
       </div>
 
@@ -191,9 +200,9 @@ export default function RegisterChefPage() {
           <div className="w-16 h-16 rounded-3xl bg-orange-500 flex lg:hidden items-center justify-center shadow-[0_6px_20px_rgba(255,138,0,0.40)] mb-5">
             <ChefHat size={28} className="text-white" />
           </div>
-          <h1 className="text-[24px] font-black text-foreground tracking-tight">Become a Chef</h1>
+          <h1 className="text-[24px] font-black text-foreground tracking-tight">{dict.auth.chef.title}</h1>
           <p className="text-[13px] text-muted-foreground mt-1.5 text-center">
-            Share your homemade dishes and grow your customer base
+            {dict.auth.chef.shareHomemade}
           </p>
         </div>
 
@@ -210,47 +219,47 @@ export default function RegisterChefPage() {
           <div id="google-signin-button" className="w-full flex justify-center min-h-[40px]" />
           <div className="flex items-center gap-2.5 my-0.5">
             <div className="flex-1 h-px bg-border" />
-            <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">or register with email</span>
+            <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">{dict.auth.register.orRegisterWithEmail}</span>
             <div className="flex-1 h-px bg-border" />
           </div>
         </div>
 
         {/* Personal info card */}
         <div className="bg-card rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-border p-5 flex flex-col gap-4">
-          <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider">
-            Personal Info
+          <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider text-start">
+            {dict.auth.chef.personalInfo}
           </p>
 
           <div className="grid grid-cols-2 gap-2.5">
-            <div className="flex flex-col gap-1.5">
-              <label className={labelClass}>First name</label>
+            <div className="flex flex-col gap-1.5 text-start">
+              <label className={labelClass}>{dict.auth.fields.firstName}</label>
               <input
                 type="text"
                 autoComplete="given-name"
                 required
                 value={form.firstName}
                 onChange={set("firstName")}
-                placeholder="Fatima"
+                placeholder={locale === "ar" ? "فاطمة" : "Fatima"}
                 className={inputClass}
               />
             </div>
-            <div className="flex flex-col gap-1.5">
-              <label className={labelClass}>Last name</label>
+            <div className="flex flex-col gap-1.5 text-start">
+              <label className={labelClass}>{dict.auth.fields.lastName}</label>
               <input
                 type="text"
                 autoComplete="family-name"
                 required
                 value={form.lastName}
                 onChange={set("lastName")}
-                placeholder="Zahra"
+                placeholder={locale === "ar" ? "الزهراء" : "Zahra"}
                 className={inputClass}
               />
             </div>
           </div>
 
           {/* Upload Profile Photo */}
-          <div className="flex flex-col gap-1.5">
-            <label className={labelClass}>Chef Profile Photo (Optional)</label>
+          <div className="flex flex-col gap-1.5 text-start">
+            <label className={labelClass}>{dict.auth.chef.chefProfilePhoto}</label>
             <div className="flex items-center gap-3">
               {/* Preview */}
               <div className="relative w-12 h-12 rounded-xl bg-secondary border border-border flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -283,15 +292,15 @@ export default function RegisterChefPage() {
                   htmlFor="profile-photo-upload"
                   className="inline-flex items-center px-4 py-2 border border-border rounded-xl bg-secondary text-[12px] font-bold text-foreground cursor-pointer hover:bg-secondary/80 active:scale-95 transition-all"
                 >
-                  Choose Photo
+                  {dict.auth.register.choosePhoto}
                 </label>
                 {fileError && <p className="text-[11px] text-red-500 font-semibold mt-1">{fileError}</p>}
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className={labelClass}>Email</label>
+          <div className="flex flex-col gap-1.5 text-start">
+            <label className={labelClass}>{dict.auth.fields.email}</label>
             <input
               type="email"
               autoComplete="email"
@@ -303,10 +312,10 @@ export default function RegisterChefPage() {
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 text-start">
             <label className={labelClass}>
-              Phone{" "}
-              <span className="normal-case text-muted-foreground font-medium">(optional)</span>
+              {dict.auth.fields.phone}{" "}
+              <span className="normal-case text-muted-foreground font-medium">({locale === "ar" ? "اختياري" : locale === "en" ? "optional" : "facultatif"})</span>
             </label>
             <input
               type="tel"
@@ -318,8 +327,8 @@ export default function RegisterChefPage() {
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className={labelClass}>Password</label>
+          <div className="flex flex-col gap-1.5 text-start">
+            <label className={labelClass}>{dict.auth.fields.password}</label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -328,13 +337,13 @@ export default function RegisterChefPage() {
                 minLength={8}
                 value={form.password}
                 onChange={set("password")}
-                placeholder="Min. 8 characters"
-                className={`w-full pr-12 ${inputClass}`}
+                placeholder={locale === "ar" ? "8 أحرف على الأقل" : locale === "en" ? "Min. 8 characters" : "Au moins 8 caractères"}
+                className={`w-full ${locale === "ar" ? "pl-12 pr-4" : "pr-12 pl-4"} ${inputClass}`}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                className={`absolute top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors ${locale === "ar" ? "left-3" : "right-3"}`}
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -345,49 +354,49 @@ export default function RegisterChefPage() {
 
         {/* Chef profile card */}
         <div className="bg-card rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-border p-5 mt-4 flex flex-col gap-4">
-          <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider">
-            Chef Profile
+          <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider text-start">
+            {dict.auth.chef.title}
           </p>
 
           <div className="grid grid-cols-2 gap-2.5">
-            <div className="flex flex-col gap-1.5">
-              <label className={labelClass}>Display name</label>
+            <div className="flex flex-col gap-1.5 text-start">
+              <label className={labelClass}>{dict.auth.chef.displayNameLabel}</label>
               <input
                 type="text"
                 required
                 value={form.displayName}
                 onChange={set("displayName")}
-                placeholder="Chef Fatima"
+                placeholder={locale === "ar" ? "الشيف فاطمة" : "Chef Fatima"}
                 className={inputClass}
               />
             </div>
-            <div className="flex flex-col gap-1.5">
-              <label className={labelClass}>City</label>
+            <div className="flex flex-col gap-1.5 text-start">
+              <label className={labelClass}>{dict.auth.chef.cityLabel}</label>
               <input
                 type="text"
                 required
                 value={form.city}
                 onChange={set("city")}
-                placeholder="Casablanca"
+                placeholder={locale === "ar" ? "الدار البيضاء" : "Casablanca"}
                 className={inputClass}
               />
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className={labelClass}>Bio</label>
+          <div className="flex flex-col gap-1.5 text-start">
+            <label className={labelClass}>{dict.auth.chef.bioLabel}</label>
             <textarea
               value={form.bio}
               onChange={set("bio")}
               rows={3}
-              placeholder="Tell customers about your cooking style…"
+              placeholder={dict.auth.chef.bioPlaceholder}
               className="px-4 py-3 rounded-2xl bg-secondary border border-border text-[14px] text-foreground placeholder:text-muted-foreground outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors resize-none"
             />
           </div>
 
           {/* Specialties */}
-          <div className="flex flex-col gap-2">
-            <label className={labelClass}>Specialties</label>
+          <div className="flex flex-col gap-2 text-start">
+            <label className={labelClass}>{dict.auth.chef.specialtiesLabel}</label>
             <div className="flex flex-wrap gap-2">
               {SPECIALTY_OPTIONS.map((s) => {
                 const active = specialties.includes(s);
@@ -402,7 +411,7 @@ export default function RegisterChefPage() {
                         : "bg-secondary border-border text-foreground hover:bg-secondary/80"
                     }`}
                   >
-                    {s}
+                    {getSpecialtyLabel(s)}
                     {active && <X size={11} />}
                   </button>
                 );
@@ -410,7 +419,7 @@ export default function RegisterChefPage() {
             </div>
             {specialties.length > 0 && (
               <p className="text-[11px] text-orange-500 font-semibold">
-                {specialties.length} selected
+                {dict.auth.chef.selectedCount.replace('{count}', String(specialties.length))}
               </p>
             )}
           </div>
@@ -421,23 +430,23 @@ export default function RegisterChefPage() {
             className="mt-1 h-12 rounded-2xl bg-orange-500 text-white font-extrabold text-[15px] shadow-[0_4px_14px_rgba(255,138,0,0.38)] transition-all duration-150 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
-              <><Loader2 size={17} className="animate-spin" /> Submitting…</>
+              <><Loader2 size={17} className="animate-spin" /> {dict.auth.chef.submittingApp}</>
             ) : (
-              "Submit Application"
+              dict.auth.chef.submitAppBtn
             )}
           </button>
 
           <p className="text-[11px] text-muted-foreground text-center font-medium">
-            Your chef profile will be reviewed before customers can place orders.
+            {dict.auth.chef.reviewNotice}
           </p>
         </div>
 
         {/* Footer links */}
         <div className="mt-5 flex flex-col items-center gap-2 pb-8">
           <p className="text-[13px] text-muted-foreground">
-            Already have an account?{" "}
+            {dict.auth.chef.alreadyHaveAccount}{" "}
             <Link href="/login" className="text-orange-500 font-bold">
-              Sign in
+              {dict.auth.chef.signIn}
             </Link>
           </p>
         </div>

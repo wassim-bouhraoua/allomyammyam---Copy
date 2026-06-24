@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import BottomNav from "@/components/bottom-nav";
 import DesktopNavLinks from "@/components/desktop-nav-links";
 import LocationPill from "@/components/location-pill";
+import LanguageSwitcher from "@/components/language-switcher";
 import MobileHeader from "@/components/mobile-header";
 import type { ReactNode } from "react";
 
@@ -46,6 +47,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           </div>
           <DesktopNavLinks />
           <LocationPill />
+          <LanguageSwitcher />
         </aside>
 
         {/* ── Main Column ── */}

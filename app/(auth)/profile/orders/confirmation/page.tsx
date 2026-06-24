@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { getSession } from "@/lib/session";
 import Link from "next/link";
 import { Check, Calendar, ShoppingBag, ArrowRight, Home, ChefHat, MapPin } from "lucide-react";
+import { cookies } from "next/headers";
+import { getDictionary } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +13,10 @@ export default async function ConfirmationPage({ searchParams }: { searchParams:
   if (!session) {
     notFound();
   }
+
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("user_locale")?.value || "fr";
+  const dict = getDictionary(locale);
 
   const resolvedSearchParams = await searchParams;
   const idsParam = resolvedSearchParams.ids || resolvedSearchParams.id;
@@ -46,16 +52,16 @@ export default async function ConfirmationPage({ searchParams }: { searchParams:
 
         {/* Title */}
         <h1 className="text-[26px] lg:text-[32px] font-black text-center tracking-tight leading-tight">
-          Order Placed Successfully!
+          {dict.confirm.title}
         </h1>
         <p className="text-[13px] text-muted-foreground mt-2 text-center max-w-md leading-relaxed">
-          Thank you for ordering from AlloMyamMyam. The chef has been notified and is reviewing your order request.
+          {dict.confirm.sub}
         </p>
 
         {/* Orders summary container */}
         <div className="w-full flex flex-col gap-4 mt-8">
           {orders.map((order) => {
-            const formattedDate = new Date(order.createdAt).toLocaleDateString("en-US", {
+            const formattedDate = new Date(order.createdAt).toLocaleDateString(locale === "ar" ? "ar-MA" : locale === "en" ? "en-US" : "fr-FR", {
               year: "numeric",
               month: "short",
               day: "numeric",
@@ -69,13 +75,13 @@ export default async function ConfirmationPage({ searchParams }: { searchParams:
             return (
               <div
                 key={order.id}
-                className="bg-card rounded-[28px] border border-border p-6 shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex flex-col gap-4 text-left w-full"
+                className="bg-card rounded-[28px] border border-border p-6 shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex flex-col gap-4 text-start w-full"
               >
                 {/* Order header details */}
                 <div className="flex justify-between items-start border-b border-border pb-3 flex-wrap gap-2">
                   <div>
                     <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
-                      Order ID
+                      {dict.confirm.orderId}
                     </span>
                     <h3 className="text-[14px] font-black text-foreground uppercase mt-0.5">
                       #{order.id.slice(-8).toUpperCase()}
@@ -83,7 +89,7 @@ export default async function ConfirmationPage({ searchParams }: { searchParams:
                   </div>
                   <div className="sm:text-right">
                     <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
-                      Placed At
+                      {dict.confirm.placedAt}
                     </span>
                     <p className="text-[13px] font-bold text-foreground mt-0.5">{formattedDate}</p>
                   </div>
@@ -95,7 +101,7 @@ export default async function ConfirmationPage({ searchParams }: { searchParams:
                     👨‍🍳
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Chef Profile</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">{dict.confirm.chefProfile}</p>
                     <p className="text-[13px] font-extrabold text-foreground mt-0.5">
                       {order.chef?.displayName ?? "AlloMyamMyam Chef"}
                     </p>
@@ -106,7 +112,7 @@ export default async function ConfirmationPage({ searchParams }: { searchParams:
                 <div className="flex items-start gap-2.5">
                   <MapPin size={15} className="text-orange-500 flex-shrink-0 mt-0.5" fill="currentColor" />
                   <div>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Delivery Address</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">{dict.confirm.deliveryAddress}</p>
                     <p className="text-[13px] font-semibold text-foreground mt-0.5 leading-relaxed">
                       {order.deliveryAddress}
                     </p>
@@ -116,7 +122,7 @@ export default async function ConfirmationPage({ searchParams }: { searchParams:
                 {/* Items Summary list */}
                 <div className="flex flex-col gap-2.5 border-t border-b border-border py-4 my-1">
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-0.5 mb-1">
-                    Items List
+                    {dict.confirm.itemsList}
                   </p>
                   {order.orderItems.map((item) => (
                     <div key={item.id} className="flex justify-between items-center text-[13px]">
@@ -125,7 +131,7 @@ export default async function ConfirmationPage({ searchParams }: { searchParams:
                         {item.dishName}
                       </span>
                       <span className="font-semibold text-foreground tabular-nums">
-                        {Number(item.totalPrice).toFixed(0)} MAD
+                        {Number(item.totalPrice).toLocaleString(locale === "ar" ? "ar-MA" : "fr-MA")} {dict.common.currency}
                       </span>
                     </div>
                   ))}
@@ -134,21 +140,21 @@ export default async function ConfirmationPage({ searchParams }: { searchParams:
                 {/* Subtotals & Grand Total */}
                 <div className="flex flex-col gap-2 text-[13px] border-b border-border pb-3">
                   <div className="flex justify-between text-muted-foreground">
-                    <span>Subtotal</span>
-                    <span className="font-semibold text-foreground tabular-nums">{subtotal.toLocaleString("fr-MA")} MAD</span>
+                    <span>{dict.confirm.subtotal}</span>
+                    <span className="font-semibold text-foreground tabular-nums">{subtotal.toLocaleString(locale === "ar" ? "ar-MA" : "fr-MA")} {dict.common.currency}</span>
                   </div>
                   <div className="flex justify-between text-muted-foreground">
-                    <span>Delivery Fee</span>
-                    <span className="font-semibold text-foreground tabular-nums">{deliveryFee.toLocaleString("fr-MA")} MAD</span>
+                    <span>{dict.confirm.deliveryFee}</span>
+                    <span className="font-semibold text-foreground tabular-nums">{deliveryFee.toLocaleString(locale === "ar" ? "ar-MA" : "fr-MA")} {dict.common.currency}</span>
                   </div>
                 </div>
 
                 <div className="flex justify-between items-center mt-1">
                   <span className="text-[14px] font-black text-foreground uppercase tracking-wider">
-                    Total Amount
+                    {dict.confirm.totalAmount}
                   </span>
                   <span className="text-[20px] font-black text-orange-600 tabular-nums">
-                    {totalAmount.toLocaleString("fr-MA")} MAD
+                    {totalAmount.toLocaleString(locale === "ar" ? "ar-MA" : "fr-MA")} {dict.common.currency}
                   </span>
                 </div>
               </div>
@@ -163,15 +169,15 @@ export default async function ConfirmationPage({ searchParams }: { searchParams:
             className="h-12 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-[0_4px_14px_rgba(255,138,0,0.38)]"
           >
             <ShoppingBag size={15} />
-            Track Orders
-            <ArrowRight size={14} />
+            {dict.confirm.trackOrders}
+            <ArrowRight size={14} className="rtl:rotate-180" />
           </Link>
           <Link
             href="/"
             className="h-12 rounded-2xl bg-secondary border border-border hover:bg-secondary/80 text-foreground font-bold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
           >
             <Home size={15} className="text-muted-foreground" />
-            Go to Home Page
+            {dict.confirm.goToHome}
           </Link>
         </div>
 

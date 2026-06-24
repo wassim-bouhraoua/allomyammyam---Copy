@@ -4,16 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 
+import { useTranslation } from "@/context/I18nContext";
+
 export default function DesktopNavLinks() {
   const pathname = usePathname();
   const { cartCount } = useCart();
+  const { dict } = useTranslation();
 
   const links = [
-    { label: "Home", href: "/" },
-    { label: "Dishes", href: "/dishes" },
-    { label: "Cart", href: "/cart", badge: cartCount },
-    { label: "Orders", href: "/profile/orders" },
-    { label: "Profile", href: "/profile" },
+    { label: dict.nav.home, href: "/" },
+    { label: dict.nav.dishes, href: "/dishes" },
+    { label: dict.nav.cart, href: "/cart", badge: cartCount },
+    { label: dict.nav.orders, href: "/profile/orders" },
+    { label: dict.nav.profile, href: "/profile" },
   ];
 
   return (

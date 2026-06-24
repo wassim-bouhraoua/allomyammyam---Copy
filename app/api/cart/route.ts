@@ -13,6 +13,8 @@ function serializeCartItem(item: any) {
     dish: {
       id: item.dish.id,
       name: item.dish.name,
+      name_en: item.dish.name_en,
+      name_ar: item.dish.name_ar,
       price: Number(item.dish.price),
       category: item.dish.category,
       imageUrl: getDishImageUrl(item.dish.imageUrl),

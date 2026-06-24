@@ -4,6 +4,8 @@ import Image from "next/image";
 import { Star, MapPin } from "lucide-react";
 import { getChefAvatarUrl } from "@/lib/defaults";
 
+import { useTranslation } from "@/context/I18nContext";
+
 export interface ChefCardData {
   id: string;
   displayName: string;
@@ -19,6 +21,7 @@ interface ChefCardProps {
 }
 
 export default function ChefCard({ chef }: ChefCardProps) {
+  const { dict } = useTranslation();
   const rating = chef.averageRating.toFixed(1);
   const specialtiesLabel = chef.specialties
     .slice(0, 2)
@@ -67,7 +70,7 @@ export default function ChefCard({ chef }: ChefCardProps) {
               : "bg-secondary text-muted-foreground"
           }`}
         >
-          {chef.isAvailable ? "View" : "Closed"}
+          {chef.isAvailable ? dict.common.view : dict.common.closed}
         </span>
       </article>
     </Link>

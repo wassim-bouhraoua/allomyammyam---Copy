@@ -7,11 +7,15 @@ import BottomNav from "@/components/bottom-nav";
 import DishCard from "@/components/dish-card";
 import { getDishImageUrl } from "@/lib/upload";
 import { getChefBannerUrl, getChefAvatarUrl } from "@/lib/defaults-server";
+import { cookies } from "next/headers";
+import { getLocalizedBio } from "@/lib/i18n";
 
 interface ResolvedChef {
   id: string;
   displayName: string;
   bio: string | null;
+  bio_en?: string | null;
+  bio_ar?: string | null;
   city: string | null;
   specialties: string[];
   bannerUrl: string;
@@ -25,6 +29,8 @@ interface ResolvedChef {
 
 export default async function ChefProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("user_locale")?.value || "fr";
 
   let chef: ResolvedChef | null = null;
   let chefDishes: any[] = [];
@@ -47,7 +53,9 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
     chef = {
       id: dbChef.id,
       displayName: dbChef.displayName,
-      bio: dbChef.bio,
+      bio: getLocalizedBio(dbChef, locale),
+      bio_en: dbChef.bio_en,
+      bio_ar: dbChef.bio_ar,
       city: dbChef.city,
       specialties: dbChef.specialties,
       bannerUrl: getChefBannerUrl(dbChef.bannerUrl),
@@ -72,6 +80,8 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
     chefDishes = dbDishes.map((dish) => ({
       id: dish.id,
       name: dish.name,
+      name_en: dish.name_en,
+      name_ar: dish.name_ar,
       price: Number(dish.price),
       category: dish.category,
       imageUrl: getDishImageUrl(dish.imageUrl),

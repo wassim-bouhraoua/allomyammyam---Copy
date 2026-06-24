@@ -129,7 +129,25 @@ export async function PUT(
     if (auth.error) return auth.error;
 
     const body = await req.json();
-    const { name, description, price, category, preparationTime, tags, stockCount, image, calories, protein, carbs, fat, sugar } = body;
+    const {
+      name,
+      name_en,
+      name_ar,
+      description,
+      description_en,
+      description_ar,
+      price,
+      category,
+      preparationTime,
+      tags,
+      stockCount,
+      image,
+      calories,
+      protein,
+      carbs,
+      fat,
+      sugar
+    } = body;
 
     // ── Validation (only for provided fields) ───────────────────────────────
 
@@ -233,7 +251,11 @@ export async function PUT(
     const dataToUpdate: any = {};
 
     if (name !== undefined) dataToUpdate.name = name.trim();
+    if (name_en !== undefined) dataToUpdate.name_en = name_en ? String(name_en).trim() : null;
+    if (name_ar !== undefined) dataToUpdate.name_ar = name_ar ? String(name_ar).trim() : null;
     if (description !== undefined) dataToUpdate.description = description ? String(description).trim() : null;
+    if (description_en !== undefined) dataToUpdate.description_en = description_en ? String(description_en).trim() : null;
+    if (description_ar !== undefined) dataToUpdate.description_ar = description_ar ? String(description_ar).trim() : null;
     if (price !== undefined) dataToUpdate.price = Number(price);
     if (category !== undefined) dataToUpdate.category = category;
     if (preparationTime !== undefined) dataToUpdate.preparationTime = Number(preparationTime);

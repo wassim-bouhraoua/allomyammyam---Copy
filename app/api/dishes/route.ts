@@ -110,7 +110,25 @@ export async function POST(req: NextRequest) {
     if (auth.error) return auth.error;
 
     const body = await req.json();
-    const { name, description, price, category, preparationTime, tags, stockCount, image, calories, protein, carbs, fat, sugar } = body;
+    const {
+      name,
+      name_en,
+      name_ar,
+      description,
+      description_en,
+      description_ar,
+      price,
+      category,
+      preparationTime,
+      tags,
+      stockCount,
+      image,
+      calories,
+      protein,
+      carbs,
+      fat,
+      sugar
+    } = body;
 
     // ── Validation ──────────────────────────────────────────────────────────
 
@@ -203,7 +221,11 @@ export async function POST(req: NextRequest) {
       data: {
         chefId: auth.chefProfile.id,
         name: name.trim(),
+        name_en: name_en ? String(name_en).trim() : null,
+        name_ar: name_ar ? String(name_ar).trim() : null,
         description: description ? String(description).trim() : null,
+        description_en: description_en ? String(description_en).trim() : null,
+        description_ar: description_ar ? String(description_ar).trim() : null,
         price: Number(price),
         category,
         preparationTime: Number(preparationTime),

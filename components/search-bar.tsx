@@ -2,21 +2,22 @@
 
 import { Search, X } from "lucide-react";
 
+import { useTranslation } from "@/context/I18nContext";
+
 interface SearchBarProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SearchBar — controlled input, state owned by the parent page.
-// The clear button (×) only appears when there is text.
-// ─────────────────────────────────────────────────────────────────────────────
 export default function SearchBar({
   value,
   onChange,
-  placeholder = "Search dishes or chefs...",
+  placeholder,
 }: SearchBarProps) {
+  const { dict } = useTranslation();
+  const activePlaceholder = placeholder ?? dict.nav.searchPlaceholder;
+
   return (
     <div className="flex-1 flex items-center gap-2.5 bg-secondary rounded-2xl px-4 h-11 focus-within:ring-2 focus-within:ring-orange-300 transition-all duration-200">
       <Search size={15} className="text-muted-foreground flex-shrink-0" />
@@ -25,7 +26,7 @@ export default function SearchBar({
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
+        placeholder={activePlaceholder}
         autoComplete="off"
         autoCorrect="off"
         spellCheck={false}

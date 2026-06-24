@@ -10,10 +10,14 @@ import DishCard from "@/components/dish-card";
 import BottomNav from "@/components/bottom-nav";
 import SearchBar from "@/components/search-bar";
 import { CUISINE_CHIPS_DEFS, VIBE_CHIPS_DEFS } from "@/lib/dish-tags";
+import { useTranslation } from "@/context/I18nContext";
+import { getLocalizedName } from "@/lib/i18n";
 
 export interface ExploreDish {
   id: string;
   name: string;
+  name_en?: string | null;
+  name_ar?: string | null;
   price: number;
   category: DishCategory;
   imageUrl: string | null;
@@ -60,8 +64,10 @@ const RATING_OPTIONS: { label: string; value: number }[] = [
   { label: "4.9+", value: 4.9 },
 ];
 
-function matchesSearch(dish: ExploreDish, q: string): boolean {
+function matchesSearch(dish: ExploreDish, q: string, locale: string): boolean {
   if (q.length === 0) return true;
+  const localizedName = getLocalizedName(dish, locale).toLowerCase();
+  if (localizedName.includes(q)) return true;
   if (dish.name.toLowerCase().includes(q)) return true;
   if (dish.chef.displayName.toLowerCase().includes(q)) return true;
   return dish.tags.some((tag) => {
@@ -91,12 +97,33 @@ function chipCls(active: boolean): string {
 }
 
 export default function DishesClient({ initialDishes }: { initialDishes: ExploreDish[] }) {
+  const { dict, locale } = useTranslation();
   const [query,        setQuery]        = useState("");
   const [cuisineIndex, setCuisineIndex] = useState(0);
   const [vibeIndex,    setVibeIndex]    = useState(0);
   const [minRating,    setMinRating]    = useState<number>(0);
   const [sortKey,      setSortKey]      = useState<SortKey>("default");
   const [showRefine,   setShowRefine]   = useState(false);
+
+  const sortOptions = useMemo(() => [
+    { label: dict.dishes.sort.default,   value: "default" as SortKey },
+    { label: dict.dishes.sort.rating,  value: "rating" as SortKey },
+    { label: dict.dishes.sort.price_asc, value: "price_asc" as SortKey },
+    { label: dict.dishes.sort.price_desc, value: "price_desc" as SortKey },
+  ], [dict]);
+
+  const ratingOptions = useMemo(() => [
+    { label: dict.dishes.filter.any,  value: 0 },
+    { label: "4.5+", value: 4.5 },
+    { label: "4.7+", value: 4.7 },
+    { label: "4.9+", value: 4.9 },
+  ], [dict]);
+
+  const getChipLabel = (label: string) => {
+    const key = label.toLowerCase();
+    if (key === "all") return dict.dishes.categories.all;
+    return dict.dishes.tags[key] || dict.dishes.categories[key] || label;
+  };
 
   const { cartCount } = useCart();
 
@@ -111,7 +138,7 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
 
     let result = initialDishes.filter((dish) => {
       if (dish.deletedAt !== null) return false;
-      return matchesSearch(dish, q);
+      return matchesSearch(dish, q, locale);
     });
 
     result = result.filter((dish) => matchesChip(dish, cuisineChip));
@@ -127,7 +154,7 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
       case "price_desc": return [...result].sort((a, b) => b.price - a.price);
       default:           return result;
     }
-  }, [initialDishes, query, cuisineIndex, vibeIndex, minRating, sortKey]);
+  }, [initialDishes, query, cuisineIndex, vibeIndex, minRating, sortKey, locale]);
 
   return (
     <div className="bg-background min-h-screen">
@@ -142,29 +169,29 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
               href="/"
               className="w-9 h-9 rounded-xl bg-card border border-border shadow-sm flex items-center justify-center hover:bg-secondary transition-colors"
             >
-              <ArrowLeft size={16} className="text-foreground" />
+              <ArrowLeft size={16} className="text-foreground rtl:rotate-180" />
             </Link>
-            <span className="text-[16px] font-black text-foreground">Explore Dishes</span>
+            <span className="text-[16px] font-black text-foreground">{dict.cart.browse}</span>
           </div>
 
           {/* Cuisine filter */}
           <div className="bg-card rounded-3xl border border-border shadow-sm p-4">
             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3">
-              Cuisine
+              {dict.dishes.filter.cuisine}
             </p>
             <div className="flex flex-col gap-1.5">
               {CUISINE_CHIPS.map((chip, i) => (
                 <button
                   key={chip.label}
                   onClick={() => setCuisineIndex(i)}
-                  className={`flex items-center gap-2.5 px-3 py-2.5 rounded-2xl text-[13px] font-semibold transition-all duration-150 text-left ${
+                  className={`flex items-center gap-2.5 px-3 py-2.5 rounded-2xl text-[13px] font-semibold transition-all duration-150 text-start ${
                     cuisineIndex === i
                       ? "bg-orange-500 text-white shadow-[0_2px_10px_rgba(255,138,0,0.30)]"
                       : "text-foreground hover:bg-secondary"
                   }`}
                 >
                   <span className="text-[16px] leading-none">{chip.emoji}</span>
-                  {chip.label}
+                  {getChipLabel(chip.label)}
                 </button>
               ))}
             </div>
@@ -173,21 +200,21 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
           {/* Vibe filter */}
           <div className="bg-card rounded-3xl border border-border shadow-sm p-4">
             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3">
-              Vibe
+              {dict.dishes.filter.vibe}
             </p>
             <div className="flex flex-col gap-1.5">
               {VIBE_CHIPS.map((chip, i) => (
                 <button
                   key={chip.label}
                   onClick={() => setVibeIndex(i)}
-                  className={`flex items-center gap-2.5 px-3 py-2.5 rounded-2xl text-[13px] font-semibold transition-all duration-150 text-left ${
+                  className={`flex items-center gap-2.5 px-3 py-2.5 rounded-2xl text-[13px] font-semibold transition-all duration-150 text-start ${
                     vibeIndex === i
                       ? "bg-orange-500 text-white shadow-[0_2px_10px_rgba(255,138,0,0.30)]"
                       : "text-foreground hover:bg-secondary"
                   }`}
                 >
                   <span className="text-[16px] leading-none">{chip.emoji}</span>
-                  {chip.label}
+                  {getChipLabel(chip.label)}
                 </button>
               ))}
             </div>
@@ -197,14 +224,14 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
           <div className="bg-card rounded-3xl border border-border shadow-sm p-4 space-y-4">
             <div>
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2.5">
-                Sort by
+                {dict.dishes.sort.title}
               </p>
               <div className="flex flex-col gap-1.5">
-                {SORT_OPTIONS.map((opt) => (
+                {sortOptions.map((opt) => (
                   <button
                     key={opt.value}
                     onClick={() => setSortKey(opt.value)}
-                    className={`px-3 py-2 rounded-2xl text-[13px] font-semibold transition-all text-left ${
+                    className={`px-3 py-2 rounded-2xl text-[13px] font-semibold transition-all text-start ${
                       sortKey === opt.value
                         ? "bg-orange-500 text-white"
                         : "text-foreground hover:bg-secondary"
@@ -218,10 +245,10 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
 
             <div>
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2.5">
-                Min. rating
+                {dict.dishes.filter.minRating}
               </p>
               <div className="flex flex-wrap gap-2">
-                {RATING_OPTIONS.map((opt) => (
+                {ratingOptions.map((opt) => (
                   <button
                     key={opt.value}
                     onClick={() => setMinRating(opt.value)}
@@ -238,7 +265,7 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
                 onClick={() => { setMinRating(0); setSortKey("default"); }}
                 className="text-[11px] font-semibold text-red-400 hover:text-red-500"
               >
-                Reset refinements
+                {dict.dishes.filter.reset}
               </button>
             )}
           </div>
@@ -257,11 +284,11 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
                   href="/"
                   className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center active:bg-secondary/80 transition-colors flex-shrink-0"
                 >
-                  <ArrowLeft size={17} className="text-foreground" />
+                  <ArrowLeft size={17} className="text-foreground rtl:rotate-180" />
                 </Link>
-                <h1 className="text-[17px] font-bold text-foreground flex-1">Explore Dishes</h1>
+                <h1 className="text-[17px] font-bold text-foreground flex-1">{dict.cart.browse}</h1>
                 <span className="text-[12px] font-semibold text-muted-foreground">
-                  {filtered.length} found
+                  {dict.dishes.foundCount.replace('{count}', String(filtered.length))}
                 </span>
               </header>
 
@@ -302,11 +329,11 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
               </div>
 
               {showRefine && (
-                <div className="mx-4 mb-4 p-4 bg-secondary rounded-2xl border border-border space-y-4">
+                <div className="mx-4 mb-4 p-4 bg-secondary rounded-2xl border border-border space-y-4 text-start">
                   <div>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Sort by</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">{dict.dishes.sort.title}</p>
                     <div className="flex flex-wrap gap-2">
-                      {SORT_OPTIONS.map((opt) => (
+                      {sortOptions.map((opt) => (
                         <button key={opt.value} onClick={() => setSortKey(opt.value)} className={chipCls(sortKey === opt.value)}>
                           {opt.label}
                         </button>
@@ -315,9 +342,9 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
                   </div>
 
                   <div>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Min. rating</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">{dict.dishes.filter.minRating}</p>
                     <div className="flex flex-wrap gap-2">
-                      {RATING_OPTIONS.map((opt) => (
+                      {ratingOptions.map((opt) => (
                         <button key={opt.value} onClick={() => setMinRating(opt.value)} className={chipCls(minRating === opt.value)}>
                           {opt.label}
                         </button>
@@ -330,7 +357,7 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
                       onClick={() => { setMinRating(0); setSortKey("default"); }}
                       className="text-[11px] font-bold text-red-500 active:text-red-650"
                     >
-                      Reset filters
+                      {dict.dishes.filter.reset}
                     </button>
                   )}
                 </div>
@@ -342,7 +369,7 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
                 <div className="flex items-center gap-2 overflow-x-auto px-4 scrollbar-none">
                   {CUISINE_CHIPS.map((chip, i) => (
                     <button key={chip.label} onClick={() => setCuisineIndex(i)} className={chipCls(cuisineIndex === i)}>
-                      <span>{chip.emoji}</span> <span className="ml-1">{chip.label}</span>
+                      <span>{chip.emoji}</span> <span className="ms-1">{getChipLabel(chip.label)}</span>
                     </button>
                   ))}
                 </div>
@@ -350,7 +377,7 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
                 <div className="flex items-center gap-2 overflow-x-auto px-4 scrollbar-none">
                   {VIBE_CHIPS.map((chip, i) => (
                     <button key={chip.label} onClick={() => setVibeIndex(i)} className={chipCls(vibeIndex === i)}>
-                      <span>{chip.emoji}</span> <span className="ml-1">{chip.label}</span>
+                      <span>{chip.emoji}</span> <span className="ms-1">{getChipLabel(chip.label)}</span>
                     </button>
                   ))}
                 </div>
@@ -367,9 +394,9 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
                 ) : (
                   <div className="flex flex-col items-center justify-center py-20 text-center">
                     <span className="text-4xl">🍽️</span>
-                    <p className="text-[14px] font-extrabold text-foreground mt-3">No dishes found</p>
+                    <p className="text-[14px] font-extrabold text-foreground mt-3">{dict.dishes.noDishes}</p>
                     <p className="text-[12px] text-muted-foreground mt-1 max-w-[220px]">
-                      Try adjusting your search query or filters.
+                      {dict.dishes.noDishesSub}
                     </p>
                   </div>
                 )}
@@ -399,7 +426,7 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
                 </Link>
               </div>
               <span className="text-[13px] font-extrabold text-muted-foreground uppercase tracking-widest flex-shrink-0">
-                {filtered.length} dishes found
+                {dict.dishes.foundCount.replace('{count}', String(filtered.length))}
               </span>
             </div>
 
@@ -413,9 +440,9 @@ export default function DishesClient({ initialDishes }: { initialDishes: Explore
             ) : (
               <div className="flex flex-col items-center justify-center py-32 bg-card border border-border rounded-3xl shadow-sm text-center">
                 <span className="text-5xl">🍽️</span>
-                <p className="text-[16px] font-black text-foreground mt-4">No dishes match filters</p>
+                <p className="text-[16px] font-black text-foreground mt-4">{dict.dishes.noDishesMatch}</p>
                 <p className="text-[13px] text-muted-foreground mt-1 max-w-sm">
-                  We couldn't find any dishes matching those parameters. Try clearing some filters or searching for something else.
+                  {dict.dishes.noDishesMatchSub}
                 </p>
               </div>
             )}

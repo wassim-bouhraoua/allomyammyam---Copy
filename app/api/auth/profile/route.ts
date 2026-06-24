@@ -16,7 +16,7 @@ export async function PUT(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { firstName, lastName, phoneNumber, avatar, displayName, bio, city, specialties, isAvailable, banner } = body;
+    const { firstName, lastName, phoneNumber, avatar, displayName, bio, bio_en, bio_ar, city, specialties, isAvailable, banner } = body;
 
     // Validation
     if (body.hasOwnProperty("firstName") && (!firstName || typeof firstName !== "string" || !firstName.trim())) {
@@ -100,6 +100,8 @@ export async function PUT(req: NextRequest) {
       const chefProfileUpdate: any = {};
       if (body.hasOwnProperty("displayName")) chefProfileUpdate.displayName = displayName.trim();
       if (body.hasOwnProperty("bio")) chefProfileUpdate.bio = bio ? bio.trim() : null;
+      if (body.hasOwnProperty("bio_en")) chefProfileUpdate.bio_en = bio_en ? bio_en.trim() : null;
+      if (body.hasOwnProperty("bio_ar")) chefProfileUpdate.bio_ar = bio_ar ? bio_ar.trim() : null;
       if (body.hasOwnProperty("city")) chefProfileUpdate.city = city ? city.trim() : null;
       if (body.hasOwnProperty("specialties")) chefProfileUpdate.specialties = specialties || [];
       if (body.hasOwnProperty("isAvailable")) chefProfileUpdate.isAvailable = !!isAvailable;

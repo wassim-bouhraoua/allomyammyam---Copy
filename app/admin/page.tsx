@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, Loader2, ShieldCheck, UserCheck, UserX, Clock } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import BackToHome from "@/components/auth/back-to-home";
+import { useTranslation } from "@/context/I18nContext";
 
 interface ChefUser {
   firstName: string;
@@ -18,6 +19,8 @@ interface ChefProfile {
   id: string;
   displayName: string;
   bio: string | null;
+  bio_en?: string | null;
+  bio_ar?: string | null;
   city: string | null;
   specialties: string[];
   status: "PENDING" | "APPROVED" | "SUSPENDED";
@@ -28,6 +31,7 @@ interface ChefProfile {
 export default function AdminDashboardPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const { locale, dict } = useTranslation();
   
   const [chefs, setChefs] = useState<ChefProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,12 +56,12 @@ export default function AdminDashboardPage() {
       const data = await res.json();
       
       if (!res.ok) {
-        setError(data.error ?? "Failed to load chefs list.");
+        setError(data.error ?? dict.admin.loadFailed);
         return;
       }
       setChefs(data.chefs || []);
     } catch {
-      setError("Something went wrong loading the admin dashboard.");
+      setError(dict.admin.connError);
     } finally {
       setLoading(false);
     }
@@ -84,7 +88,7 @@ export default function AdminDashboardPage() {
       const data = await res.json();
       
       if (!res.ok) {
-        setError(data.error ?? "Failed to update chef status.");
+        setError(data.error ?? dict.admin.updateFailed);
         return;
       }
       
@@ -93,7 +97,7 @@ export default function AdminDashboardPage() {
         prev.map((c) => (c.id === chefProfileId ? { ...c, status: newStatus } : c))
       );
     } catch {
-      setError("Connection error. Could not update status.");
+      setError(dict.admin.updateConnError);
     } finally {
       setUpdatingId(null);
     }
@@ -108,7 +112,7 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto flex flex-col min-h-full px-4 pt-4 pb-8 transition-all duration-300">
+    <div className="w-full max-w-6xl mx-auto flex flex-col min-h-full px-4 pt-4 pb-8 transition-all duration-300 text-start">
       <BackToHome />
       
       {/* Header */}
@@ -116,13 +120,13 @@ export default function AdminDashboardPage() {
         <Link
           href="/profile"
           className="w-10 h-10 rounded-xl border border-border flex items-center justify-center text-muted-foreground hover:text-orange-500 hover:border-orange-200 transition-all active:scale-95"
-          aria-label="Back to profile"
+          aria-label={dict.common.back}
         >
-          <ArrowLeft size={18} />
+          <ArrowLeft size={18} className="rtl:rotate-180" />
         </Link>
         <h1 className="text-[18px] font-black text-foreground tracking-tight flex items-center gap-1.5">
           <ShieldCheck size={18} className="text-purple-600" />
-          Admin Dashboard
+          {dict.admin.title}
         </h1>
         <div className="w-10" />
       </div>
@@ -137,8 +141,8 @@ export default function AdminDashboardPage() {
 
       {/* List Container */}
       <div className="flex flex-col gap-3">
-        <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider mb-1 pl-1">
-          Registered Chefs ({chefs.length})
+        <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider mb-1 pl-1 rtl:pl-0 rtl:pr-1">
+          {dict.admin.registeredChefs.replace("{count}", String(chefs.length))}
         </p>
 
         {loading ? (
@@ -149,19 +153,25 @@ export default function AdminDashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {chefs.map((chef) => {
               const isUpdating = updatingId === chef.id;
-              const registrationDate = new Date(chef.createdAt).toLocaleDateString("en-US", {
+              const registrationDate = new Date(chef.createdAt).toLocaleDateString(locale === "ar" ? "ar-MA" : locale === "en" ? "en-US" : "fr-FR", {
                 year: "numeric",
                 month: "short",
                 day: "numeric",
               });
               const specialtiesLabel = chef.specialties
-                .map((s) => s.toLowerCase())
+                .map((s) => dict.dishes.tags[s.toLowerCase()] || s)
                 .join(", ");
+
+              const statusText = chef.status === "APPROVED" 
+                ? dict.admin.statusApproved 
+                : chef.status === "SUSPENDED" 
+                ? dict.admin.statusSuspended 
+                : dict.admin.statusPending;
 
               return (
                 <div
                   key={chef.id}
-                  className="bg-card rounded-3xl p-4 border border-border shadow-[0_2px_16px_rgba(0,0,0,0.04)] flex flex-col justify-between gap-3"
+                  className="bg-card rounded-3xl p-4 border border-border shadow-[0_2px_16px_rgba(0,0,0,0.04)] flex flex-col justify-between gap-3 text-start"
                 >
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-xl bg-orange-100/50 dark:bg-orange-950/30 flex items-center justify-center flex-shrink-0 relative overflow-hidden font-black text-[13px] text-orange-600 dark:text-orange-400">
@@ -172,7 +182,7 @@ export default function AdminDashboardPage() {
                       )}
                     </div>
                     
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 text-start">
                       <div className="flex items-center gap-1.5 justify-between">
                         <h3 className="text-[13px] font-extrabold text-foreground truncate">
                           {chef.displayName}
@@ -184,7 +194,7 @@ export default function AdminDashboardPage() {
                             ? "bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/30"
                             : "bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30"
                         }`}>
-                          {chef.status}
+                          {statusText}
                         </span>
                       </div>
 
@@ -195,12 +205,12 @@ export default function AdminDashboardPage() {
                       
                       {chef.city && (
                         <p className="text-[10px] text-muted-foreground font-medium mt-1">
-                          Location: <span className="text-foreground font-semibold">{chef.city}</span>
+                          {dict.admin.locationLabel.replace("{city}", chef.city)}
                         </p>
                       )}
                       {chef.specialties.length > 0 && (
                         <p className="text-[10px] text-muted-foreground font-medium mt-0.5 truncate">
-                          Specialties: <span className="capitalize text-foreground font-semibold">{specialtiesLabel}</span>
+                          {dict.admin.specialtiesLabel.replace("{specialties}", specialtiesLabel)}
                         </p>
                       )}
                       <p className="text-[10px] text-muted-foreground font-medium mt-0.5 flex items-center gap-1">
@@ -218,7 +228,7 @@ export default function AdminDashboardPage() {
                         className="flex-1 h-8 rounded-xl bg-green-500 text-white font-extrabold text-[11px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all disabled:opacity-50"
                       >
                         <UserCheck size={12} />
-                        Approve
+                        {dict.admin.approveBtn}
                       </button>
                     )}
                     {chef.status === "APPROVED" && (
@@ -228,7 +238,7 @@ export default function AdminDashboardPage() {
                         className="flex-1 h-8 rounded-xl bg-red-500 text-white font-extrabold text-[11px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all disabled:opacity-50"
                       >
                         <UserX size={12} />
-                        Suspend
+                        {dict.admin.suspendBtn}
                       </button>
                     )}
                   </div>
@@ -238,7 +248,7 @@ export default function AdminDashboardPage() {
           </div>
         ) : (
           <div className="bg-card rounded-3xl border border-border p-8 text-center text-muted-foreground shadow-sm">
-            No chef accounts registered in database.
+            {dict.admin.noChefs}
           </div>
         )}
       </div>

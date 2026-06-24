@@ -7,8 +7,10 @@ import { Eye, EyeOff, Loader2, UtensilsCrossed, X, User } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import BackToHome from "@/components/auth/back-to-home";
 import { useGoogleSignIn } from "@/hooks/useGoogleSignIn";
+import { useTranslation } from "@/context/I18nContext";
 
 export default function RegisterPage() {
+  const { locale, dict } = useTranslation();
   const router = useRouter();
   const { refreshUser } = useAuth();
 
@@ -55,13 +57,13 @@ export default function RegisterPage() {
 
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (!validTypes.includes(file.type)) {
-      setFileError("Please upload a valid image (JPG, JPEG, PNG, WEBP).");
+      setFileError(dict.auth.register.validImageError);
       return;
     }
 
     const maxSize = 2 * 1024 * 1024;
     if (file.size > maxSize) {
-      setFileError("Photo size must be less than 2MB.");
+      setFileError(dict.auth.register.photoSizeError);
       return;
     }
 
@@ -71,7 +73,7 @@ export default function RegisterPage() {
       setForm(prev => ({ ...prev, avatar: reader.result as string }));
     };
     reader.onerror = () => {
-      setFileError("Error reading file. Please try again.");
+      setFileError(dict.auth.register.fileReadError);
     };
     reader.readAsDataURL(file);
   };
@@ -132,15 +134,15 @@ export default function RegisterPage() {
 
         <div className="my-auto relative z-10">
           <h2 className="text-[32px] font-black leading-tight tracking-tight mb-4">
-            Join the home-cooked food revolution.
+            {dict.auth.register.welcomeGraphicTitle}
           </h2>
           <p className="text-[14px] text-orange-50/90 leading-relaxed font-medium max-w-sm">
-            Sign up as a customer to browse menus from certified local home kitchens, place orders, and support independent cooks.
+            {dict.auth.register.welcomeGraphicDesc}
           </p>
         </div>
 
         <p className="text-[11px] text-orange-100/70 font-semibold relative z-10">
-          © 2026 AlloMyamMyam. All rights reserved.
+          © 2026 AlloMyamMyam. {locale === "ar" ? "جميع الحقوق محفوظة." : locale === "en" ? "All rights reserved." : "Tous droits réservés."}
         </p>
       </div>
 
@@ -153,8 +155,8 @@ export default function RegisterPage() {
           <div className="w-16 h-16 rounded-3xl bg-orange-500 flex lg:hidden items-center justify-center shadow-[0_6px_20px_rgba(255,138,0,0.40)] mb-5">
             <UtensilsCrossed size={28} className="text-white" />
           </div>
-          <h1 className="text-[24px] font-black text-foreground tracking-tight">Create account</h1>
-          <p className="text-[13px] text-muted-foreground mt-1.5">Order homemade food from local chefs</p>
+          <h1 className="text-[24px] font-black text-foreground tracking-tight">{dict.auth.register.title}</h1>
+          <p className="text-[13px] text-muted-foreground mt-1.5">{dict.auth.register.orderHomemade}</p>
         </div>
 
         {/* Error */}
@@ -170,7 +172,7 @@ export default function RegisterPage() {
           <div id="google-signin-button" className="w-full flex justify-center min-h-[40px]" />
           <div className="flex items-center gap-2.5 my-0.5">
             <div className="flex-1 h-px bg-border" />
-            <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">or register with email</span>
+            <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">{dict.auth.register.orRegisterWithEmail}</span>
             <div className="flex-1 h-px bg-border" />
           </div>
         </div>
@@ -179,23 +181,23 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit} className="bg-card rounded-3xl shadow-[0_2px_24px_rgba(0,0,0,0.07)] border border-border p-5 flex flex-col gap-4">
 
           <div className="grid grid-cols-2 gap-2.5">
-            <div className="flex flex-col gap-1.5">
-              <label className={labelCls}>First name</label>
+            <div className="flex flex-col gap-1.5 text-start">
+              <label className={labelCls}>{dict.auth.fields.firstName}</label>
               <input type="text" autoComplete="given-name" required
                 value={form.firstName} onChange={set("firstName")}
-                placeholder="Yassine" className={inputCls} />
+                placeholder={locale === "ar" ? "ياسين" : "Yassine"} className={inputCls} />
             </div>
-            <div className="flex flex-col gap-1.5">
-              <label className={labelCls}>Last name</label>
+            <div className="flex flex-col gap-1.5 text-start">
+              <label className={labelCls}>{dict.auth.fields.lastName}</label>
               <input type="text" autoComplete="family-name" required
                 value={form.lastName} onChange={set("lastName")}
-                placeholder="Alami" className={inputCls} />
+                placeholder={locale === "ar" ? "العلمي" : "Alami"} className={inputCls} />
             </div>
           </div>
 
           {/* Upload Profile Photo */}
-          <div className="flex flex-col gap-1.5">
-            <label className={labelCls}>Upload Profile Photo (Optional)</label>
+          <div className="flex flex-col gap-1.5 text-start">
+            <label className={labelCls}>{dict.auth.register.uploadPhoto}</label>
             <div className="flex items-center gap-3">
               {/* Preview */}
               <div className="relative w-12 h-12 rounded-xl bg-secondary border border-border flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -228,50 +230,50 @@ export default function RegisterPage() {
                   htmlFor="profile-photo-upload"
                   className="inline-flex items-center px-4 py-2 border border-border rounded-xl bg-secondary text-[12px] font-bold text-foreground cursor-pointer hover:bg-secondary/80 active:scale-95 transition-all"
                 >
-                  Choose Photo
+                  {dict.auth.register.choosePhoto}
                 </label>
                 {fileError && <p className="text-[11px] text-red-500 font-semibold mt-1">{fileError}</p>}
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className={labelCls}>Email</label>
+          <div className="flex flex-col gap-1.5 text-start">
+            <label className={labelCls}>{dict.auth.fields.email}</label>
             <input type="email" autoComplete="email" required
               value={form.email} onChange={set("email")}
               placeholder="you@example.com" className={inputCls} />
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 text-start">
             <label className={labelCls}>
-              Phone <span className="normal-case text-muted-foreground font-normal">(optional)</span>
+              {dict.auth.fields.phone} <span className="normal-case text-muted-foreground font-normal">({locale === "ar" ? "اختياري" : locale === "en" ? "optional" : "facultatif"})</span>
             </label>
             <input type="tel" autoComplete="tel"
               value={form.phoneNumber} onChange={set("phoneNumber")}
               placeholder="+212 6 00 00 00 00" className={inputCls} />
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className={labelCls}>Password</label>
+          <div className="flex flex-col gap-1.5 text-start">
+            <label className={labelCls}>{dict.auth.fields.password}</label>
             <div className="relative">
               <input type={showPw ? "text" : "password"} autoComplete="new-password"
                 required minLength={8}
                 value={form.password} onChange={set("password")}
-                placeholder="Min. 8 characters" className={`${inputCls} pr-12`} />
+                placeholder={locale === "ar" ? "8 أحرف على الأقل" : locale === "en" ? "Min. 8 characters" : "Au moins 8 caractères"} className={`${inputCls} ${locale === "ar" ? "pl-12 pr-4" : "pr-12 pl-4"}`} />
               <button type="button" onClick={() => setShowPw(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-                aria-label={showPw ? "Hide" : "Show"}>
+                className={`absolute top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors ${locale === "ar" ? "left-3" : "right-3"}`}
+                aria-label={showPw ? (locale === "ar" ? "إخفاء" : "Hide") : (locale === "ar" ? "عرض" : "Show")}>
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
-            <p className="text-[11px] text-muted-foreground">At least 8 characters</p>
+            <p className="text-[11px] text-muted-foreground">{dict.auth.register.passwordHint}</p>
           </div>
 
           <button type="submit" disabled={loading}
             className="h-12 rounded-2xl bg-orange-500 text-white font-extrabold text-[15px] shadow-[0_4px_14px_rgba(255,138,0,0.38)] transition-all duration-150 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-1">
             {loading
-              ? <><Loader2 size={17} className="animate-spin" /> Creating account…</>
-              : "Create Account"
+              ? <><Loader2 size={17} className="animate-spin" /> {dict.auth.register.creatingAccount}</>
+              : dict.auth.register.submit
             }
           </button>
 
@@ -280,18 +282,18 @@ export default function RegisterPage() {
         {/* Divider */}
         <div className="flex items-center gap-3 my-5">
           <div className="flex-1 h-px bg-border" />
-          <span className="text-[11px] text-muted-foreground font-medium">already a member?</span>
+          <span className="text-[11px] text-muted-foreground font-medium">{dict.auth.register.alreadyMember}</span>
           <div className="flex-1 h-px bg-border" />
         </div>
 
         <div className="flex flex-col gap-2.5">
           <Link href="/login"
             className="h-12 rounded-2xl border border-border text-foreground bg-secondary/20 hover:bg-secondary/40 font-bold text-[14px] flex items-center justify-center active:scale-[0.98] transition-transform hover:border-orange-300 hover:text-orange-500">
-            Sign In
+            {dict.auth.chef.signIn}
           </Link>
           <Link href="/register-chef"
             className="h-12 rounded-2xl border border-orange-100 dark:border-orange-900/30 bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 font-bold text-[14px] flex items-center justify-center active:scale-[0.98] transition-transform">
-            Join as a Chef instead
+            {dict.auth.register.joinAsChefInstead}
           </Link>
         </div>
 

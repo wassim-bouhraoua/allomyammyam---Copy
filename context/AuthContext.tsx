@@ -26,6 +26,8 @@ export interface AuthUser {
     id: string;
     displayName: string;
     bio: string | null;
+    bio_en?: string | null;
+    bio_ar?: string | null;
     specialties: string[];
     city: string | null;
     status: "PENDING" | "APPROVED" | "SUSPENDED";

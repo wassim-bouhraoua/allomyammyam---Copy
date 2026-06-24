@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import BackToHome from "@/components/auth/back-to-home";
+import { useTranslation } from "@/context/I18nContext";
+import { getLocalizedName } from "@/lib/i18n";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -23,6 +25,8 @@ import BackToHome from "@/components/auth/back-to-home";
 interface Dish {
   id: string;
   name: string;
+  name_en?: string | null;
+  name_ar?: string | null;
   category: string;
   price: number;
   isAvailable: boolean;
@@ -33,24 +37,13 @@ interface Dish {
   createdAt: string;
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
-  APPETIZER: "Appetizer", SOUP: "Soup", SALAD: "Salad",
-  MAIN_COURSE: "Main Course", PASTA: "Pasta", RICE_AND_GRAINS: "Rice & Grains",
-  SEAFOOD: "Seafood", MEAT: "Meat", VEGETARIAN: "Vegetarian", VEGAN: "Vegan",
-  PIZZA: "Pizza", BURGER: "Burger", SANDWICH: "Sandwich", WRAP: "Wrap",
-  SUSHI: "Sushi", ASIAN: "Asian", MEDITERRANEAN: "Mediterranean",
-  MIDDLE_EASTERN: "Middle Eastern", AFRICAN: "African",
-  LATIN_AMERICAN: "Latin American", BREAKFAST: "Breakfast", BRUNCH: "Brunch",
-  DESSERT: "Dessert", PASTRY: "Pastry", CAKE: "Cake", ICE_CREAM: "Ice Cream",
-  BEVERAGE: "Beverage", SMOOTHIE: "Smoothie", JUICE: "Juice", OTHER: "Other",
-};
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Page
 // ─────────────────────────────────────────────────────────────────────────────
 export default function ChefDishesPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const { locale, dict } = useTranslation();
 
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,16 +67,16 @@ export default function ChefDishesPage() {
       const res = await fetch("/api/dishes", { credentials: "include" });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Failed to load dishes.");
+        setError(data.error ?? dict.chefDishes.loadFailed);
         return;
       }
       setDishes(data.dishes ?? []);
     } catch {
-      setError("Connection error. Could not load dishes.");
+      setError(dict.chefDishes.connError);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [dict]);
 
   useEffect(() => {
     if (user && user.role === "CHEF") {
@@ -102,7 +95,7 @@ export default function ChefDishesPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Failed to toggle dish.");
+        setError(data.error ?? dict.chefDishes.toggleFailed);
         return;
       }
       setDishes((prev) =>
@@ -111,7 +104,7 @@ export default function ChefDishesPage() {
         )
       );
     } catch {
-      setError("Connection error. Could not toggle dish.");
+      setError(dict.chefDishes.toggleConnError);
     } finally {
       setTogglingId(null);
     }
@@ -128,13 +121,13 @@ export default function ChefDishesPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Failed to delete dish.");
+        setError(data.error ?? dict.chefDishes.deleteFailed);
         return;
       }
       setDishes((prev) => prev.filter((d) => d.id !== dishId));
       setDeleteConfirmId(null);
     } catch {
-      setError("Connection error. Could not delete dish.");
+      setError(dict.chefDishes.deleteConnError);
     } finally {
       setDeletingId(null);
     }
@@ -152,7 +145,7 @@ export default function ChefDishesPage() {
   const isSuspended = user.chefProfile?.status === "SUSPENDED";
 
   return (
-    <div className="flex flex-col min-h-full px-4 pt-4 pb-8">
+    <div className="flex flex-col min-h-full px-4 pt-4 pb-8 text-start">
       <BackToHome />
 
       {/* Header */}
@@ -160,26 +153,25 @@ export default function ChefDishesPage() {
         <Link
           href="/profile"
           className="w-10 h-10 rounded-xl border border-gray-200 dark:border-neutral-700 flex items-center justify-center text-gray-600 dark:text-neutral-300 hover:text-orange-500 hover:border-orange-200 dark:hover:border-orange-900/35 transition-all active:scale-95"
-          aria-label="Back to profile"
+          aria-label={dict.common.back}
         >
-          <ArrowLeft size={18} />
+          <ArrowLeft size={18} className="rtl:rotate-180" />
         </Link>
         <h1 className="text-[18px] font-black text-gray-900 dark:text-neutral-100 tracking-tight flex items-center gap-1.5">
           <ChefHat size={18} className="text-orange-500" />
-          My Dishes
+          {dict.chefDishes.title}
         </h1>
         <div className="w-10" />
       </div>
 
       {/* Suspended banner */}
       {isSuspended && (
-        <div className="mb-4 px-4 py-3 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 flex items-start gap-3">
+        <div className="mb-4 px-4 py-3 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 flex items-start gap-3 text-start">
           <AlertCircle size={16} className="text-red-500 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-[13px] font-bold text-red-700 dark:text-red-400">Account Suspended</p>
-            <p className="text-[12px] text-red-500 dark:text-red-400/80 mt-0.5">
-              Dish management is disabled while your account is suspended.
-              Contact support to resolve this.
+            <p className="text-[13px] font-bold text-red-700 dark:text-red-400">{dict.chefDishes.suspendedTitle}</p>
+            <p className="text-[12px] text-red-500 dark:text-red-400/80 mt-0.5 leading-relaxed">
+              {dict.chefDishes.suspendedDesc}
             </p>
           </div>
         </div>
@@ -187,7 +179,7 @@ export default function ChefDishesPage() {
 
       {/* Error banner */}
       {error && (
-        <div className="mb-4 px-4 py-3 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 flex items-center gap-2">
+        <div className="mb-4 px-4 py-3 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 flex items-center gap-2 text-start">
           <span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
           <p className="text-[12px] font-semibold text-red-600 dark:text-red-400">{error}</p>
         </div>
@@ -200,13 +192,13 @@ export default function ChefDishesPage() {
           className="flex items-center justify-center gap-2 h-12 rounded-2xl bg-orange-500 text-white font-extrabold text-[14px] shadow-[0_4px_14px_rgba(255,138,0,0.38)] hover:bg-orange-600 active:scale-[0.98] transition-all mb-5"
         >
           <Plus size={16} />
-          Add New Dish
+          {dict.chefDishes.addBtn}
         </Link>
       )}
 
       {/* Dish count label */}
-      <p className="text-[11px] font-extrabold text-gray-400 dark:text-neutral-450 uppercase tracking-wider mb-3 pl-1">
-        {loading ? "Loading…" : `${dishes.length} ${dishes.length === 1 ? "dish" : "dishes"}`}
+      <p className="text-[11px] font-extrabold text-gray-400 dark:text-neutral-450 uppercase tracking-wider mb-3 pl-1 rtl:pl-0 rtl:pr-1">
+        {loading ? dict.common.loading : dishes.length === 1 ? dict.chefDishes.dishCountOne : dict.chefDishes.dishCount.replace("{count}", String(dishes.length))}
       </p>
 
       {/* Loading state */}
@@ -220,16 +212,16 @@ export default function ChefDishesPage() {
           <div className="w-16 h-16 rounded-2xl bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 flex items-center justify-center mb-4">
             <UtensilsCrossed size={28} className="text-orange-400" />
           </div>
-          <p className="text-[15px] font-extrabold text-gray-800 dark:text-neutral-100">No dishes yet</p>
+          <p className="text-[15px] font-extrabold text-gray-800 dark:text-neutral-100">{dict.chefDishes.empty}</p>
           <p className="text-[12px] text-gray-400 dark:text-neutral-450 mt-1.5 max-w-[220px] leading-relaxed">
-            Start building your menu by adding your first dish.
+            {dict.chefDishes.emptySub}
           </p>
           {!isSuspended && (
             <Link
               href="/profile/dishes/new"
               className="mt-5 inline-flex items-center gap-1.5 px-5 py-2.5 rounded-2xl bg-orange-500 text-white font-bold text-[13px] shadow-[0_4px_12px_rgba(255,138,0,0.35)] active:scale-95 transition-transform"
             >
-              <Plus size={14} /> Add your first dish
+              <Plus size={14} /> {dict.chefDishes.addBtn}
             </Link>
           )}
         </div>
@@ -240,6 +232,8 @@ export default function ChefDishesPage() {
             const isToggling = togglingId === dish.id;
             const isDeleting = deletingId === dish.id;
             const confirmingDelete = deleteConfirmId === dish.id;
+            const catKey = dish.category.toLowerCase();
+            const translatedCat = dict.dishes.categories[catKey] || dish.category;
 
             return (
               <div
@@ -252,7 +246,7 @@ export default function ChefDishesPage() {
                     {dish.imageUrl ? (
                       <Image
                         src={dish.imageUrl}
-                        alt={dish.name}
+                        alt={getLocalizedName(dish, locale)}
                         fill
                         sizes="80px"
                         unoptimized
@@ -267,17 +261,17 @@ export default function ChefDishesPage() {
                     {!dish.isAvailable && (
                       <div className="absolute inset-0 bg-black/45 flex items-center justify-center">
                         <span className="text-white text-[8px] font-bold uppercase tracking-widest">
-                          Off
+                          {dict.chefDishes.inactiveOverlay}
                         </span>
                       </div>
                     )}
                   </div>
 
                   {/* Dish info */}
-                  <div className="flex-1 min-w-0 py-0.5">
+                  <div className="flex-1 min-w-0 py-0.5 text-start">
                     <div className="flex items-start justify-between gap-2">
                       <h3 className="text-[13px] font-bold text-gray-900 dark:text-neutral-100 leading-snug truncate flex-1">
-                        {dish.name}
+                        {getLocalizedName(dish, locale)}
                       </h3>
                       {/* Availability badge */}
                       <span
@@ -288,28 +282,28 @@ export default function ChefDishesPage() {
                         }`}
                       >
                         {dish.isAvailable ? (
-                          <><CheckCircle2 size={8} />Available</>
+                          <><CheckCircle2 size={8} />{dict.chefDishes.statusAvailable}</>
                         ) : (
-                          <><XCircle size={8} />Unavailable</>
+                          <><XCircle size={8} />{dict.chefDishes.statusUnavailable}</>
                         )}
                       </span>
                     </div>
 
                     <p className="text-[11px] text-gray-400 dark:text-neutral-450 mt-0.5">
-                      {CATEGORY_LABELS[dish.category] ?? dish.category}
+                      {translatedCat}
                     </p>
 
-                    <div className="flex items-center gap-3 mt-1.5">
+                    <div className="flex items-center gap-3 mt-1.5 flex-wrap">
                       <span className="text-[14px] font-extrabold text-orange-600 dark:text-orange-500">
-                        {dish.price} <span className="text-[10px] font-bold text-orange-400">MAD</span>
+                        {dish.price} <span className="text-[10px] font-bold text-orange-400">{dict.common.currency}</span>
                       </span>
                       <span className="flex items-center gap-0.5 text-[11px] text-gray-400 dark:text-neutral-450">
                         <Clock size={9} className="text-gray-300 dark:text-neutral-600" />
-                        {dish.preparationTime}m
+                        {dish.preparationTime} min
                       </span>
                       {dish.stockCount !== null && (
                         <span className="text-[10px] text-gray-400 dark:text-neutral-450">
-                          Stock: {dish.stockCount}
+                          {dict.chefDishes.stockLabel}: {dish.stockCount}
                         </span>
                       )}
                     </div>
@@ -323,7 +317,7 @@ export default function ChefDishesPage() {
                     <button
                       onClick={() => handleToggle(dish.id)}
                       disabled={isToggling || isDeleting}
-                      title={dish.isAvailable ? "Set unavailable" : "Set available"}
+                      title={dish.isAvailable ? dict.chefDishes.deactivate : dict.chefDishes.activate}
                       className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-bold transition-colors disabled:opacity-50 ${
                         dish.isAvailable
                           ? "text-gray-500 dark:text-neutral-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-neutral-750"
@@ -337,7 +331,7 @@ export default function ChefDishesPage() {
                       ) : (
                         <ToggleLeft size={14} />
                       )}
-                      {dish.isAvailable ? "Deactivate" : "Activate"}
+                      {dish.isAvailable ? dict.chefDishes.deactivate : dict.chefDishes.activate}
                     </button>
 
                     <div className="w-px h-6 bg-gray-100 dark:bg-neutral-750" />
@@ -348,7 +342,7 @@ export default function ChefDishesPage() {
                       className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-bold text-gray-500 dark:text-neutral-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-neutral-750 transition-colors"
                     >
                       <Pencil size={12} />
-                      Edit
+                      {dict.chefDishes.edit}
                     </Link>
 
                     <div className="w-px h-6 bg-gray-100 dark:bg-neutral-750" />
@@ -362,14 +356,14 @@ export default function ChefDishesPage() {
                           className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-red-500 text-white text-[10px] font-bold disabled:opacity-50 active:scale-95 transition-transform"
                         >
                           {isDeleting ? <Loader2 size={10} className="animate-spin" /> : null}
-                          Confirm
+                          {dict.chefDishes.confirmDelete}
                         </button>
                         <button
                           onClick={() => setDeleteConfirmId(null)}
                           disabled={isDeleting}
                           className="px-2.5 py-1.5 rounded-lg bg-gray-100 dark:bg-neutral-900 text-gray-600 dark:text-neutral-300 text-[10px] font-bold active:scale-95 transition-transform"
                         >
-                          Cancel
+                          {dict.chefDishes.cancelDelete}
                         </button>
                       </div>
                     ) : (
@@ -379,7 +373,7 @@ export default function ChefDishesPage() {
                         className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-bold text-gray-500 dark:text-neutral-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-neutral-750 transition-colors disabled:opacity-50"
                       >
                         <Trash2 size={12} />
-                        Delete
+                        {dict.chefDishes.delete}
                       </button>
                     )}
                   </div>

@@ -60,6 +60,8 @@ model ChefProfile {
   userId        String     @unique
   displayName   String
   bio           String?
+  bio_en        String?
+  bio_ar        String?
   specialties   String[]
   averageRating Float      @default(0)
   status        ChefStatus @default(PENDING)
@@ -87,7 +89,11 @@ model Dish {
   id              String       @id @default(cuid())
   chefId          String
   name            String
+  name_en         String?
+  name_ar         String?
   description     String?
+  description_en  String?
+  description_ar  String?
   price           Decimal      @db.Decimal(10, 2)
   category        DishCategory
   imageUrl        String?

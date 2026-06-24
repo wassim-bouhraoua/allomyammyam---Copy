@@ -63,7 +63,11 @@ export default async function DishDetailPage({ params }: { params: Promise<{ id:
   const detailDish = {
     id: dish.id,
     name: dish.name,
+    name_en: dish.name_en,
+    name_ar: dish.name_ar,
     description: dish.description,
+    description_en: dish.description_en,
+    description_ar: dish.description_ar,
     price: Number(dish.price),
     category: dish.category,
     imageUrl: getDishImageUrl(dish.imageUrl),
@@ -86,6 +90,8 @@ export default async function DishDetailPage({ params }: { params: Promise<{ id:
       avatarUrl: getChefAvatarUrl(dish.chef.avatarUrl || dish.chef.user.avatar),
       bannerUrl: getChefBannerUrl(dish.chef.bannerUrl),
       bio: dish.chef.bio,
+      bio_en: dish.chef.bio_en,
+      bio_ar: dish.chef.bio_ar,
       averageRating: dish.chef.averageRating,
       totalReviews: dish.chef.totalReviews,
       city: dish.chef.city,
@@ -96,6 +102,8 @@ export default async function DishDetailPage({ params }: { params: Promise<{ id:
   const exploreRelated = relatedDishes.map((d) => ({
     id: d.id,
     name: d.name,
+    name_en: d.name_en,
+    name_ar: d.name_ar,
     price: Number(d.price),
     category: d.category,
     imageUrl: getDishImageUrl(d.imageUrl),
@@ -136,7 +144,7 @@ export default async function DishDetailPage({ params }: { params: Promise<{ id:
     initial: r.user.firstName?.[0]?.toUpperCase() || "U",
     rating: r.rating,
     comment: r.comment || "",
-    date: r.createdAt.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }),
+    date: r.createdAt.toISOString(),
     verifiedOrder: true,
   }));
 

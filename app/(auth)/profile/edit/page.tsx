@@ -7,6 +7,7 @@ import { ArrowLeft, Loader2, User, X, Trash2, Camera } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import BackToHome from "@/components/auth/back-to-home";
 import { getUserAvatarUrl } from "@/lib/defaults";
+import { useTranslation } from "@/context/I18nContext";
 
 const SPECIALTY_OPTIONS = [
   "Moroccan",
@@ -24,6 +25,7 @@ const SPECIALTY_OPTIONS = [
 export default function EditProfilePage() {
   const router = useRouter();
   const { user, loading: authLoading, refreshUser } = useAuth();
+  const { dict } = useTranslation();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -33,6 +35,8 @@ export default function EditProfilePage() {
   const [displayName, setDisplayName] = useState("");
   const [city, setCity] = useState("");
   const [bio, setBio] = useState("");
+  const [bioEn, setBioEn] = useState("");
+  const [bioAr, setBioAr] = useState("");
   const [specialties, setSpecialties] = useState<string[]>([]);
 
   const [banner, setBanner] = useState<string | null>(null);
@@ -66,6 +70,8 @@ export default function EditProfilePage() {
         setDisplayName(user.chefProfile.displayName || "");
         setCity(user.chefProfile.city || user.city || "");
         setBio(user.chefProfile.bio || "");
+        setBioEn(user.chefProfile.bio_en || "");
+        setBioAr(user.chefProfile.bio_ar || "");
         setSpecialties(user.chefProfile.specialties || []);
         setBanner(user.chefProfile.bannerUrl || null);
         setBannerPreviewUrl(user.chefProfile.bannerUrl || null);
@@ -85,13 +91,13 @@ export default function EditProfilePage() {
     setFileError(null);
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (!validTypes.includes(file.type)) {
-      setFileError("Please upload a valid image (JPG, JPEG, PNG, WEBP).");
+      setFileError(dict.editProfile.avatarError);
       return;
     }
 
     const maxSize = 2 * 1024 * 1024;
     if (file.size > maxSize) {
-      setFileError("Photo size must be less than 2MB.");
+      setFileError(dict.editProfile.avatarSizeError);
       return;
     }
 
@@ -102,7 +108,7 @@ export default function EditProfilePage() {
       setAvatar(base64);
     };
     reader.onerror = () => {
-      setFileError("Error reading file. Please try again.");
+      setFileError(dict.editProfile.avatarReadError);
     };
     reader.readAsDataURL(file);
   };
@@ -111,13 +117,13 @@ export default function EditProfilePage() {
     setBannerFileError(null);
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (!validTypes.includes(file.type)) {
-      setBannerFileError("Please upload a valid image (JPG, JPEG, PNG, WEBP).");
+      setBannerFileError(dict.editProfile.bannerError);
       return;
     }
 
     const maxSize = 2 * 1024 * 1024;
     if (file.size > maxSize) {
-      setBannerFileError("Banner size must be less than 2MB.");
+      setBannerFileError(dict.editProfile.bannerSizeError);
       return;
     }
 
@@ -128,7 +134,7 @@ export default function EditProfilePage() {
       setBanner(base64);
     };
     reader.onerror = () => {
-      setBannerFileError("Error reading file. Please try again.");
+      setBannerFileError(dict.editProfile.bannerReadError);
     };
     reader.readAsDataURL(file);
   };
@@ -238,6 +244,8 @@ export default function EditProfilePage() {
         payload.displayName = displayName;
         payload.city = city;
         payload.bio = bio;
+        payload.bio_en = bioEn;
+        payload.bio_ar = bioAr;
         payload.specialties = specialties;
         payload.banner = banner;
       }
@@ -251,7 +259,7 @@ export default function EditProfilePage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? "Failed to update profile.");
+        setError(data.error ?? dict.editProfile.saveError);
         return;
       }
 
@@ -260,7 +268,7 @@ export default function EditProfilePage() {
       router.push("/profile");
       router.refresh();
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(dict.editProfile.unexpectedError);
     } finally {
       setSaving(false);
     }
@@ -270,6 +278,13 @@ export default function EditProfilePage() {
   const inputCls = "h-12 px-4 rounded-2xl bg-gray-50 border border-gray-200 text-[14px] text-gray-900 placeholder-gray-400 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors w-full";
   const labelCls = "text-[11px] font-bold text-gray-400 uppercase tracking-wider";
 
+  const getSpecialtyLabel = (s: string) => {
+    const key = s.toLowerCase();
+    if (key === "grill") return dict.dishes.tags.grilled || s;
+    if (key === "soups") return dict.dishes.categories.soup || s;
+    return dict.dishes.tags[key] || dict.dishes.categories[key] || s;
+  };
+
   return (
     <div className="flex flex-col min-h-full px-4 pt-4 pb-8">
       <BackToHome />
@@ -278,11 +293,11 @@ export default function EditProfilePage() {
         <Link
           href="/profile"
           className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600 hover:text-orange-500 hover:border-orange-200 transition-all active:scale-95"
-          aria-label="Back to profile"
+          aria-label={dict.common.back}
         >
-          <ArrowLeft size={18} />
+          <ArrowLeft size={18} className="rtl:rotate-180" />
         </Link>
-        <h1 className="text-[18px] font-black text-gray-900 tracking-tight">Edit Profile</h1>
+        <h1 className="text-[18px] font-black text-gray-900 tracking-tight">{dict.editProfile.title}</h1>
         <div className="w-10" />
       </div>
 
@@ -323,7 +338,7 @@ export default function EditProfilePage() {
                 ) : (
                   <User size={24} className="mb-0.5" />
                 )}
-                <span className="text-[8px] font-bold uppercase tracking-wider">Drop here</span>
+                <span className="text-[8px] font-bold uppercase tracking-wider">{dict.editProfile.dropHere}</span>
               </div>
             )}
           </div>
@@ -341,7 +356,7 @@ export default function EditProfilePage() {
               className="inline-flex items-center gap-1.5 px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 text-[12px] font-bold text-gray-700 cursor-pointer hover:bg-gray-100 active:scale-95 transition-all"
             >
               <Camera size={14} className="text-gray-500" />
-              Choose Photo
+              {dict.editProfile.choosePhoto}
             </label>
             {previewUrl && (
               <button
@@ -350,7 +365,7 @@ export default function EditProfilePage() {
                 className="inline-flex items-center gap-1.5 px-4 py-2 border border-red-100 rounded-xl bg-red-50 text-[12px] font-bold text-red-600 hover:bg-red-100 active:scale-95 transition-all"
               >
                 <Trash2 size={14} />
-                Remove
+                {dict.editProfile.remove}
               </button>
             )}
           </div>
@@ -360,24 +375,24 @@ export default function EditProfilePage() {
         {/* First & Last Name Fields */}
         <div className="grid grid-cols-2 gap-2.5">
           <div className="flex flex-col gap-1.5">
-            <label className={labelCls}>First name</label>
+            <label className={labelCls}>{dict.editProfile.firstName}</label>
             <input
               type="text"
               required
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              placeholder="First name"
+              placeholder={dict.editProfile.firstName}
               className={inputCls}
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className={labelCls}>Last name</label>
+            <label className={labelCls}>{dict.editProfile.lastName}</label>
             <input
               type="text"
               required
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              placeholder="Last name"
+              placeholder={dict.editProfile.lastName}
               className={inputCls}
             />
           </div>
@@ -385,7 +400,7 @@ export default function EditProfilePage() {
 
         {/* Phone Field */}
         <div className="flex flex-col gap-1.5">
-          <label className={labelCls}>Phone number (optional)</label>
+          <label className={labelCls}>{dict.editProfile.phone}</label>
           <input
             type="tel"
             value={phoneNumber}
@@ -398,12 +413,12 @@ export default function EditProfilePage() {
         {/* City Field for Customers */}
         {user.role !== "CHEF" && (
           <div className="flex flex-col gap-1.5">
-            <label className={labelCls}>City</label>
+            <label className={labelCls}>{dict.editProfile.city}</label>
             <input
               type="text"
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              placeholder="Casablanca"
+              placeholder={dict.editProfile.cityPlaceholder}
               className={inputCls}
             />
           </div>
@@ -414,13 +429,13 @@ export default function EditProfilePage() {
           <>
             <div className="border-t border-gray-100 pt-4 mt-2">
               <p className="text-[11px] font-extrabold text-orange-500 uppercase tracking-wider mb-4 border-b border-gray-50 pb-2">
-                Chef Profile Details
+                {dict.editProfile.chefProfileTitle}
               </p>
             </div>
 
             {/* Banner Upload Section */}
             <div className="flex flex-col gap-2 mb-2 bg-gray-50/50 rounded-2xl border border-gray-150 p-4">
-              <label className={labelCls}>Chef Profile Cover Banner (Optional)</label>
+              <label className={labelCls}>{dict.editProfile.chefBannerTitle}</label>
               
               <div
                 onDragOver={handleDragOverBanner}
@@ -437,7 +452,7 @@ export default function EditProfilePage() {
                   <img src={bannerPreviewUrl} alt="Banner Preview" className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-[12px] font-bold text-gray-400">
-                    Drag & drop banner here or click to select
+                    {dict.editProfile.dragDropBanner}
                   </span>
                 )}
               </div>
@@ -455,7 +470,7 @@ export default function EditProfilePage() {
                   className="inline-flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-xl bg-white text-[12px] font-bold text-gray-700 cursor-pointer hover:bg-gray-50 active:scale-95 transition-all"
                 >
                   <Camera size={13} className="text-gray-500" />
-                  Choose Banner
+                  {dict.editProfile.chooseBanner}
                 </label>
                 {bannerPreviewUrl && (
                   <button
@@ -464,7 +479,7 @@ export default function EditProfilePage() {
                     className="inline-flex items-center gap-1.5 px-3 py-2 border border-red-100 rounded-xl bg-red-50 text-[12px] font-bold text-red-600 hover:bg-red-100 active:scale-95 transition-all"
                   >
                     <Trash2 size={13} />
-                    Remove Banner
+                    {dict.editProfile.removeBanner}
                   </button>
                 )}
               </div>
@@ -473,42 +488,66 @@ export default function EditProfilePage() {
 
             <div className="grid grid-cols-2 gap-2.5">
               <div className="flex flex-col gap-1.5">
-                <label className={labelCls}>Display Name</label>
+                <label className={labelCls}>{dict.editProfile.displayName}</label>
                 <input
                   type="text"
                   required
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="Chef name"
+                  placeholder={dict.editProfile.chefNamePlaceholder}
                   className={inputCls}
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className={labelCls}>City</label>
+                <label className={labelCls}>{dict.editProfile.city}</label>
                 <input
                   type="text"
                   required
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  placeholder="Casablanca"
+                  placeholder={dict.editProfile.cityPlaceholder}
                   className={inputCls}
                 />
               </div>
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className={labelCls}>Bio</label>
-              <textarea
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                rows={3}
-                placeholder="Tell customers about your cooking style…"
-                className="px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-[14px] text-gray-900 placeholder-gray-400 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors resize-none w-full"
-              />
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className={labelCls}>{dict.editProfile.bio}</label>
+                <textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  rows={3}
+                  placeholder={dict.editProfile.chefBioPlaceholder}
+                  className="px-4 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-750 text-[14px] text-gray-900 dark:text-neutral-100 placeholder-gray-400 dark:placeholder-neutral-500 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-950/20 transition-colors resize-none w-full text-start"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className={labelCls}>{dict.editProfile.bioEn}</label>
+                <textarea
+                  value={bioEn}
+                  onChange={(e) => setBioEn(e.target.value)}
+                  rows={3}
+                  placeholder={dict.editProfile.chefBioPlaceholder}
+                  className="px-4 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-750 text-[14px] text-gray-900 dark:text-neutral-100 placeholder-gray-400 dark:placeholder-neutral-500 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-950/20 transition-colors resize-none w-full text-start"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className={labelCls}>{dict.editProfile.bioAr}</label>
+                <textarea
+                  value={bioAr}
+                  onChange={(e) => setBioAr(e.target.value)}
+                  rows={3}
+                  placeholder={dict.editProfile.chefBioPlaceholder}
+                  className="px-4 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-750 text-[14px] text-gray-900 dark:text-neutral-100 placeholder-gray-400 dark:placeholder-neutral-500 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-950/20 transition-colors resize-none w-full text-start"
+                />
+              </div>
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className={labelCls}>Specialties</label>
+              <label className={labelCls}>{dict.editProfile.chefSpecialties}</label>
               <div className="flex flex-wrap gap-2">
                 {SPECIALTY_OPTIONS.map((s) => {
                   const active = specialties.includes(s);
@@ -523,7 +562,7 @@ export default function EditProfilePage() {
                           : "bg-gray-50 border-gray-200 text-gray-600 hover:border-orange-200"
                       }`}
                     >
-                      {s}
+                      {getSpecialtyLabel(s)}
                       {active && <X size={11} />}
                     </button>
                   );
@@ -531,7 +570,7 @@ export default function EditProfilePage() {
               </div>
               {specialties.length > 0 && (
                 <p className="text-[11px] text-orange-500 font-semibold mt-1">
-                  {specialties.length} selected
+                  {dict.editProfile.selectedCount.replace("{count}", String(specialties.length))}
                 </p>
               )}
             </div>
@@ -548,10 +587,10 @@ export default function EditProfilePage() {
             {saving ? (
               <>
                 <Loader2 size={17} className="animate-spin" />
-                Saving Changes…
+                {dict.editProfile.saving}
               </>
             ) : (
-              "Save Changes"
+              dict.editProfile.save
             )}
           </button>
           
@@ -559,7 +598,7 @@ export default function EditProfilePage() {
             href="/profile"
             className="h-12 rounded-2xl border border-gray-200 text-gray-700 font-bold text-[14px] flex items-center justify-center active:scale-[0.98] transition-transform hover:bg-gray-50"
           >
-            Cancel
+            {dict.editProfile.cancel}
           </Link>
         </div>
 

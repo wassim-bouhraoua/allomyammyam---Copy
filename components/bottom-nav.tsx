@@ -4,15 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, UtensilsCrossed, ClipboardList, User } from "lucide-react";
 
-const NAV_ITEMS = [
-  { href: "/", icon: Home, label: "Home" },
-  { href: "/dishes", icon: UtensilsCrossed, label: "Dishes" },
-  { href: "/profile/orders", icon: ClipboardList, label: "Orders" },
-  { href: "/profile", icon: User, label: "Profile" },
-] as const;
+import { useTranslation } from "@/context/I18nContext";
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { dict } = useTranslation();
+
+  const NAV_ITEMS = [
+    { href: "/", icon: Home, label: dict.nav.home },
+    { href: "/dishes", icon: UtensilsCrossed, label: dict.nav.dishes },
+    { href: "/profile/orders", icon: ClipboardList, label: dict.nav.orders },
+    { href: "/profile", icon: User, label: dict.nav.profile },
+  ] as const;
 
   return (
     // lg:hidden — on desktop the sidebar nav replaces the bottom bar

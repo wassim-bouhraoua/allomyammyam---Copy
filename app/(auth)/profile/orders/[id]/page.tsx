@@ -6,27 +6,10 @@ import { ArrowLeft, MapPin, Calendar, CreditCard, ShoppingBag, User, CheckCircle
 import BackToHome from "@/components/auth/back-to-home";
 import { getDishImageUrl } from "@/lib/upload";
 import ReviewModalButton from "@/components/review-modal-button";
+import { cookies } from "next/headers";
+import { getDictionary, getLocalizedOrderItemName } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-
-const STEPS = [
-  { key: "CREATED", label: "Received", desc: "We've received your order" },
-  { key: "ACCEPTED", label: "Accepted", desc: "Chef confirmed the order" },
-  { key: "PREPARING", label: "Preparing", desc: "Chef is preparing your food" },
-  { key: "READY", label: "Ready", desc: "Meal is packed and ready" },
-  { key: "OUT_FOR_DELIVERY", label: "On the way", desc: "Meal is out for delivery" },
-  { key: "DELIVERED", label: "Delivered", desc: "Order completed successfully" },
-];
-
-const STATUS_LABELS: Record<string, string> = {
-  CREATED: "Received",
-  ACCEPTED: "Accepted",
-  PREPARING: "Preparing",
-  READY: "Ready",
-  OUT_FOR_DELIVERY: "Out for Delivery",
-  DELIVERED: "Delivered",
-  CANCELLED: "Cancelled",
-};
 
 const STATUS_COLORS: Record<string, string> = {
   CREATED: "bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-900/30",
@@ -46,6 +29,19 @@ export default async function OrderDetailPage(props: { params: Promise<{ id: str
     redirect("/login");
   }
 
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("user_locale")?.value || "fr";
+  const dict = getDictionary(locale);
+
+  const STEPS = [
+    { key: "CREATED", label: dict.orders.statuses.CREATED || "Received", desc: dict.orders.timelineDescs.CREATED },
+    { key: "ACCEPTED", label: dict.orders.statuses.ACCEPTED || "Accepted", desc: dict.orders.timelineDescs.ACCEPTED },
+    { key: "PREPARING", label: dict.orders.statuses.PREPARING || "Preparing", desc: dict.orders.timelineDescs.PREPARING },
+    { key: "READY", label: dict.orders.statuses.READY || "Ready", desc: dict.orders.timelineDescs.READY },
+    { key: "OUT_FOR_DELIVERY", label: dict.orders.statuses.OUT_FOR_DELIVERY || "Out for Delivery", desc: dict.orders.timelineDescs.OUT_FOR_DELIVERY },
+    { key: "DELIVERED", label: dict.orders.statuses.DELIVERED || "Delivered", desc: dict.orders.timelineDescs.DELIVERED },
+  ];
+
   const order = await prisma.order.findUnique({
     where: { id: params.id },
     include: {
@@ -60,6 +56,8 @@ export default async function OrderDetailPage(props: { params: Promise<{ id: str
           dish: {
             select: {
               name: true,
+              name_en: true,
+              name_ar: true,
               imageUrl: true,
               chef: {
                 select: {
@@ -86,7 +84,7 @@ export default async function OrderDetailPage(props: { params: Promise<{ id: str
   const isCancelled = order.status === "CANCELLED";
   const currentStepIndex = STEPS.findIndex(s => s.key === order.status);
 
-  const formattedDate = new Date(order.createdAt).toLocaleDateString("en-US", {
+  const formattedDate = new Date(order.createdAt).toLocaleDateString(locale === "ar" ? "ar-MA" : locale === "en" ? "en-US" : "fr-FR", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -107,16 +105,16 @@ export default async function OrderDetailPage(props: { params: Promise<{ id: str
           <Link
             href="/profile/orders"
             className="w-10 h-10 rounded-2xl bg-card border border-border flex items-center justify-center active:scale-95 transition-transform"
-            aria-label="Back to Order History"
+            aria-label={dict.orders.details.backToList}
           >
-            <ArrowLeft size={18} className="text-foreground" />
+            <ArrowLeft size={18} className="text-foreground rtl:rotate-180" />
           </Link>
           <div>
             <h1 className="text-[20px] lg:text-[24px] font-black tracking-tight flex items-center gap-2">
-              Order Details
+              {dict.orders.details.title}
             </h1>
             <p className="text-[12px] text-muted-foreground mt-0.5">
-              ID: #{order.id.toUpperCase()}
+              {dict.orders.details.idLabel}: #{order.id.toUpperCase()}
             </p>
           </div>
         </div>
@@ -130,13 +128,13 @@ export default async function OrderDetailPage(props: { params: Promise<{ id: str
             <div className="bg-card rounded-[28px] border border-border p-6 shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex flex-col gap-4">
               <div className="flex items-center justify-between border-b border-border pb-4">
                 <div>
-                  <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Status</p>
+                  <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">{dict.orders.details.statusLabel}</p>
                   <span className={`mt-1 inline-flex items-center px-3 py-1 rounded-full border text-[11px] font-extrabold uppercase tracking-wider ${STATUS_COLORS[order.status] || "bg-secondary text-muted-foreground"}`}>
-                    {STATUS_LABELS[order.status] || order.status}
+                    {dict.orders.statuses[order.status] || order.status}
                   </span>
                 </div>
-                <div className="text-right">
-                  <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Placed On</p>
+                <div className="text-right rtl:text-left">
+                  <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">{dict.orders.details.placedOn}</p>
                   <p className="text-[13px] font-bold text-foreground mt-1">{formattedDate}</p>
                 </div>
               </div>
@@ -145,20 +143,20 @@ export default async function OrderDetailPage(props: { params: Promise<{ id: str
                 <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/35 rounded-2xl p-4 flex gap-3">
                   <div className="text-red-500 flex-shrink-0 mt-0.5">⚠️</div>
                   <div>
-                    <h4 className="text-[13px] font-black text-red-800 dark:text-red-400">Order Cancelled</h4>
+                    <h4 className="text-[13px] font-black text-red-800 dark:text-red-400">{dict.orders.details.cancelledTitle}</h4>
                     <p className="text-[12px] text-red-600 dark:text-red-300 mt-1 leading-relaxed">
-                      {order.cancelReason ? `Reason: "${order.cancelReason}"` : "This order was cancelled."}
+                      {order.cancelReason ? dict.orders.details.cancelledReason.replace("{reason}", order.cancelReason) : dict.orders.details.cancelledDefault}
                     </p>
                   </div>
                 </div>
               ) : (
                 /* Timeline Progress list */
                 <div className="flex flex-col gap-5 pt-2">
-                  <h3 className="text-[14px] font-black text-foreground uppercase tracking-widest pl-1">
-                    Order Status Timeline
+                  <h3 className="text-[14px] font-black text-foreground uppercase tracking-widest ps-1">
+                    {dict.orders.details.timelineTitle}
                   </h3>
                   
-                  <div className="relative pl-7 flex flex-col gap-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-border">
+                  <div className="relative ps-7 flex flex-col gap-6 before:absolute before:start-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-border">
                     {STEPS.map((step, idx) => {
                       const done = idx <= currentStepIndex;
                       const active = idx === currentStepIndex;
@@ -166,7 +164,7 @@ export default async function OrderDetailPage(props: { params: Promise<{ id: str
                       return (
                         <div key={step.key} className="relative flex flex-col gap-0.5">
                           {/* Bullet marker */}
-                          <div className={`absolute -left-[27px] top-1.5 w-6 h-6 rounded-full flex items-center justify-center border transition-all ${
+                          <div className={`absolute -start-[27px] top-1.5 w-6 h-6 rounded-full flex items-center justify-center border transition-all ${
                             done 
                               ? "bg-orange-500 border-orange-500 text-white shadow-[0_2px_8px_rgba(255,138,0,0.3)]"
                               : "bg-card border-border text-muted-foreground"
@@ -191,13 +189,13 @@ export default async function OrderDetailPage(props: { params: Promise<{ id: str
             {/* Delivery address & Notes */}
             <div className="bg-card rounded-[28px] border border-border p-6 shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex flex-col gap-4">
               <h3 className="text-[14px] font-black text-foreground uppercase tracking-widest">
-                Delivery Details
+                {dict.orders.details.deliveryDetails}
               </h3>
               
               <div className="flex items-start gap-3 bg-secondary/50 border border-border rounded-2xl p-4">
                 <MapPin size={18} className="text-orange-500 flex-shrink-0 mt-0.5" fill="currentColor" />
                 <div className="min-w-0">
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Address</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">{dict.orders.details.address}</p>
                   <p className="text-[13px] font-semibold text-foreground leading-relaxed mt-1">
                     {order.deliveryAddress}
                   </p>
@@ -206,7 +204,7 @@ export default async function OrderDetailPage(props: { params: Promise<{ id: str
 
               {order.notes && (
                 <div className="bg-secondary/35 border border-border rounded-2xl p-4">
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Customer Notes</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">{dict.orders.details.notes}</p>
                   <p className="text-[13px] text-foreground italic mt-1 leading-relaxed">
                     &ldquo;{order.notes}&rdquo;
                   </p>
@@ -224,13 +222,13 @@ export default async function OrderDetailPage(props: { params: Promise<{ id: str
               <div className="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center flex-shrink-0 shadow-[0_2px_8px_rgba(255,138,0,0.3)] text-[16px] font-black">
                 👨‍🍳
               </div>
-              <div className="min-w-0 text-left">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Chef</p>
+              <div className="min-w-0 text-start">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">{dict.orders.details.chef}</p>
                 <p className="text-[14px] font-extrabold text-foreground truncate mt-0.5">
                   {order.chef.displayName}
                 </p>
                 <p className="text-[11px] text-muted-foreground font-semibold">
-                  Serving in {order.chef.city}
+                  {dict.orders.details.servingIn.replace("{city}", order.chef.city || "")}
                 </p>
               </div>
             </div>
@@ -238,64 +236,67 @@ export default async function OrderDetailPage(props: { params: Promise<{ id: str
             {/* Items & Invoice summary */}
             <div className="bg-card rounded-[28px] border border-border p-5 shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex flex-col gap-4">
               <h3 className="text-[13px] font-black text-foreground uppercase tracking-widest border-b border-border pb-2.5">
-                Ordered Dishes
+                {dict.orders.details.orderedDishes}
               </h3>
 
               {/* Items List */}
               <div className="flex flex-col gap-3">
-                {order.orderItems.map((item) => (
-                  <div key={item.id} className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-secondary overflow-hidden border border-border flex-shrink-0 relative shadow-inner">
-                      {item.dish.imageUrl ? (
-                        <img
-                          src={getDishImageUrl(item.dish.imageUrl) || undefined}
-                          alt={item.dishName}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-lg">🍽️</div>
-                      )}
+                {order.orderItems.map((item) => {
+                  const localizedName = getLocalizedOrderItemName(item, locale);
+                  return (
+                    <div key={item.id} className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-xl bg-secondary overflow-hidden border border-border flex-shrink-0 relative shadow-inner">
+                        {item.dish.imageUrl ? (
+                          <img
+                            src={getDishImageUrl(item.dish.imageUrl) || undefined}
+                            alt={localizedName}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-lg">🍽️</div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0 text-start">
+                        <h4 className="text-[13px] font-extrabold text-foreground leading-snug truncate">
+                          {localizedName}
+                        </h4>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                          {item.quantity} x {Number(item.unitPrice).toFixed(0)} {dict.common.currency}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                        <span className="text-[13px] font-bold text-foreground tabular-nums">
+                          {Number(item.totalPrice).toFixed(0)} {dict.common.currency}
+                        </span>
+                        {order.status === "DELIVERED" && item.dish.chef.userId !== session.id && (
+                          <ReviewModalButton
+                            orderItemId={item.id}
+                            dishName={localizedName}
+                            initialRating={(item as any).dishReview?.rating}
+                            initialComment={(item as any).dishReview?.comment || undefined}
+                          />
+                        )}
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0 text-left">
-                      <h4 className="text-[13px] font-extrabold text-foreground leading-snug truncate">
-                        {item.dishName}
-                      </h4>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">
-                        {item.quantity} x {Number(item.unitPrice).toFixed(0)} MAD
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-                      <span className="text-[13px] font-bold text-foreground tabular-nums">
-                        {Number(item.totalPrice).toFixed(0)} MAD
-                      </span>
-                      {order.status === "DELIVERED" && item.dish.chef.userId !== session.id && (
-                        <ReviewModalButton
-                          orderItemId={item.id}
-                          dishName={item.dishName}
-                          initialRating={(item as any).dishReview?.rating}
-                          initialComment={(item as any).dishReview?.comment || undefined}
-                        />
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Invoice Breakdown */}
               <div className="border-t border-border pt-3.5 flex flex-col gap-2.5 text-[13px]">
                 <div className="flex justify-between text-muted-foreground">
-                  <span>Subtotal</span>
-                  <span className="font-semibold text-foreground tabular-nums">{subtotal.toLocaleString("fr-MA")} MAD</span>
+                  <span>{dict.orders.details.subtotal}</span>
+                  <span className="font-semibold text-foreground tabular-nums">{subtotal.toLocaleString("fr-MA")} {dict.common.currency}</span>
                 </div>
                 <div className="flex justify-between text-muted-foreground">
-                  <span>Delivery Fee</span>
-                  <span className="font-semibold text-foreground tabular-nums">{deliveryFee.toLocaleString("fr-MA")} MAD</span>
+                  <span>{dict.orders.details.delivery}</span>
+                  <span className="font-semibold text-foreground tabular-nums">{deliveryFee.toLocaleString("fr-MA")} {dict.common.currency}</span>
                 </div>
                 
                 <div className="flex justify-between border-t border-border pt-3 mt-1">
-                  <span className="font-bold text-foreground">Total</span>
+                  <span className="font-bold text-foreground">{dict.orders.details.total}</span>
                   <span className="text-[18px] font-black text-orange-600 tabular-nums">
-                    {totalAmount.toLocaleString("fr-MA")} MAD
+                    {totalAmount.toLocaleString("fr-MA")} {dict.common.currency}
                   </span>
                 </div>
               </div>
@@ -306,7 +307,7 @@ export default async function OrderDetailPage(props: { params: Promise<{ id: str
               href="/profile/orders"
               className="w-full h-11 rounded-2xl bg-secondary border border-border text-foreground font-extrabold text-[13px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all hover:bg-secondary/80"
             >
-              Back to Order History
+              {dict.orders.details.backToList}
             </Link>
 
           </div>

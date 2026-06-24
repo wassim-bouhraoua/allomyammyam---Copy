@@ -28,6 +28,9 @@ import {
 
 import BottomNav from "@/components/bottom-nav";
 import DishCard from "@/components/dish-card";
+import { useTranslation } from "@/context/I18nContext";
+import { getLocalizedName, getLocalizedDescription, getLocalizedBio } from "@/lib/i18n";
+
 
 export interface NutritionFacts {
   calories: number | null;
@@ -40,7 +43,11 @@ export interface NutritionFacts {
 export interface DetailDish {
   id: string;
   name: string;
+  name_en?: string | null;
+  name_ar?: string | null;
   description: string | null;
+  description_en?: string | null;
+  description_ar?: string | null;
   price: number;
   category: string;
   imageUrl: string | null;
@@ -57,6 +64,8 @@ export interface DetailDish {
     avatarUrl: string | null;
     bannerUrl: string | null;
     bio: string | null;
+    bio_en?: string | null;
+    bio_ar?: string | null;
     averageRating: number;
     totalReviews: number;
     city: string | null;
@@ -176,6 +185,9 @@ function QuantityStepper({ value, onChange, max, disabled = false }: { value: nu
 }
 
 function ChefRow({ chef }: { chef: DetailDish["chef"] }) {
+  const { locale } = useTranslation();
+  const localizedBio = getLocalizedBio(chef, locale);
+
   return (
     <Link
       href={`/chefs/${chef.id}`}
@@ -194,7 +206,7 @@ function ChefRow({ chef }: { chef: DetailDish["chef"] }) {
         <div className="flex items-center gap-1.5">
           <p className="text-[13px] font-extrabold text-gray-900 dark:text-neutral-100 truncate">{chef.displayName}</p>
         </div>
-        {chef.bio && <p className="text-[11px] text-gray-500 dark:text-neutral-400 truncate mt-0.5">{chef.bio}</p>}
+        {localizedBio && <p className="text-[11px] text-gray-500 dark:text-neutral-400 truncate mt-0.5">{localizedBio}</p>}
         <div className="flex items-center gap-2.5 mt-1">
           <span className="flex items-center gap-0.5">
             <Star size={10} className="text-amber-400 fill-amber-400" />
@@ -209,40 +221,41 @@ function ChefRow({ chef }: { chef: DetailDish["chef"] }) {
           )}
         </div>
       </div>
-      <ChevronRight size={15} className="text-gray-300 flex-shrink-0" />
+      <ChevronRight size={15} className="text-gray-300 flex-shrink-0 rtl:rotate-180" />
     </Link>
   );
 }
 
 function NutritionSection({ nutrition }: { nutrition?: NutritionFacts }) {
+  const { dict } = useTranslation();
   const facts = [
     {
       icon: <Zap size={10} className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-orange-500" />,
-      label: "Calories",
+      label: dict.dishDetail.nutrition.calories,
       value: nutrition?.calories,
       unit: "kcal",
     },
     {
       icon: <Beef size={10} className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-orange-500" />,
-      label: "Protein",
+      label: dict.dishDetail.nutrition.protein,
       value: nutrition?.protein,
       unit: "g",
     },
     {
       icon: <Wheat size={10} className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-orange-500" />,
-      label: "Carbs",
+      label: dict.dishDetail.nutrition.carbs,
       value: nutrition?.carbs,
       unit: "g",
     },
     {
       icon: <Flame size={10} className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-orange-500" />,
-      label: "Fat",
+      label: dict.dishDetail.nutrition.fat,
       value: nutrition?.fat,
       unit: "g",
     },
     {
       icon: <Candy size={10} className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-orange-500" />,
-      label: "Sugar",
+      label: dict.dishDetail.nutrition.sugar,
       value: nutrition?.sugar,
       unit: "g",
     },
@@ -250,11 +263,11 @@ function NutritionSection({ nutrition }: { nutrition?: NutritionFacts }) {
 
   return (
     <section>
-      <div className="mb-3">
+      <div className="mb-3 text-start">
         <h2 className="text-[12px] font-extrabold text-gray-600 dark:text-neutral-455 uppercase tracking-wider">
-          Nutrition Facts
+          {dict.dishDetail.nutrition.title}
         </h2>
-        <p className="text-[9px] text-gray-400 dark:text-neutral-500 mt-0.5">Per serving</p>
+        <p className="text-[9px] text-gray-400 dark:text-neutral-500 mt-0.5">{dict.dishDetail.nutrition.sub}</p>
       </div>
 
       <div className="grid grid-cols-5 gap-1 sm:gap-2">
@@ -272,7 +285,7 @@ function NutritionSection({ nutrition }: { nutrition?: NutritionFacts }) {
               </span>
               <span className="text-[7.5px] sm:text-[10px] font-bold text-gray-400 dark:text-neutral-500 mt-0.5 leading-none">{f.unit}</span>
             </div>
-            <span className="text-[8px] sm:text-[10px] text-gray-500 dark:text-neutral-450 mt-1 sm:mt-1.5 text-center truncate w-full tracking-tight">{f.label}</span>
+            <span className="text-[8px] sm:text-[10px] text-gray-500 dark:text-neutral-455 mt-1 sm:mt-1.5 text-center truncate w-full tracking-tight">{f.label}</span>
           </div>
         ))}
       </div>
@@ -281,8 +294,14 @@ function NutritionSection({ nutrition }: { nutrition?: NutritionFacts }) {
 }
 
 function ReviewCard({ review }: { review: Review }) {
+  const { locale } = useTranslation();
+  const formattedDate = new Date(review.date).toLocaleDateString(
+    locale === "ar" ? "ar-EG" : locale === "fr" ? "fr-FR" : "en-US",
+    { year: "numeric", month: "short", day: "numeric" }
+  );
+
   return (
-    <div className="bg-gray-50 dark:bg-neutral-900 border border-gray-100 dark:border-neutral-800 rounded-2xl p-3.5">
+    <div className="bg-gray-50 dark:bg-neutral-900 border border-gray-100 dark:border-neutral-800 rounded-2xl p-3.5 text-start">
       <div className="flex items-start gap-3">
         <div className="w-8 h-8 rounded-xl bg-orange-100 dark:bg-orange-950/40 flex items-center justify-center flex-shrink-0">
           <span className="text-[12px] font-black text-orange-600 dark:text-orange-400">{review.initial}</span>
@@ -290,7 +309,7 @@ function ReviewCard({ review }: { review: Review }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
             <span className="text-[12px] font-bold text-gray-900 dark:text-neutral-100 truncate">{review.authorName}</span>
-            <span className="text-[10px] text-gray-400 dark:text-neutral-500 flex-shrink-0">{review.date}</span>
+            <span className="text-[10px] text-gray-400 dark:text-neutral-500 flex-shrink-0">{formattedDate}</span>
           </div>
           <div className="flex items-center gap-2 mt-0.5">
             <Stars rating={review.rating} size={10} />
@@ -322,6 +341,7 @@ export default function DishDetailClient({
   related: any[];
   reviews?: Review[];
 }) {
+  const { dict, locale } = useTranslation();
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const [showAllReviews, setShowAllReviews] = useState(false);
@@ -356,7 +376,7 @@ export default function DishDetailClient({
     setTimeout(() => setToast(null), 3000);
   };
 
-  const totalPrice = (dish.price * qty).toLocaleString("fr-MA");
+  const totalPrice = (dish.price * qty).toLocaleString(locale === "ar" ? "ar-MA" : locale === "fr" ? "fr-MA" : "en-US");
 
   async function handleAddToCart() {
     if (!user) {
@@ -368,7 +388,7 @@ export default function DishDetailClient({
 
     try {
       const result = await addToCart(dish.id, qty, {
-        name: dish.name,
+        name: getLocalizedName(dish, locale),
         price: dish.price,
         imageUrl: dish.imageUrl,
         category: dish.category,
@@ -379,10 +399,10 @@ export default function DishDetailClient({
         setAdded(true);
         setTimeout(() => setAdded(false), 2200);
       } else {
-        showToast(result.error ?? "Failed to add to cart.", "error");
+        showToast(result.error ?? dict.cart.toast.addFailed, "error");
       }
     } catch {
-      showToast("Something went wrong.", "error");
+      showToast(dict.common.errorTitle, "error");
     }
   }
 
@@ -392,10 +412,10 @@ export default function DishDetailClient({
     !dish.isAvailable
       ? null
       : dish.stockCount !== null && dish.stockCount <= 3
-      ? `Only ${dish.stockCount} portions left`
+      ? dict.dishDetail.stock.low.replace("{count}", String(dish.stockCount))
       : dish.stockCount !== null
-      ? `${dish.stockCount} portions available`
-      : "Available today";
+      ? dict.dishDetail.stock.available.replace("{count}", String(dish.stockCount))
+      : dict.dishDetail.stock.today;
 
   const dist: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
   if (reviews.length > 0) {
@@ -419,10 +439,10 @@ export default function DishDetailClient({
         
         <Link
           href="/dishes"
-          className="absolute top-5 left-4 w-10 h-10 rounded-2xl bg-white/90 dark:bg-neutral-800/90 backdrop-blur-sm flex items-center justify-center shadow-[0_2px_12px_rgba(0,0,0,0.12)] transition-transform duration-150 active:scale-95 z-20"
+          className="absolute top-5 start-4 w-10 h-10 rounded-2xl bg-white/90 dark:bg-neutral-800/90 backdrop-blur-sm flex items-center justify-center shadow-[0_2px_12px_rgba(0,0,0,0.12)] transition-transform duration-150 active:scale-95 z-20"
           aria-label="Go back"
         >
-          <ArrowLeft size={18} className="text-gray-800 dark:text-neutral-200" />
+          <ArrowLeft size={18} className="text-gray-800 dark:text-neutral-200 rtl:rotate-180" />
         </Link>
 
         <main className="flex-1 overflow-y-auto pb-[100px] lg:pb-6">
@@ -433,17 +453,16 @@ export default function DishDetailClient({
               
               <div className="relative w-full h-[300px] lg:h-[360px] bg-gray-100 dark:bg-neutral-800 overflow-hidden flex-shrink-0 rounded-2xl shadow-sm">
                 {dish.imageUrl ? (
-                  <FadeImage src={dish.imageUrl} alt={dish.name} />
+                  <FadeImage src={dish.imageUrl} alt={getLocalizedName(dish, locale)} />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-6xl opacity-20">🍽️</span>
                   </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-black/20" />
-                
-                <div className="absolute bottom-4 left-4">
+                          <div className="absolute bottom-4 start-4">
                   <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-[11px] font-bold text-white uppercase tracking-wider">
-                    {dish.category.replace(/_/g, " ")}
+                    {dict.dishes.categories[dish.category.toLowerCase()] || dish.category.replace(/_/g, " ")}
                   </span>
                 </div>
 
@@ -451,23 +470,23 @@ export default function DishDetailClient({
                   <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-2xl">
                     <div className="bg-white dark:bg-neutral-800 rounded-2xl px-5 py-3 text-center shadow-lg">
                       <AlertCircle size={22} className="text-orange-500 mx-auto mb-1" />
-                      <p className="text-[13px] font-extrabold text-gray-900 dark:text-neutral-100">Sold Out</p>
-                      <p className="text-[11px] text-gray-500 dark:text-neutral-450 mt-0.5">Check back later</p>
+                      <p className="text-[13px] font-extrabold text-gray-900 dark:text-neutral-100">{dict.common.soldOut}</p>
+                      <p className="text-[11px] text-gray-500 dark:text-neutral-450 mt-0.5">{dict.dishDetail.stock.checkBackLater}</p>
                     </div>
                   </div>
                 )}
               </div>
 
               {dish.description && (
-                <div className="bg-white dark:bg-neutral-800 rounded-2xl p-5 border border-gray-100/80 dark:border-neutral-700 shadow-[0_2px_18px_rgba(0,0,0,0.03)]">
+                <div className="bg-white dark:bg-neutral-800 rounded-2xl p-5 border border-gray-100/80 dark:border-neutral-700 shadow-[0_2px_18px_rgba(0,0,0,0.03)] text-start">
                   <h2 className="text-[11px] font-extrabold text-gray-400 dark:text-neutral-400 uppercase tracking-wider mb-2">
-                    About this dish
+                    {dict.dishDetail.about}
                   </h2>
-                  <p className="text-[13px] leading-relaxed text-gray-600 dark:text-neutral-300">{dish.description}</p>
+                  <p className="text-[13px] leading-relaxed text-gray-600 dark:text-neutral-300">{getLocalizedDescription(dish, locale)}</p>
                   
                   {dish.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mt-3.5">
-                      {dish.tags.map((tag) => <TagChip key={tag} label={tag} />)}
+                      {dish.tags.map((tag) => <TagChip key={tag} label={dict.dishes.tags[tag.toLowerCase()] || tag} />)}
                     </div>
                   )}
                 </div>
@@ -479,17 +498,17 @@ export default function DishDetailClient({
 
             </div>
 
-            <div className="flex-1 flex flex-col gap-6">
+            <div className="flex-1 flex flex-col gap-6 text-start">
               
               <div className="bg-white dark:bg-neutral-800 rounded-2xl p-5 border border-gray-100/80 dark:border-neutral-700 shadow-[0_2px_18px_rgba(0,0,0,0.03)]">
                 <div className="flex items-start justify-between gap-3">
                   <h1 className="text-[21px] lg:text-[25px] font-black text-gray-900 dark:text-neutral-100 leading-tight flex-1">
-                    {dish.name}
+                    {getLocalizedName(dish, locale)}
                   </h1>
                   {isSpicy && (
                     <span className="flex-shrink-0 mt-1 flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30">
                       <Flame size={11} className="text-orange-500" />
-                      <span className="text-[10px] font-bold text-orange-600 dark:text-orange-400">Spicy</span>
+                      <span className="text-[10px] font-bold text-orange-600 dark:text-orange-400">{dict.dishes.tags.spicy}</span>
                     </span>
                   )}
                 </div>
@@ -497,20 +516,20 @@ export default function DishDetailClient({
                 <div className="flex items-center gap-2 mt-2">
                   <Stars rating={dish.averageRating} size={12} />
                   <span className="text-[13px] font-bold text-gray-700 dark:text-neutral-300">{dish.averageRating.toFixed(1)}</span>
-                  <span className="text-[12px] text-gray-400 dark:text-neutral-500">({dish.totalReviews.toLocaleString()} reviews)</span>
+                  <span className="text-[12px] text-gray-400 dark:text-neutral-50">({dict.dishDetail.stars.reviewsCount.replace('{count}', dish.totalReviews.toLocaleString())})</span>
                 </div>
 
                 <div className="flex items-center flex-wrap gap-2 mt-3.5">
                   <InfoPill
                     icon={<Clock size={12} className="text-gray-400" />}
-                    label={`Ready in ${dish.preparationTime} min`}
+                    label={dict.dishDetail.readyIn.replace("{time}", String(dish.preparationTime))}
                   />
                   {availabilityLabel && (
                     <InfoPill
                       icon={
                         <CheckCircle2
                           size={12}
-                          className={availabilityLabel.startsWith("Only") ? "text-red-400" : "text-orange-500"}
+                          className={availabilityLabel.startsWith("Only") || availabilityLabel.startsWith("Plus") || availabilityLabel.startsWith("متبقي") ? "text-red-400" : "text-orange-500"}
                         />
                       }
                       label={availabilityLabel}
@@ -518,12 +537,12 @@ export default function DishDetailClient({
                     />
                   )}
                 </div>
-                <p className="mt-2.5 text-[11px] text-gray-400 font-semibold">🍳 Prepared fresh after your order</p>
+                <p className="mt-2.5 text-[11px] text-gray-400 font-semibold">🍳 {dict.dishDetail.freshNotice}</p>
               </div>
 
               <div className="bg-white dark:bg-neutral-800 rounded-2xl p-5 border border-gray-100/80 dark:border-neutral-700 shadow-[0_2px_18px_rgba(0,0,0,0.03)]">
                 <p className="text-[11px] font-extrabold text-gray-400 dark:text-neutral-400 uppercase tracking-wider mb-2.5">
-                  Your chef
+                  {dict.dishDetail.chef}
                 </p>
                 <ChefRow chef={dish.chef} />
               </div>
@@ -531,17 +550,17 @@ export default function DishDetailClient({
               <div className="bg-white dark:bg-neutral-800 rounded-2xl p-5 border border-gray-100/80 dark:border-neutral-700 shadow-[0_2px_18px_rgba(0,0,0,0.03)] flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                   <QuantityStepper value={qty} onChange={setQty} max={maxStepperQty} disabled={!dish.chef.isAvailable || isOutOfStock} />
-                  <div className="text-right">
-                    <p className="text-[11px] text-gray-400 dark:text-neutral-455 font-bold uppercase tracking-wider">Total Price</p>
+                  <div className="text-end">
+                    <p className="text-[11px] text-gray-400 dark:text-neutral-455 font-bold uppercase tracking-wider">{dict.cart.totalPrice}</p>
                     <p className="text-[22px] font-black text-orange-600 leading-none mt-0.5">
-                      {totalPrice} <span className="text-[13px] font-extrabold font-black text-orange-600">MAD</span>
+                      {totalPrice} <span className="text-[13px] font-extrabold font-black text-orange-600">{dict.common.currency}</span>
                     </p>
                   </div>
                 </div>
 
                 {!dish.chef.isAvailable && (
                   <p className="text-[12px] font-medium text-muted-foreground text-center">
-                    This chef is temporarily not accepting new orders.
+                    {dict.dishDetail.actions.chefUnavailable}
                   </p>
                 )}
 
@@ -561,15 +580,15 @@ export default function DishDetailClient({
                     ].join(" ")}
                   >
                     {added ? (
-                      <><CheckCircle2 size={18} /> Added ✓</>
+                      <><CheckCircle2 size={18} /> {dict.dishDetail.actions.added}</>
                     ) : !dish.chef.isAvailable ? (
-                      "Chef Not Accepting Orders"
+                      dict.common.chefUnavailableShort
                     ) : !dish.isAvailable ? (
-                      "Sold Out"
+                      dict.common.soldOut
                     ) : isOutOfStock ? (
-                      "Max Quantity in Cart"
+                      dict.dishDetail.actions.maxInCart
                     ) : (
-                      <><ShoppingBag size={18} /> Add to Cart · {totalPrice} MAD</>
+                      <><ShoppingBag size={18} /> {dict.dishDetail.actions.addToCart.replace('{price}', totalPrice)}</>
                     )}
                   </button>
 
@@ -580,7 +599,7 @@ export default function DishDetailClient({
                     aria-label="View Cart"
                   >
                     <ShoppingBag size={16} />
-                    <span>Cart</span>
+                    <span>{dict.dishDetail.actions.cart}</span>
                     {cartCount > 0 && (
                       <span className="bg-orange-500 text-white font-extrabold text-[10px] min-w-[20px] h-[20px] px-1 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-neutral-900 animate-in zoom-in duration-200 ml-0.5">
                         {cartCount}
@@ -598,12 +617,12 @@ export default function DishDetailClient({
             
             <div className="h-px bg-gray-105 dark:bg-neutral-800" />
 
-            <div className="bg-white dark:bg-neutral-800 rounded-2xl p-5 border border-gray-100/80 dark:border-neutral-700 shadow-[0_2px_18px_rgba(0,0,0,0.03)]">
+            <div className="bg-white dark:bg-neutral-800 rounded-2xl p-5 border border-gray-100/80 dark:border-neutral-700 shadow-[0_2px_18px_rgba(0,0,0,0.03)] text-start">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h2 className="text-[15px] font-extrabold text-gray-900 dark:text-neutral-100">Reviews</h2>
+                  <h2 className="text-[15px] font-extrabold text-gray-900 dark:text-neutral-100">{dict.dishDetail.reviews}</h2>
                   <p className="text-[11px] text-gray-400 dark:text-neutral-400 mt-0.5">
-                    {dish.totalReviews.toLocaleString()} customer reviews
+                    {dict.dishDetail.customerReviews.replace('{count}', dish.totalReviews.toLocaleString())}
                   </p>
                 </div>
                 <div className="flex items-center gap-1">
@@ -619,7 +638,7 @@ export default function DishDetailClient({
                   </p>
                   <div className="flex justify-center mt-1.5"><Stars rating={dish.averageRating} size={10} /></div>
                   <p className="text-[9px] text-gray-400 mt-1 font-semibold uppercase tracking-wider">
-                    {dish.totalReviews} reviews
+                    {dict.dishDetail.stars.reviewsCount.replace('{count}', String(dish.totalReviews))}
                   </p>
                 </div>
                 <div className="flex-1 flex flex-col gap-1.5 justify-center">
@@ -631,7 +650,7 @@ export default function DishDetailClient({
 
               {reviews.length === 0 ? (
                 <p className="text-[13px] text-gray-500 dark:text-neutral-400 text-center py-4">
-                  No reviews yet.
+                  {dict.dishDetail.noReviews}
                 </p>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
@@ -645,9 +664,9 @@ export default function DishDetailClient({
                   className="mt-3 w-full flex items-center justify-center gap-1.5 py-2.5 rounded-2xl border border-orange-200 dark:border-orange-900/30 bg-orange-50 dark:bg-orange-950/20 transition-transform duration-150 active:scale-[0.98]"
                 >
                   <span className="text-[13px] font-bold text-orange-600 dark:text-orange-400">
-                    Show all {reviews.length} reviews
+                    {dict.dishDetail.stars.showAllReviews.replace('{count}', String(reviews.length))}
                   </span>
-                  <ChevronRight size={14} className="text-orange-500" />
+                  <ChevronRight size={14} className="text-orange-500 rtl:rotate-180" />
                 </button>
               )}
               {showAllReviews && reviews.length > REVIEWS_PREVIEW && (
@@ -655,23 +674,23 @@ export default function DishDetailClient({
                   onClick={() => setShowAllReviews(false)}
                   className="mt-3 w-full flex items-center justify-center gap-1.5 py-2.5 rounded-2xl border border-gray-200 dark:border-neutral-750 bg-gray-50 dark:bg-neutral-800 transition-transform duration-150 active:scale-[0.98]"
                 >
-                  <span className="text-[13px] font-bold text-gray-500 dark:text-neutral-400">Show less</span>
+                  <span className="text-[13px] font-bold text-gray-500 dark:text-neutral-400">{dict.dishDetail.stars.showLess}</span>
                 </button>
               )}
             </div>
 
             {related.length > 0 && (
-              <div className="border-t border-gray-100 dark:border-neutral-800 pt-6 pb-2">
+              <div className="border-t border-gray-100 dark:border-neutral-800 pt-6 pb-2 text-start">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h2 className="text-[15px] font-extrabold text-gray-900 dark:text-neutral-100">More like this</h2>
-                    <p className="text-[11px] text-gray-400 dark:text-neutral-400 mt-0.5">Similar dishes you might enjoy</p>
+                    <h2 className="text-[15px] font-extrabold text-gray-900 dark:text-neutral-100">{dict.dishDetail.related.title}</h2>
+                    <p className="text-[11px] text-gray-400 dark:text-neutral-400 mt-0.5">{dict.dishDetail.related.sub}</p>
                   </div>
                   <Link
                     href={`/dishes?category=${dish.category}`}
                     className="flex items-center gap-0.5 text-[12px] font-bold text-orange-500 transition-opacity active:opacity-60"
                   >
-                    See all <ChevronRight size={13} />
+                    {dict.dishDetail.related.seeAll} <ChevronRight size={13} className="rtl:rotate-180" />
                   </Link>
                 </div>
 

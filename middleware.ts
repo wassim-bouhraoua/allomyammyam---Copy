@@ -38,13 +38,33 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // ── Determine locale first ────────────────────────────────────────────────
+  let locale = request.cookies.get("user_locale")?.value;
+  if (!locale) {
+    const acceptLang = request.headers.get("accept-language") || "";
+    if (acceptLang.includes("ar")) {
+      locale = "ar";
+    } else if (acceptLang.includes("en")) {
+      locale = "en";
+    } else {
+      locale = "fr"; // Default to French
+    }
+  }
+
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-user-locale", locale);
+
   // ── Determine if route needs protection ──────────────────────────────────
   const needsAuth = PROTECTED_ROUTES.some((r) => pathname.startsWith(r));
   const needsChef = CHEF_ROUTES.some((r) => pathname.startsWith(r));
   const needsAdmin = ADMIN_ROUTES.some((r) => pathname.startsWith(r));
 
   if (!needsAuth && !needsChef && !needsAdmin) {
-    return NextResponse.next();
+    const response = NextResponse.next({ request: { headers: requestHeaders } });
+    if (!request.cookies.has("user_locale")) {
+      response.cookies.set("user_locale", locale, { path: "/", maxAge: 60 * 60 * 24 * 365 });
+    }
+    return response;
   }
 
   // ── Read cookie ───────────────────────────────────────────────────────────
@@ -86,10 +106,13 @@ export default function middleware(request: NextRequest) {
   }
 
   // ── Inject identity headers for Server Components and API routes ──────────
-  const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-user-id", String(payload.sub));
   requestHeaders.set("x-user-role", role);
   requestHeaders.set("x-chef-id", String(payload.chefId ?? ""));
 
-  return NextResponse.next({ request: { headers: requestHeaders } });
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
+  if (!request.cookies.has("user_locale")) {
+    response.cookies.set("user_locale", locale, { path: "/", maxAge: 60 * 60 * 24 * 365 });
+  }
+  return response;
 }

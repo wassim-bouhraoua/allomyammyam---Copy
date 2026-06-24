@@ -4,10 +4,12 @@ import { useState } from 'react';
 import { OrderStatus } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import { Loader2, CheckCircle2, XCircle, ChevronRight } from 'lucide-react';
+import { useTranslation } from '@/context/I18nContext';
 
 export function ActionButtons({ orderId, status }: { orderId: string; status: OrderStatus }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const { dict } = useTranslation();
 
   const handleAction = async (url: string, body?: any) => {
     if (loading) return;
@@ -22,11 +24,11 @@ export function ActionButtons({ orderId, status }: { orderId: string; status: Or
         router.refresh();
       } else {
         const errData = await res.json();
-        alert(`Error: ${errData.error || 'Action failed'}`);
+        alert(`${dict.common.errorTitle}: ${errData.error || dict.chefOrders.actionFailed}`);
       }
     } catch (err) {
       console.error(err);
-      alert('An unexpected error occurred.');
+      alert(dict.chefOrders.unexpectedError);
     } finally {
       setLoading(false);
     }
@@ -48,7 +50,7 @@ export function ActionButtons({ orderId, status }: { orderId: string; status: Or
     return (
       <div className="bg-secondary/40 border border-border rounded-2xl p-4 text-center">
         <p className="text-[12px] font-bold text-muted-foreground">
-          No further actions available for this order.
+          {dict.chefOrders.noActions}
         </p>
       </div>
     );
@@ -64,7 +66,7 @@ export function ActionButtons({ orderId, status }: { orderId: string; status: Or
           onClick={() => handleAction(`/api/chef/orders/${orderId}/accept`)}
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
-          Accept Order
+          {dict.chefOrders.actions.accept}
         </button>
       )}
 
@@ -76,7 +78,7 @@ export function ActionButtons({ orderId, status }: { orderId: string; status: Or
           onClick={() => handleAction(`/api/chef/orders/${orderId}/reject`)}
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : <XCircle size={14} />}
-          Reject Order
+          {dict.chefOrders.actions.reject}
         </button>
       )}
 
@@ -84,9 +86,7 @@ export function ActionButtons({ orderId, status }: { orderId: string; status: Or
       {transitions
         .filter((next) => next !== OrderStatus.CANCELLED && next !== OrderStatus.ACCEPTED)
         .map((next) => {
-          // Format label nicely
-          let nextLabel = next.replace(/_/g, ' ').toLowerCase();
-          nextLabel = nextLabel.charAt(0).toUpperCase() + nextLabel.slice(1);
+          const nextLabel = dict.orders.statuses[next] || next;
 
           return (
             <button
@@ -95,11 +95,12 @@ export function ActionButtons({ orderId, status }: { orderId: string; status: Or
               className="h-11 px-5 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-[13px] flex items-center justify-center gap-1.5 shadow-[0_4px_12px_rgba(255,138,0,0.25)] active:scale-[0.98] transition-all disabled:opacity-50"
               onClick={() => handleAction(`/api/chef/orders/${orderId}/status`, { status: next })}
             >
-              {loading ? <Loader2 size={14} className="animate-spin" /> : <ChevronRight size={14} />}
-              Mark as {nextLabel}
+              {loading ? <Loader2 size={14} className="animate-spin" /> : <ChevronRight size={14} className="rtl:rotate-180" />}
+              {dict.chefOrders.markAs.replace('{status}', nextLabel)}
             </button>
           );
         })}
     </div>
   );
 }
+
