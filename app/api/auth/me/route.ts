@@ -63,6 +63,18 @@ export async function GET() {
     ? (user.chefProfile?._count?.orders ?? 0)
     : (user._count?.orders ?? 0);
 
+  let pendingOrdersCount = 0;
+  if (user.role === "CHEF" && user.chefProfile) {
+    pendingOrdersCount = await prisma.order.count({
+      where: {
+        chefId: user.chefProfile.id,
+        status: {
+          notIn: ["DELIVERED", "CANCELLED"],
+        },
+      },
+    });
+  }
+
   return NextResponse.json({
     user: {
       id: user.id,
@@ -75,6 +87,7 @@ export async function GET() {
       city: user.city,
       createdAt: user.createdAt.toISOString(),
       ordersCount,
+      pendingOrdersCount,
       chefProfile: user.chefProfile
         ? {
             id: user.chefProfile.id,

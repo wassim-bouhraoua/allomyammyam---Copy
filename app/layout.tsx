@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { CartProvider } from "@/context/CartContext";
+import { LocationProvider } from "@/context/LocationContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,9 +34,11 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
           <AuthProvider>
-            <CartProvider>
-              {children}
-            </CartProvider>
+            <LocationProvider>
+              <CartProvider>
+                {children}
+              </CartProvider>
+            </LocationProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

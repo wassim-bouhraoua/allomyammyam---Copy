@@ -5,10 +5,12 @@ import { MapPin, ShoppingBag } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { getUserAvatarUrl } from "@/lib/defaults";
+import { useLocation } from "@/context/LocationContext";
 
 export default function MobileHeader() {
   const { user } = useAuth();
   const { cartCount } = useCart();
+  const { city, setIsModalOpen } = useLocation();
 
   // Determine initials and avatar dynamically from context
   const initials = user
@@ -27,10 +29,13 @@ export default function MobileHeader() {
       </Link>
 
       {/* Location */}
-      <button className="flex items-center gap-1">
+      <button
+        onClick={() => setIsModalOpen(true)}
+        className="flex items-center gap-1 hover:text-orange-500 active:scale-95 transition-all outline-none"
+      >
         <MapPin size={12} className="text-orange-500 flex-shrink-0" fill="currentColor" />
         <span className="text-[12px] font-bold text-foreground max-w-[100px] truncate">
-          Oujda
+          {city}
         </span>
       </button>
 

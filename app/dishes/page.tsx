@@ -4,11 +4,14 @@ import { getAvatarUrl, getDishImageUrl } from "@/lib/upload";
 import { getChefAvatarUrl } from "@/lib/defaults-server";
 import { getSession } from "@/lib/session";
 
+import { cookies } from "next/headers";
+
 export const dynamic = "force-dynamic";
 
 export default async function DishesPage() {
   const session = await getSession();
-  const userCity = session?.city;
+  const cookieStore = await cookies();
+  const userCity = session?.city || cookieStore.get("user_city")?.value || "Oujda";
 
   const dishes = await prisma.dish.findMany({
     where: {

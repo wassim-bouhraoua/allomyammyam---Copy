@@ -9,13 +9,16 @@ import ChefCard from "@/components/chef-card";
 import MobileHeader from "@/components/mobile-header";
 import DesktopNavLinks from "@/components/desktop-nav-links";
 
+import { cookies } from "next/headers";
+import LocationPill from "@/components/location-pill";
 import { prisma } from "@/lib/prisma";
 import { getAvatarUrl, getDishImageUrl } from "@/lib/upload";
 import { getSession } from "@/lib/session";
 
 export default async function HomePage() {
   const session = await getSession();
-  const userCity = session?.city;
+  const cookieStore = await cookies();
+  const userCity = session?.city || cookieStore.get("user_city")?.value || "Oujda";
 
   // Fetch approved chefs from database (Top Chefs / Booking Restaurant)
   const dbChefs = await prisma.chefProfile.findMany({
@@ -176,10 +179,7 @@ export default async function HomePage() {
           <DesktopNavLinks />
 
           {/* Location pill */}
-          <div className="flex items-center gap-2 px-4 py-3 bg-card rounded-2xl border border-border shadow-sm">
-            <MapPin size={13} className="text-orange-500 flex-shrink-0" fill="currentColor" />
-            <span className="text-[13px] font-bold text-foreground truncate">Oujda, Oriental</span>
-          </div>
+          <LocationPill />
         </aside>
 
         {/* ── Main content column ──────────────────────────────────────────── */}

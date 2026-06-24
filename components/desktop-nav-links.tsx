@@ -19,7 +19,16 @@ export default function DesktopNavLinks() {
   return (
     <nav className="flex flex-col gap-1">
       {links.map(({ label, href, badge }) => {
-        const isActive = pathname === href;
+        let isActive = false;
+        if (href === "/") {
+          isActive = pathname === "/";
+        } else if (href === "/profile/orders") {
+          isActive = pathname.startsWith("/profile/orders") || pathname.startsWith("/profile/chef-orders");
+        } else if (href === "/profile") {
+          isActive = pathname === "/profile" || pathname === "/profile/edit" || pathname.startsWith("/profile/dishes");
+        } else {
+          isActive = pathname === href || pathname.startsWith(href + "/");
+        }
         return (
           <Link
             key={href}

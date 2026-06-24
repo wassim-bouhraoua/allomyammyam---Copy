@@ -21,6 +21,7 @@ function serializeCartItem(item: any) {
       stockCount: item.dish.stockCount,
       chef: {
         displayName: item.dish.chef.displayName,
+        city: item.dish.chef.city,
       },
     },
   };
@@ -44,7 +45,7 @@ export async function GET() {
             dish: {
               include: {
                 chef: {
-                  select: { displayName: true },
+                  select: { displayName: true, city: true },
                 },
               },
             },

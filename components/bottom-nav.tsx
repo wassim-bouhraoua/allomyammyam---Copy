@@ -19,7 +19,16 @@ export default function BottomNav() {
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border">
       <div className="max-w-md mx-auto flex items-center justify-around h-[62px] px-4">
         {NAV_ITEMS.map(({ href, icon: Icon, label }) => {
-          const isActive = pathname === href;
+          let isActive = false;
+          if (href === "/") {
+            isActive = pathname === "/";
+          } else if (href === "/profile/orders") {
+            isActive = pathname.startsWith("/profile/orders") || pathname.startsWith("/profile/chef-orders");
+          } else if (href === "/profile") {
+            isActive = pathname === "/profile" || pathname === "/profile/edit" || pathname.startsWith("/profile/dishes");
+          } else {
+            isActive = pathname === href || pathname.startsWith(href + "/");
+          }
           return (
             <Link
               key={href}

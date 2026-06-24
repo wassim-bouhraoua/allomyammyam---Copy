@@ -1,25 +1,24 @@
-import { notFound, redirect } from "next/navigation";
-import { requireRole } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { OrderStatus } from "@prisma/client";
-import { ActionButtons } from "./action-buttons";
+import { getSession } from "@/lib/session";
 import Link from "next/link";
-import { ArrowLeft, User, Phone, MapPin, Calendar, Clock, CheckCircle2, Circle, Mail } from "lucide-react";
+import { notFound, redirect } from "next/navigation";
+import { ArrowLeft, MapPin, Calendar, CreditCard, ShoppingBag, User, CheckCircle2, Circle } from "lucide-react";
+import BackToHome from "@/components/auth/back-to-home";
 import { getDishImageUrl } from "@/lib/upload";
 
 export const dynamic = "force-dynamic";
 
 const STEPS = [
-  { key: "CREATED", label: "Received", desc: "Order request received" },
-  { key: "ACCEPTED", label: "Accepted", desc: "Chef confirmed order" },
-  { key: "PREPARING", label: "Preparing", desc: "Food is being cooked" },
-  { key: "READY", label: "Ready", desc: "Meal packed & ready" },
-  { key: "OUT_FOR_DELIVERY", label: "On the way", desc: "Out for delivery" },
-  { key: "DELIVERED", label: "Delivered", desc: "Delivered successfully" },
+  { key: "CREATED", label: "Received", desc: "We've received your order" },
+  { key: "ACCEPTED", label: "Accepted", desc: "Chef confirmed the order" },
+  { key: "PREPARING", label: "Preparing", desc: "Chef is preparing your food" },
+  { key: "READY", label: "Ready", desc: "Meal is packed and ready" },
+  { key: "OUT_FOR_DELIVERY", label: "On the way", desc: "Meal is out for delivery" },
+  { key: "DELIVERED", label: "Delivered", desc: "Order completed successfully" },
 ];
 
 const STATUS_LABELS: Record<string, string> = {
-  CREATED: "New Request",
+  CREATED: "Received",
   ACCEPTED: "Accepted",
   PREPARING: "Preparing",
   READY: "Ready",
@@ -38,26 +37,21 @@ const STATUS_COLORS: Record<string, string> = {
   CANCELLED: "bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border-red-100 dark:border-red-900/30",
 };
 
-export default async function ChefOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const session = await requireRole(["CHEF"]);
+export default async function OrderDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+  const session = await getSession();
 
-  const chefProfile = await prisma.chefProfile.findUnique({
-    where: { userId: session.id },
-  });
-  if (!chefProfile) {
-    notFound();
+  if (!session) {
+    redirect("/login");
   }
 
   const order = await prisma.order.findUnique({
-    where: { id },
+    where: { id: params.id },
     include: {
-      customer: {
+      chef: {
         select: {
-          firstName: true,
-          lastName: true,
-          email: true,
-          phoneNumber: true,
+          displayName: true,
+          city: true,
         },
       },
       orderItems: {
@@ -66,7 +60,6 @@ export default async function ChefOrderDetailPage({ params }: { params: Promise<
             select: {
               name: true,
               imageUrl: true,
-              price: true,
             },
           },
         },
@@ -74,8 +67,13 @@ export default async function ChefOrderDetailPage({ params }: { params: Promise<
     },
   });
 
-  if (!order || order.chefId !== chefProfile.id) {
+  if (!order) {
     notFound();
+  }
+
+  // Security check: ensure this order belongs to the logged-in user
+  if (order.userId !== session.id) {
+    redirect("/profile/orders");
   }
 
   const isCancelled = order.status === "CANCELLED";
@@ -93,64 +91,45 @@ export default async function ChefOrderDetailPage({ params }: { params: Promise<
   const deliveryFee = order.deliveryFee ? Number(order.deliveryFee) : 15;
   const totalAmount = Number(order.totalAmount);
 
-  const customerName = order.customer.firstName || order.customer.lastName
-    ? `${order.customer.firstName ?? ""} ${order.customer.lastName ?? ""}`.trim()
-    : order.customer.email;
-
   return (
     <div className="bg-background min-h-screen text-foreground">
       <div className="max-w-4xl mx-auto px-4 py-8 lg:px-6">
         
-        {/* Header navigation */}
+        {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <Link
-            href="/profile/chef-orders"
+            href="/profile/orders"
             className="w-10 h-10 rounded-2xl bg-card border border-border flex items-center justify-center active:scale-95 transition-transform"
-            aria-label="Back to dashboard"
+            aria-label="Back to Order History"
           >
             <ArrowLeft size={18} className="text-foreground" />
           </Link>
           <div>
-            <h1 className="text-[20px] lg:text-[24px] font-black tracking-tight">
-              Manage Order #{order.id.slice(-8).toUpperCase()}
+            <h1 className="text-[20px] lg:text-[24px] font-black tracking-tight flex items-center gap-2">
+              Order Details
             </h1>
             <p className="text-[12px] text-muted-foreground mt-0.5">
-              Review details and update order progression status
+              ID: #{order.id.toUpperCase()}
             </p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          {/* Left Column: Timeline and actions */}
+          {/* Left Column: Timeline & Delivery details */}
           <div className="lg:col-span-2 flex flex-col gap-6">
             
-            {/* Action buttons panel */}
+            {/* Status Card & Cancelled Info */}
             <div className="bg-card rounded-[28px] border border-border p-6 shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex flex-col gap-4">
-              <div>
-                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
-                  Order Progression Actions
-                </span>
-                <p className="text-[12px] text-muted-foreground mt-0.5">
-                  Update customer order status as you progress with preparation and delivery
-                </p>
-              </div>
-
-              {/* Action Buttons Component */}
-              <ActionButtons orderId={order.id} status={order.status as OrderStatus} />
-            </div>
-
-            {/* Status Timeline */}
-            <div className="bg-card rounded-[28px] border border-border p-6 shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex flex-col gap-4">
-              <div className="flex items-center justify-between border-b border-border pb-4 flex-wrap gap-2">
+              <div className="flex items-center justify-between border-b border-border pb-4">
                 <div>
-                  <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Current Status</p>
+                  <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Status</p>
                   <span className={`mt-1 inline-flex items-center px-3 py-1 rounded-full border text-[11px] font-extrabold uppercase tracking-wider ${STATUS_COLORS[order.status] || "bg-secondary text-muted-foreground"}`}>
                     {STATUS_LABELS[order.status] || order.status}
                   </span>
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Date Placed</p>
+                  <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Placed On</p>
                   <p className="text-[13px] font-bold text-foreground mt-1">{formattedDate}</p>
                 </div>
               </div>
@@ -161,14 +140,15 @@ export default async function ChefOrderDetailPage({ params }: { params: Promise<
                   <div>
                     <h4 className="text-[13px] font-black text-red-800 dark:text-red-400">Order Cancelled</h4>
                     <p className="text-[12px] text-red-600 dark:text-red-300 mt-1 leading-relaxed">
-                      {order.cancelReason ? `Reason: "${order.cancelReason}"` : "This order has been cancelled."}
+                      {order.cancelReason ? `Reason: "${order.cancelReason}"` : "This order was cancelled."}
                     </p>
                   </div>
                 </div>
               ) : (
+                /* Timeline Progress list */
                 <div className="flex flex-col gap-5 pt-2">
-                  <h3 className="text-[13px] font-black text-foreground uppercase tracking-widest pl-1">
-                    Visual Progress Timeline
+                  <h3 className="text-[14px] font-black text-foreground uppercase tracking-widest pl-1">
+                    Order Status Timeline
                   </h3>
                   
                   <div className="relative pl-7 flex flex-col gap-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-border">
@@ -178,6 +158,7 @@ export default async function ChefOrderDetailPage({ params }: { params: Promise<
 
                       return (
                         <div key={step.key} className="relative flex flex-col gap-0.5">
+                          {/* Bullet marker */}
                           <div className={`absolute -left-[27px] top-1.5 w-6 h-6 rounded-full flex items-center justify-center border transition-all ${
                             done 
                               ? "bg-orange-500 border-orange-500 text-white shadow-[0_2px_8px_rgba(255,138,0,0.3)]"
@@ -200,74 +181,60 @@ export default async function ChefOrderDetailPage({ params }: { params: Promise<
               )}
             </div>
 
-          </div>
-
-          {/* Right Column: Customer Details & Order items */}
-          <div className="flex flex-col gap-6">
-            
-            {/* Customer Details */}
-            <div className="bg-card rounded-[28px] border border-border p-5 shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex flex-col gap-4">
-              <h3 className="text-[13px] font-black text-foreground uppercase tracking-widest pl-0.5">
-                Customer Information
+            {/* Delivery address & Notes */}
+            <div className="bg-card rounded-[28px] border border-border p-6 shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex flex-col gap-4">
+              <h3 className="text-[14px] font-black text-foreground uppercase tracking-widest">
+                Delivery Details
               </h3>
-
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-3 bg-secondary/50 rounded-2xl px-4 py-3 border border-border">
-                  <User size={15} className="text-orange-500 flex-shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Name</p>
-                    <p className="text-[13px] font-semibold text-foreground truncate mt-0.5">{customerName}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 bg-secondary/50 rounded-2xl px-4 py-3 border border-border">
-                  <Mail size={15} className="text-orange-500 flex-shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Email</p>
-                    <p className="text-[13px] font-semibold text-foreground truncate mt-0.5">{order.customer.email}</p>
-                  </div>
-                </div>
-
-                {order.customer.phoneNumber && (
-                  <div className="flex items-center gap-3 bg-secondary/50 rounded-2xl px-4 py-3 border border-border">
-                    <Phone size={15} className="text-orange-500 flex-shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Phone Number</p>
-                      <p className="text-[13px] font-semibold text-foreground truncate mt-0.5">{order.customer.phoneNumber}</p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex items-start gap-3 bg-secondary/50 rounded-2xl px-4 py-3 border border-border">
-                  <MapPin size={15} className="text-orange-500 flex-shrink-0 mt-0.5" fill="currentColor" />
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Delivery Address</p>
-                    <p className="text-[13px] font-semibold text-foreground leading-relaxed mt-0.5">{order.deliveryAddress}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Customer Notes */}
-            {order.notes && (
-              <div className="bg-card rounded-[28px] border border-border p-5 shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex flex-col gap-4 text-left animate-in fade-in duration-200">
-                <h3 className="text-[13px] font-black text-foreground uppercase tracking-widest pl-0.5">
-                  Customer Notes
-                </h3>
-                <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 rounded-2xl p-4">
-                  <p className="text-[13px] text-foreground whitespace-pre-wrap leading-relaxed italic">
-                    &ldquo;{order.notes}&rdquo;
+              
+              <div className="flex items-start gap-3 bg-secondary/50 border border-border rounded-2xl p-4">
+                <MapPin size={18} className="text-orange-500 flex-shrink-0 mt-0.5" fill="currentColor" />
+                <div className="min-w-0">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Address</p>
+                  <p className="text-[13px] font-semibold text-foreground leading-relaxed mt-1">
+                    {order.deliveryAddress}
                   </p>
                 </div>
               </div>
-            )}
 
-            {/* Dishes summary */}
+              {order.notes && (
+                <div className="bg-secondary/35 border border-border rounded-2xl p-4">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Customer Notes</p>
+                  <p className="text-[13px] text-foreground italic mt-1 leading-relaxed">
+                    &ldquo;{order.notes}&rdquo;
+                  </p>
+                </div>
+              )}
+            </div>
+
+          </div>
+
+          {/* Right Column: Order items, subtotal & Chef summary */}
+          <div className="flex flex-col gap-6">
+            
+            {/* Chef info */}
+            <div className="bg-card rounded-[28px] border border-border p-5 shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center flex-shrink-0 shadow-[0_2px_8px_rgba(255,138,0,0.3)] text-[16px] font-black">
+                👨‍🍳
+              </div>
+              <div className="min-w-0 text-left">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Chef</p>
+                <p className="text-[14px] font-extrabold text-foreground truncate mt-0.5">
+                  {order.chef.displayName}
+                </p>
+                <p className="text-[11px] text-muted-foreground font-semibold">
+                  Serving in {order.chef.city}
+                </p>
+              </div>
+            </div>
+
+            {/* Items & Invoice summary */}
             <div className="bg-card rounded-[28px] border border-border p-5 shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex flex-col gap-4">
-              <h3 className="text-[13px] font-black text-foreground uppercase tracking-widest pl-0.5 border-b border-border pb-2.5">
-                Ordered Items
+              <h3 className="text-[13px] font-black text-foreground uppercase tracking-widest border-b border-border pb-2.5">
+                Ordered Dishes
               </h3>
 
+              {/* Items List */}
               <div className="flex flex-col gap-3">
                 {order.orderItems.map((item) => (
                   <div key={item.id} className="flex items-center gap-3">
@@ -309,7 +276,7 @@ export default async function ChefOrderDetailPage({ params }: { params: Promise<
                 </div>
                 
                 <div className="flex justify-between border-t border-border pt-3 mt-1">
-                  <span className="font-bold text-foreground">Total payout</span>
+                  <span className="font-bold text-foreground">Total</span>
                   <span className="text-[18px] font-black text-orange-600 tabular-nums">
                     {totalAmount.toLocaleString("fr-MA")} MAD
                   </span>
@@ -317,12 +284,12 @@ export default async function ChefOrderDetailPage({ params }: { params: Promise<
               </div>
             </div>
 
-            {/* Back button */}
+            {/* View History Button */}
             <Link
-              href="/profile/chef-orders"
+              href="/profile/orders"
               className="w-full h-11 rounded-2xl bg-secondary border border-border text-foreground font-extrabold text-[13px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all hover:bg-secondary/80"
             >
-              Back to Orders Dashboard
+              Back to Order History
             </Link>
 
           </div>

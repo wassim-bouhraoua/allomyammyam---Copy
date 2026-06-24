@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   Mail, Phone, ShieldCheck, ChefHat,
   LogOut, LogIn, UserPlus, Loader2, User, Pencil,
-  Sun, Moon, Laptop, MapPin,
+  Sun, Moon, Laptop, MapPin, ShoppingBag,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -194,10 +194,25 @@ export default function ProfilePage() {
               </Link>
 
               {user.role === "CHEF" && (
-                <Link href="/profile/dishes"
+                <>
+                  <Link href="/profile/dishes"
+                    className="w-full h-12 rounded-2xl border border-orange-100 dark:border-orange-900/30 bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 font-extrabold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-orange-100/80 dark:hover:bg-orange-900/40 shadow-[0_2px_10px_rgba(255,138,0,0.1)]">
+                    <ChefHat size={15} />
+                    My Dishes
+                  </Link>
+                  <Link href="/profile/chef-orders"
+                    className="w-full h-12 rounded-2xl border border-orange-100 dark:border-orange-900/30 bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 font-extrabold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-orange-100/80 dark:hover:bg-orange-900/40 shadow-[0_2px_10px_rgba(255,138,0,0.1)]">
+                    <ShoppingBag size={15} />
+                    Orders Dashboard
+                  </Link>
+                </>
+              )}
+
+              {user.role === "USER" && (
+                <Link href="/profile/orders"
                   className="w-full h-12 rounded-2xl border border-orange-100 dark:border-orange-900/30 bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 font-extrabold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-orange-100/80 dark:hover:bg-orange-900/40 shadow-[0_2px_10px_rgba(255,138,0,0.1)]">
-                  <ChefHat size={15} />
-                  My Dishes
+                  <ShoppingBag size={15} />
+                  My Orders
                 </Link>
               )}
 
@@ -221,6 +236,35 @@ export default function ProfilePage() {
           {/* Right Column (Content Cards) */}
           <div className="flex-1 flex flex-col gap-4">
             
+            {user.role === "CHEF" && (user as any).pendingOrdersCount !== undefined && (user as any).pendingOrdersCount > 0 && (
+              <div className="flex flex-col gap-2">
+                <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider mb-1 pl-1">
+                  Active Tasks
+                </p>
+                <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-900/45 rounded-3xl p-5 shadow-[0_4px_20px_rgba(255,138,0,0.08)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-orange-500 text-white flex items-center justify-center flex-shrink-0 shadow-[0_4px_12px_rgba(255,138,0,0.3)]">
+                      <ShoppingBag size={20} />
+                    </div>
+                    <div className="text-left">
+                      <h3 className="text-[15px] font-black text-foreground">
+                        Pending Orders: {(user as any).pendingOrdersCount}
+                      </h3>
+                      <p className="text-[12px] text-muted-foreground mt-0.5">
+                        You have orders waiting for action or delivery.
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/profile/chef-orders"
+                    className="h-10 px-5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-[12px] flex items-center justify-center gap-1.5 shadow-[0_2px_8px_rgba(255,138,0,0.2)] active:scale-[0.98] transition-all self-start sm:self-auto"
+                  >
+                    Manage Orders
+                  </Link>
+                </div>
+              </div>
+            )}
+
             {/* Account Details */}
             <div className="flex flex-col gap-2">
               <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider mb-1 pl-1">

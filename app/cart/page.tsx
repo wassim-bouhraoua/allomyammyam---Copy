@@ -7,6 +7,7 @@ import { useCart, CartItem } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import BottomNav from "@/components/bottom-nav";
 import DesktopNavLinks from "@/components/desktop-nav-links";
+import LocationPill from "@/components/location-pill";
 
 export default function CartPage() {
   const { user } = useAuth();
@@ -89,10 +90,7 @@ export default function CartPage() {
           <DesktopNavLinks />
 
           {/* Location pill */}
-          <div className="flex items-center gap-2 px-4 py-3 bg-card rounded-2xl border border-border shadow-sm">
-            <MapPin size={13} className="text-orange-500 flex-shrink-0" fill="currentColor" />
-            <span className="text-[13px] font-bold text-foreground truncate">Oujda, Oriental</span>
-          </div>
+          <LocationPill />
         </aside>
 
         {/* ── Main Column ── */}
