@@ -57,6 +57,7 @@ export default async function OrdersPage() {
       orderItems: {
         include: {
           dish: { select: { name: true } },
+          dishReview: true,
         },
       },
     },
@@ -150,6 +151,19 @@ export default async function OrdersPage() {
                       <span className="text-orange-600 font-extrabold">
                         {Number(o.totalAmount).toLocaleString("fr-MA")} MAD
                       </span>
+                      {o.status === "DELIVERED" && (() => {
+                        const reviewedCount = o.orderItems.filter(item => item.dishReview).length;
+                        const totalItemsCount = o.orderItems.length;
+                        if (reviewedCount === 0) return null;
+                        return (
+                          <>
+                            <span className="w-1.5 h-1.5 rounded-full bg-border" />
+                            <span className="text-amber-500 font-extrabold flex items-center gap-1 animate-in fade-in duration-200">
+                              ⭐ {reviewedCount === totalItemsCount ? "Reviewed" : "Partially Reviewed"}
+                            </span>
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
 

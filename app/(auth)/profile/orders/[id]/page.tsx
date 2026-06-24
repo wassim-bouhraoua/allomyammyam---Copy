@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, MapPin, Calendar, CreditCard, ShoppingBag, User, CheckCircle2, Circle } from "lucide-react";
 import BackToHome from "@/components/auth/back-to-home";
 import { getDishImageUrl } from "@/lib/upload";
+import ReviewModalButton from "@/components/review-modal-button";
 
 export const dynamic = "force-dynamic";
 
@@ -60,8 +61,14 @@ export default async function OrderDetailPage(props: { params: Promise<{ id: str
             select: {
               name: true,
               imageUrl: true,
+              chef: {
+                select: {
+                  userId: true,
+                },
+              },
             },
           },
+          dishReview: true,
         },
       },
     },
@@ -257,9 +264,19 @@ export default async function OrderDetailPage(props: { params: Promise<{ id: str
                         {item.quantity} x {Number(item.unitPrice).toFixed(0)} MAD
                       </p>
                     </div>
-                    <span className="text-[13px] font-bold text-foreground tabular-nums flex-shrink-0">
-                      {Number(item.totalPrice).toFixed(0)} MAD
-                    </span>
+                    <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                      <span className="text-[13px] font-bold text-foreground tabular-nums">
+                        {Number(item.totalPrice).toFixed(0)} MAD
+                      </span>
+                      {order.status === "DELIVERED" && item.dish.chef.userId !== session.id && (
+                        <ReviewModalButton
+                          orderItemId={item.id}
+                          dishName={item.dishName}
+                          initialRating={(item as any).dishReview?.rating}
+                          initialComment={(item as any).dishReview?.comment || undefined}
+                        />
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

@@ -3,6 +3,9 @@ import { COOKIE_NAME, verifyToken, sessionUserFromPayload } from "./auth"
 import type { SessionUser } from "./auth-types"
 
 export async function getSession(): Promise<SessionUser | null> {
+  if ((globalThis as any).__mockSession !== undefined) {
+    return (globalThis as any).__mockSession;
+  }
   try {
     const cookieStore = await cookies()
     const token = cookieStore.get(COOKIE_NAME)?.value

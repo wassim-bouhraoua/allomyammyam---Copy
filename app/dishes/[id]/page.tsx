@@ -110,5 +110,35 @@ export default async function DishDetailPage({ params }: { params: Promise<{ id:
     },
   }));
 
-  return <DishDetailClient dish={detailDish} related={exploreRelated} />;
+  const dbReviews = await prisma.dishReview.findMany({
+    where: {
+      orderItem: {
+        dishId: id,
+      },
+    },
+    include: {
+      user: {
+        select: {
+          firstName: true,
+          lastName: true,
+          avatar: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  const reviews = dbReviews.map((r) => ({
+    id: r.id,
+    authorName: `${r.user.firstName} ${r.user.lastName ? r.user.lastName[0] + "." : ""}`,
+    initial: r.user.firstName?.[0]?.toUpperCase() || "U",
+    rating: r.rating,
+    comment: r.comment || "",
+    date: r.createdAt.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }),
+    verifiedOrder: true,
+  }));
+
+  return <DishDetailClient dish={detailDish} related={exploreRelated} reviews={reviews} />;
 }

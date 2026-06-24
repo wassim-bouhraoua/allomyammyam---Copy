@@ -74,45 +74,6 @@ interface Review {
   verifiedOrder: boolean;
 }
 
-const MOCK_REVIEWS: Review[] = [
-  {
-    id: "r1",
-    authorName: "Yasmine B.",
-    initial: "Y",
-    rating: 5,
-    comment: "Arrived hot and well packed. The taste was exactly like home cooking — generous portion too.",
-    date: "2 days ago",
-    verifiedOrder: true,
-  },
-  {
-    id: "r2",
-    authorName: "Mehdi A.",
-    initial: "M",
-    rating: 5,
-    comment: "Very authentic taste. Packaging was clean and sealed. Will definitely order again.",
-    date: "5 days ago",
-    verifiedOrder: true,
-  },
-  {
-    id: "r3",
-    authorName: "Salma R.",
-    initial: "S",
-    rating: 4,
-    comment: "Portion size was generous and the seasoning was spot on. Delivery was on time.",
-    date: "1 week ago",
-    verifiedOrder: true,
-  },
-  {
-    id: "r4",
-    authorName: "Kamal H.",
-    initial: "K",
-    rating: 4,
-    comment: "Great for a home-style meal. The sauce had real depth — nothing like restaurant shortcuts.",
-    date: "2 weeks ago",
-    verifiedOrder: false,
-  },
-];
-
 const REVIEWS_PREVIEW = 2;
 
 function relevanceScore(
@@ -352,7 +313,15 @@ function RatingBar({ label, pct }: { label: string; pct: number }) {
   );
 }
 
-export default function DishDetailClient({ dish, related }: { dish: DetailDish; related: any[] }) {
+export default function DishDetailClient({
+  dish,
+  related,
+  reviews = [],
+}: {
+  dish: DetailDish;
+  related: any[];
+  reviews?: Review[];
+}) {
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const [showAllReviews, setShowAllReviews] = useState(false);
@@ -428,8 +397,21 @@ export default function DishDetailClient({ dish, related }: { dish: DetailDish; 
       ? `${dish.stockCount} portions available`
       : "Available today";
 
-  const dist = ratingDistribution(dish.averageRating);
-  const visibleReviews = showAllReviews ? MOCK_REVIEWS : MOCK_REVIEWS.slice(0, REVIEWS_PREVIEW);
+  const dist: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+  if (reviews.length > 0) {
+    reviews.forEach((r) => {
+      const star = Math.round(r.rating);
+      if (star >= 1 && star <= 5) {
+        dist[star] = (dist[star] || 0) + 1;
+      }
+    });
+    // Convert counts to percentages
+    [5, 4, 3, 2, 1].forEach((star) => {
+      dist[star] = Math.round((dist[star] / reviews.length) * 100);
+    });
+  }
+
+  const visibleReviews = showAllReviews ? reviews : reviews.slice(0, REVIEWS_PREVIEW);
 
   return (
     <div className="bg-background min-h-screen flex justify-center py-0 lg:py-12">
@@ -647,22 +629,28 @@ export default function DishDetailClient({ dish, related }: { dish: DetailDish; 
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                {visibleReviews.map((r) => <ReviewCard key={r.id} review={r} />)}
-              </div>
+              {reviews.length === 0 ? (
+                <p className="text-[13px] text-gray-500 dark:text-neutral-400 text-center py-4">
+                  No reviews yet.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  {visibleReviews.map((r) => <ReviewCard key={r.id} review={r} />)}
+                </div>
+              )}
 
-              {!showAllReviews && MOCK_REVIEWS.length > REVIEWS_PREVIEW && (
+              {!showAllReviews && reviews.length > REVIEWS_PREVIEW && (
                 <button
                   onClick={() => setShowAllReviews(true)}
                   className="mt-3 w-full flex items-center justify-center gap-1.5 py-2.5 rounded-2xl border border-orange-200 dark:border-orange-900/30 bg-orange-50 dark:bg-orange-950/20 transition-transform duration-150 active:scale-[0.98]"
                 >
                   <span className="text-[13px] font-bold text-orange-600 dark:text-orange-400">
-                    Show all {MOCK_REVIEWS.length} reviews
+                    Show all {reviews.length} reviews
                   </span>
                   <ChevronRight size={14} className="text-orange-500" />
                 </button>
               )}
-              {showAllReviews && (
+              {showAllReviews && reviews.length > REVIEWS_PREVIEW && (
                 <button
                   onClick={() => setShowAllReviews(false)}
                   className="mt-3 w-full flex items-center justify-center gap-1.5 py-2.5 rounded-2xl border border-gray-200 dark:border-neutral-750 bg-gray-50 dark:bg-neutral-800 transition-transform duration-150 active:scale-[0.98]"
