@@ -11,13 +11,10 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import BackToHome from "@/components/auth/back-to-home";
-import { getChefBannerUrl, getChefAvatarUrl, getUserAvatarUrl, getUserBannerUrl } from "@/lib/defaults";
+import { getUserAvatarUrl, getUserBannerUrl } from "@/lib/defaults";
 import LanguageSwitcher from "@/components/language-switcher";
 import { useTranslation } from "@/context/I18nContext";
-
-const ROLE_LABELS: Record<string, string> = {
-  USER: "Customer", CHEF: "Chef", ADMIN: "Administrator",
-};
+import { getLocalizedBio } from "@/lib/i18n";
 
 const ROLE_COLORS: Record<string, string> = {
   USER:  "bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-900/30",
@@ -421,10 +418,12 @@ export default function ProfilePage() {
                     </div>
                   )}
 
-                  {user.chefProfile.bio && (
+                  {getLocalizedBio(user.chefProfile, locale) && (
                     <div>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">{dict.profile.chefDetails.bio}</p>
-                      <p className="text-[13px] text-foreground mt-0.5 whitespace-pre-wrap leading-relaxed">{user.chefProfile.bio}</p>
+                      <p className="text-[13px] text-foreground mt-0.5 whitespace-pre-wrap leading-relaxed">
+                        {getLocalizedBio(user.chefProfile, locale)}
+                      </p>
                     </div>
                   )}
 

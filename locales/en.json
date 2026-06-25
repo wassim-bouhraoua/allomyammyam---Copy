@@ -29,8 +29,8 @@
   "home": {
     "searchPlaceholder": "Search dishes or chefs...",
     "topChefs": "Top Chefs",
-    "newToday": "New Today Arrivals",
-    "newTodaySub": "Fresh dishes added today",
+    "newToday": "New Arrivals",
+    "newTodaySub": "Freshly prepared by our chefs",
     "topRated": "Top Rated",
     "topRatedSub": "Highest rated dishes on the platform",
     "bookingRestaurant": "Booking Restaurant",
@@ -617,5 +617,21 @@
       "success": "Review submitted successfully!",
       "failed": "Failed to submit review."
     }
+  },
+  "chefProfilePublic": {
+    "aboutChef": "About Chef {name}",
+    "noBio": "No bio available for this chef yet.",
+    "reviews": "Reviews",
+    "rating": "Rating",
+    "dishes": "Dishes",
+    "specialties": "Specialties",
+    "since": "Since {date}",
+    "menuDishes": "Menu Dishes",
+    "dishesCount_one": "{count} dish",
+    "dishesCount_other": "{count} dishes",
+    "noDishesAvailable": "No dishes available",
+    "noDishesAvailableSub": "This chef has not posted any dishes yet.",
+    "currentlyOffline": "Currently Not Accepting Orders",
+    "offlineDesc": "This chef is offline. You can still browse the menu, but placing orders is temporarily disabled."
   }
 }

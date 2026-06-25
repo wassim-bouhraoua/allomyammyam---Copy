@@ -157,7 +157,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
           const nearest = getNearestCity(latitude, longitude);
           await setCity(nearest);
           setIsModalOpen(false);
-        } catch (err) {
+        } catch {
           setGeoError('Failed to resolve nearest city.');
         } finally {
           setGeoLoading(false);

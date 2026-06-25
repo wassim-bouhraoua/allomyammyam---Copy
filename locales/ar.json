@@ -29,8 +29,8 @@
   "home": {
     "searchPlaceholder": "البحث عن أطباق أو طهاة...",
     "topChefs": "أفضل الطهاة",
-    "newToday": "جديد اليوم",
-    "newTodaySub": "أطباق طازجة أضيفت اليوم",
+    "newToday": "أطباق جديدة",
+    "newTodaySub": "محضرة طازجة من قبل طهاتنا",
     "topRated": "الأعلى تقييماً",
     "topRatedSub": "الأطباق الأعلى تقييماً على المنصة",
     "bookingRestaurant": "حجز مطعم",
@@ -617,5 +617,21 @@
       "success": "تم إرسال التقييم بنجاح!",
       "failed": "فشل إرسال التقييم."
     }
+  },
+  "chefProfilePublic": {
+    "aboutChef": "حول الطاهي {name}",
+    "noBio": "لا توجد سيرة ذاتية متاحة لهذا الطاهي بعد.",
+    "reviews": "التقييمات",
+    "rating": "التقييم",
+    "dishes": "الأطباق",
+    "specialties": "التخصصات",
+    "since": "منذ {date}",
+    "menuDishes": "أطباق القائمة",
+    "dishesCount_one": "طبق واحد",
+    "dishesCount_other": "{count} أطباق",
+    "noDishesAvailable": "لا توجد أطباق متاحة",
+    "noDishesAvailableSub": "لم ينشر هذا الطاهي أي أطباق بعد.",
+    "currentlyOffline": "لا يستقبل طلبات حالياً",
+    "offlineDesc": "هذا الطاهي غير متصل. يمكنك تصفح القائمة ولكن تقديم الطلبات معطل مؤقتاً."
   }
 }

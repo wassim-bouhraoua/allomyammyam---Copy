@@ -1,7 +1,6 @@
 // app/api/chef/orders/[id]/route.ts
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { OrderStatus } from '@prisma/client';
 import { requireRole } from '@/lib/session';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {

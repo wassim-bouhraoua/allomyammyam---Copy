@@ -1,10 +1,10 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { OrderStatus } from "@prisma/client";
 import { ActionButtons } from "./action-buttons";
 import Link from "next/link";
-import { ArrowLeft, User, Phone, MapPin, Calendar, Clock, CheckCircle2, Circle, Mail } from "lucide-react";
+import { ArrowLeft, User, Phone, MapPin, CheckCircle2, Circle, Mail } from "lucide-react";
 import { getDishImageUrl } from "@/lib/upload";
 import { cookies } from "next/headers";
 import { getDictionary, getLocalizedOrderItemName } from "@/lib/i18n";

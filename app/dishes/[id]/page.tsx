@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import DishDetailClient from "./dish-detail-client";
-import { getAvatarUrl, getDishImageUrl } from "@/lib/upload";
+import { getDishImageUrl } from "@/lib/upload";
 import { getChefBannerUrl, getChefAvatarUrl } from "@/lib/defaults-server";
 
 export const dynamic = "force-dynamic";

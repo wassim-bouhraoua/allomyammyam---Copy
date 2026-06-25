@@ -2,9 +2,9 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { getSession } from "@/lib/session";
 import Link from "next/link";
-import { Check, Calendar, ShoppingBag, ArrowRight, Home, ChefHat, MapPin } from "lucide-react";
+import { Check, ShoppingBag, ArrowRight, Home, MapPin } from "lucide-react";
 import { cookies } from "next/headers";
-import { getDictionary } from "@/lib/i18n";
+import { getDictionary, getLocalizedOrderItemName } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -37,9 +37,6 @@ export default async function ConfirmationPage({ searchParams }: { searchParams:
   if (orders.length !== ids.length || orders.length === 0) {
     notFound();
   }
-
-  // Use the first order's general info for display consistency
-  const primaryOrder = orders[0];
 
   return (
     <div className="bg-background min-h-screen text-foreground py-10 px-4">
@@ -128,7 +125,7 @@ export default async function ConfirmationPage({ searchParams }: { searchParams:
                     <div key={item.id} className="flex justify-between items-center text-[13px]">
                       <span className="text-muted-foreground truncate flex-1 pr-4">
                         <span className="font-bold text-foreground mr-1.5">{item.quantity}x</span>
-                        {item.dishName}
+                        {getLocalizedOrderItemName(item, locale)}
                       </span>
                       <span className="font-semibold text-foreground tabular-nums">
                         {Number(item.totalPrice).toLocaleString(locale === "ar" ? "ar-MA" : "fr-MA")} {dict.common.currency}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ShoppingBag, MapPin, AlertCircle, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import BackToHome from '@/components/auth/back-to-home';
 import { useTranslation } from '@/context/I18nContext';
@@ -113,7 +113,6 @@ export default function CheckoutPage() {
   const customerCity = user?.city;
 
   // Find if there is any city mismatch
-  let mismatchChefName = '';
   let mismatchChefCity = '';
   let isCityMismatch = false;
 
@@ -121,7 +120,6 @@ export default function CheckoutPage() {
     const chef = chefItems[0].dish.chef;
     if (chef.city !== customerCity) {
       isCityMismatch = true;
-      mismatchChefName = chef.displayName;
       mismatchChefCity = chef.city;
       break;
     }

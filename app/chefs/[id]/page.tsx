@@ -8,7 +8,7 @@ import DishCard from "@/components/dish-card";
 import { getDishImageUrl } from "@/lib/upload";
 import { getChefBannerUrl, getChefAvatarUrl } from "@/lib/defaults-server";
 import { cookies } from "next/headers";
-import { getLocalizedBio } from "@/lib/i18n";
+import { getDictionary, getLocalizedBio } from "@/lib/i18n";
 
 interface ResolvedChef {
   id: string;
@@ -31,6 +31,7 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
   const { id } = await params;
   const cookieStore = await cookies();
   const locale = cookieStore.get("user_locale")?.value || "fr";
+  const dict = getDictionary(locale);
 
   let chef: ResolvedChef | null = null;
   let chefDishes: any[] = [];
@@ -102,7 +103,7 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
   }
 
   const rating = chef.averageRating.toFixed(1);
-  const formattedDate = new Date(chef.createdAt).toLocaleDateString("en-US", {
+  const formattedDate = new Date(chef.createdAt).toLocaleDateString(locale, {
     year: "numeric",
     month: "long",
   });
@@ -193,7 +194,7 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
                   <span className="w-1.5 h-1.5 rounded-full bg-border" />
                   <div className="flex items-center gap-1">
                     <Calendar size={13} className="text-muted-foreground" />
-                    <span>Since {formattedDate}</span>
+                    <span>{dict.chefProfilePublic.since.replace("{date}", formattedDate)}</span>
                   </div>
                 </div>
 
@@ -201,7 +202,7 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
                 {chef.specialties.length > 0 && (
                   <div className="w-full">
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2 text-center lg:text-left">
-                      Specialties
+                      {dict.chefProfilePublic.specialties}
                     </p>
                     <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
                       {chef.specialties.map((s) => (
@@ -224,7 +225,7 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
                 {/* About Chef section */}
                 <div>
                   <h2 className="text-[16px] lg:text-[18px] font-extrabold text-foreground tracking-tight mb-3">
-                    About Chef {chef.displayName.replace(/^chef\s+/i, "")}
+                    {dict.chefProfilePublic.aboutChef.replace("{name}", chef.displayName.replace(/^chef\s+/i, ""))}
                   </h2>
                   {chef.bio ? (
                     <p className="text-[14px] text-muted-foreground leading-relaxed whitespace-pre-wrap">
@@ -232,7 +233,7 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
                     </p>
                   ) : (
                     <p className="text-[13px] text-muted-foreground italic">
-                      No bio available for this chef yet.
+                      {dict.chefProfilePublic.noBio}
                     </p>
                   )}
                 </div>
@@ -244,7 +245,7 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
                       {chefDishes.length}
                     </span>
                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mt-0.5">
-                      Dishes
+                      {dict.chefProfilePublic.dishes}
                     </span>
                   </div>
                   
@@ -254,7 +255,7 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
                       <Star size={14} className="text-amber-400 fill-amber-400" />
                     </span>
                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mt-0.5">
-                      Rating
+                      {dict.chefProfilePublic.rating}
                     </span>
                   </div>
 
@@ -263,7 +264,7 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
                       {chef.totalReviews}
                     </span>
                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mt-0.5">
-                      Reviews
+                      {dict.chefProfilePublic.reviews}
                     </span>
                   </div>
                 </div>
@@ -280,8 +281,8 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
             <div className="flex items-center gap-3 bg-secondary/80 border border-border rounded-2xl p-4 text-muted-foreground shadow-sm">
               <AlertCircle size={20} className="text-muted-foreground flex-shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-bold text-foreground">Currently Not Accepting Orders</p>
-                <p className="text-[12px] mt-0.5">This chef is offline. You can still browse the menu, but placing orders is temporarily disabled.</p>
+                <p className="text-sm font-bold text-foreground">{dict.chefProfilePublic.currentlyOffline}</p>
+                <p className="text-[12px] mt-0.5">{dict.chefProfilePublic.offlineDesc}</p>
               </div>
             </div>
           </div>
@@ -291,10 +292,12 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
         <div className="px-4 lg:px-8 mt-8 pb-6 flex flex-col gap-4">
           <div className="flex items-center justify-between pl-1">
             <h2 className="text-[18px] lg:text-[20px] font-black text-foreground tracking-tight">
-              Menu Dishes
+              {dict.chefProfilePublic.menuDishes}
             </h2>
             <span className="text-[11px] font-extrabold bg-orange-100 dark:bg-orange-950/30 text-orange-600 dark:text-orange-400 px-2.5 py-1 rounded-full uppercase tracking-wider">
-              {chefDishes.length} {chefDishes.length === 1 ? "dish" : "dishes"}
+              {chefDishes.length === 1 
+                ? dict.chefProfilePublic.dishesCount_one.replace("{count}", String(chefDishes.length))
+                : dict.chefProfilePublic.dishesCount_other.replace("{count}", String(chefDishes.length))}
             </span>
           </div>
 
@@ -307,9 +310,9 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
           ) : (
             <div className="flex flex-col items-center justify-center py-16 px-6 bg-card border border-border rounded-3xl shadow-sm text-center">
               <AlertCircle size={32} className="text-muted-foreground/50 mb-3" />
-              <p className="text-[14px] font-extrabold text-foreground">No dishes available</p>
+              <p className="text-[14px] font-extrabold text-foreground">{dict.chefProfilePublic.noDishesAvailable}</p>
               <p className="text-[12px] text-muted-foreground mt-1 max-w-[240px]">
-                This chef has not posted any dishes yet.
+                {dict.chefProfilePublic.noDishesAvailableSub}
               </p>
             </div>
           )}

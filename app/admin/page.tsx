@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Loader2, ShieldCheck, UserCheck, UserX, Clock } from "lucide-react";
@@ -48,7 +48,7 @@ export default function AdminDashboardPage() {
   }, [user, authLoading, router]);
 
   // Fetch chefs list
-  const fetchChefs = async () => {
+  const fetchChefs = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -65,13 +65,13 @@ export default function AdminDashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dict.admin.loadFailed, dict.admin.connError]);
 
   useEffect(() => {
     if (user && user.role === "ADMIN") {
       fetchChefs();
     }
-  }, [user]);
+  }, [user, fetchChefs]);
 
   // Update Status
   const handleUpdateStatus = async (chefProfileId: string, newStatus: "APPROVED" | "SUSPENDED" | "PENDING") => {

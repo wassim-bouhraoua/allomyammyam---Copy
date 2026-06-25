@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Globe, ChevronDown, Check } from 'lucide-react';
+import { useTranslation } from '@/context/I18nContext';
 
 const LANGUAGES = [
   { code: 'fr', label: 'Français' },
@@ -12,17 +13,9 @@ const LANGUAGES = [
 
 export default function LanguageSwitcher() {
   const router = useRouter();
-  const [currentLocale, setCurrentLocale] = useState('fr');
+  const { locale } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Read user_locale cookie client-side
-    const match = document.cookie.match(/user_locale=([^;]+)/);
-    if (match) {
-      setCurrentLocale(match[1]);
-    }
-  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -38,15 +31,14 @@ export default function LanguageSwitcher() {
     };
   }, [isOpen]);
 
-  const handleChangeLocale = (locale: string) => {
-    document.cookie = `user_locale=${locale}; path=/; max-age=${60 * 60 * 24 * 365}`;
-    setCurrentLocale(locale);
+  const handleChangeLocale = (newLocale: string) => {
+    document.cookie = `user_locale=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}`;
     setIsOpen(false);
     // Refresh page components on the server to update the layout and static dictionaries
     router.refresh();
   };
 
-  const currentLang = LANGUAGES.find((lang) => lang.code === currentLocale) || LANGUAGES[0];
+  const currentLang = LANGUAGES.find((lang) => lang.code === locale) || LANGUAGES[0];
 
   return (
     <div className="relative w-full text-start" ref={dropdownRef}>
@@ -70,7 +62,7 @@ export default function LanguageSwitcher() {
       {isOpen && (
         <div className="absolute z-50 top-full mt-2 start-0 end-0 bg-card dark:bg-neutral-900 border border-border rounded-2xl shadow-xl overflow-hidden py-1.5 animate-in fade-in slide-in-from-top-2 duration-150">
           {LANGUAGES.map((lang) => {
-            const isSelected = lang.code === currentLocale;
+            const isSelected = lang.code === locale;
             return (
               <button
                 key={lang.code}

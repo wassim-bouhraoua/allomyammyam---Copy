@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowLeft, Trash2, ShoppingBag, Plus, Minus, AlertCircle, MapPin } from "lucide-react";
+import { ArrowLeft, Trash2, ShoppingBag, Plus, Minus, AlertCircle } from "lucide-react";
 import { useCart, CartItem } from "@/context/CartContext";
-import { useAuth } from "@/context/AuthContext";
 import BottomNav from "@/components/bottom-nav";
 import DesktopNavLinks from "@/components/desktop-nav-links";
 import LocationPill from "@/components/location-pill";
@@ -13,7 +12,6 @@ import { useTranslation } from "@/context/I18nContext";
 import { getLocalizedName } from "@/lib/i18n";
 
 export default function CartPage() {
-  const { user } = useAuth();
   const { dict, locale } = useTranslation();
   const { cartItems, cartCount, loading, updateQuantity, removeFromCart } = useCart();
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);

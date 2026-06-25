@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import DishesClient from "./dishes-client";
-import { getAvatarUrl, getDishImageUrl } from "@/lib/upload";
+import { getDishImageUrl } from "@/lib/upload";
 import { getChefAvatarUrl } from "@/lib/defaults-server";
 import { getSession } from "@/lib/session";
 

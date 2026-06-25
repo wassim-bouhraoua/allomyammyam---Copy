@@ -29,8 +29,8 @@
   "home": {
     "searchPlaceholder": "Rechercher des plats ou des chefs...",
     "topChefs": "Meilleurs Chefs",
-    "newToday": "Nouveautés d'aujourd'hui",
-    "newTodaySub": "Plats frais ajoutés aujourd'hui",
+    "newToday": "Nouveautés",
+    "newTodaySub": "Fraîchement préparés par nos chefs",
     "topRated": "Mieux notés",
     "topRatedSub": "Les plats les mieux notés de la plateforme",
     "bookingRestaurant": "Réserver un Restaurant",
@@ -617,5 +617,21 @@
       "success": "Avis enregistré !",
       "failed": "Échec de l'enregistrement de l'avis."
     }
+  },
+  "chefProfilePublic": {
+    "aboutChef": "À propos du Chef {name}",
+    "noBio": "Aucune biographie disponible pour ce chef pour le moment.",
+    "reviews": "Avis",
+    "rating": "Note",
+    "dishes": "Plats",
+    "specialties": "Spécialités",
+    "since": "Depuis {date}",
+    "menuDishes": "Plats du menu",
+    "dishesCount_one": "{count} plat",
+    "dishesCount_other": "{count} plats",
+    "noDishesAvailable": "Aucun plat disponible",
+    "noDishesAvailableSub": "Ce chef n'a pas encore publié de plats.",
+    "currentlyOffline": "N'accepte pas de commandes actuellement",
+    "offlineDesc": "Ce chef est hors ligne. Vous pouvez toujours consulter le menu, mais les commandes sont temporairement désactivées."
   }
 }

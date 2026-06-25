@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MapPin, Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 
 import BottomNav from "@/components/bottom-nav";
 import HeroBanner from "@/components/hero-banner";

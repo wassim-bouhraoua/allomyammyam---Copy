@@ -21,9 +21,7 @@ import {
   Zap,
   Beef,
   Wheat,
-  Droplets,
-  Candy,
-  Cookie
+  Candy
 } from "lucide-react";
 
 import BottomNav from "@/components/bottom-nav";
@@ -84,25 +82,6 @@ interface Review {
 }
 
 const REVIEWS_PREVIEW = 2;
-
-function relevanceScore(
-  current: { category: string; tags: string[]; chefId: string },
-  candidate: { category: string; tags: string[]; chefId: string }
-): number {
-  let score = 0;
-  if (candidate.category === current.category) score += 10;
-  const tagOverlap = candidate.tags.filter((t) => current.tags.includes(t)).length;
-  score += tagOverlap * 2;
-  if (candidate.chefId === current.chefId) score += 1;
-  return score;
-}
-
-function ratingDistribution(avg: number): Record<number, number> {
-  if (avg >= 4.8) return { 5: 80, 4: 15, 3: 3, 2: 1, 1: 1 };
-  if (avg >= 4.5) return { 5: 60, 4: 30, 3: 7, 2: 2, 1: 1 };
-  if (avg >= 4.0) return { 5: 45, 4: 35, 3: 12, 2: 5, 1: 3 };
-  return { 5: 30, 4: 35, 3: 20, 2: 10, 1: 5 };
-}
 
 function FadeImage({ src, alt }: { src: string; alt: string }) {
   const [loaded, setLoaded] = useState(false);
@@ -477,7 +456,7 @@ export default function DishDetailClient({
                 )}
               </div>
 
-              {dish.description && (
+              {getLocalizedDescription(dish, locale) && (
                 <div className="bg-white dark:bg-neutral-800 rounded-2xl p-5 border border-gray-100/80 dark:border-neutral-700 shadow-[0_2px_18px_rgba(0,0,0,0.03)] text-start">
                   <h2 className="text-[11px] font-extrabold text-gray-400 dark:text-neutral-400 uppercase tracking-wider mb-2">
                     {dict.dishDetail.about}

@@ -50,20 +50,6 @@ const VIBE_CHIPS = VIBE_CHIPS_DEFS as VibeChip[];
 
 type SortKey = "default" | "rating" | "price_asc" | "price_desc";
 
-const SORT_OPTIONS: { label: string; value: SortKey }[] = [
-  { label: "Recommended",   value: "default" },
-  { label: "Top rated ⭐",  value: "rating" },
-  { label: "Cheapest first", value: "price_asc" },
-  { label: "Priciest first", value: "price_desc" },
-];
-
-const RATING_OPTIONS: { label: string; value: number }[] = [
-  { label: "Any",  value: 0 },
-  { label: "4.5+", value: 4.5 },
-  { label: "4.7+", value: 4.7 },
-  { label: "4.9+", value: 4.9 },
-];
-
 function matchesSearch(dish: ExploreDish, q: string, locale: string): boolean {
   if (q.length === 0) return true;
   const localizedName = getLocalizedName(dish, locale).toLowerCase();

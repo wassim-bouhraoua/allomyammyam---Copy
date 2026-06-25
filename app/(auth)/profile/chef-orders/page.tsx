@@ -237,7 +237,9 @@ export default async function ChefOrdersPage() {
                     {order.notes && (
                       <div className="flex items-center gap-1.5 text-[11px] font-bold text-orange-600 bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 rounded-lg px-2 py-0.5 self-start mt-1.5 animate-in fade-in duration-200">
                         <span>📝</span>
-                        <span>{dict.chefOrders.customerNote}</span>
+                        <span className="truncate max-w-[220px]">
+                          &ldquo;{order.notes.length > 35 ? order.notes.slice(0, 35) + "..." : order.notes}&rdquo;
+                        </span>
                       </div>
                     )}
                   </div>

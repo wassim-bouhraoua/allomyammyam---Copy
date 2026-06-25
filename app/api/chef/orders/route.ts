@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 // OrderStatus handled via @prisma/client; import not needed
 
-export async function GET(req: Request) {
+export async function GET() {
   // Ensure authenticated chef
   const session = await requireRole(['CHEF']);
   // Load chef profile
