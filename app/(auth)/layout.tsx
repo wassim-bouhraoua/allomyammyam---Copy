@@ -7,7 +7,7 @@ import LocationPill from "@/components/location-pill";
 import LanguageSwitcher from "@/components/language-switcher";
 import MobileHeader from "@/components/mobile-header";
 import type { ReactNode } from "react";
-
+/* ── Two-column Shell (Desktop) / Vertical Stack (Mobile) ── */
 export default function AuthLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
