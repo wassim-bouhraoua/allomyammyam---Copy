@@ -8,7 +8,7 @@ import DishCard from "@/components/dish-card";
 import { getDishImageUrl } from "@/lib/upload";
 import { getChefBannerUrl, getChefAvatarUrl } from "@/lib/defaults-server";
 import { cookies } from "next/headers";
-import { getDictionary, getLocalizedBio } from "@/lib/i18n";
+import { getDictionary, getLocalizedBio, getLocalizedSpecialty } from "@/lib/i18n";
 
 interface ResolvedChef {
   id: string;
@@ -210,7 +210,7 @@ export default async function ChefProfilePage({ params }: { params: Promise<{ id
                           key={s}
                           className="px-3 py-1 rounded-xl bg-orange-50/70 dark:bg-orange-950/20 hover:bg-orange-50 border border-orange-100/80 dark:border-orange-900/30 text-orange-600 dark:text-orange-400 text-[10px] font-extrabold uppercase tracking-wide transition-colors"
                         >
-                          {s.replace(/_/g, " ").toLowerCase()}
+                          {getLocalizedSpecialty(s, locale)}
                         </span>
                       ))}
                     </div>
