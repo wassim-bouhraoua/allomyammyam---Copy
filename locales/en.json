@@ -92,7 +92,9 @@
       "light": "Light",
       "meat": "Meat",
       "mediterranean": "Mediterranean",
-      "pastry": "Pastry"
+      "pastry": "Pastry",
+      "grill": "Grill",
+      "soups": "Soups"
     },
     "sort": {
       "title": "Sort by",

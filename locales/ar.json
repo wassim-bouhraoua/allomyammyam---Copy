@@ -92,7 +92,9 @@
       "light": "خفيف",
       "meat": "لحوم",
       "mediterranean": "متوسطي",
-      "pastry": "معجنات"
+      "pastry": "معجنات",
+      "grill": "مشويات",
+      "soups": "شوربات"
     },
     "sort": {
       "title": "ترتيب حسب",

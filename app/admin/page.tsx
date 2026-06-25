@@ -7,6 +7,7 @@ import { ArrowLeft, Loader2, ShieldCheck, UserCheck, UserX, Clock } from "lucide
 import { useAuth } from "@/context/AuthContext";
 import BackToHome from "@/components/auth/back-to-home";
 import { useTranslation } from "@/context/I18nContext";
+import { getLocalizedSpecialty } from "@/lib/i18n";
 
 interface ChefUser {
   firstName: string;
@@ -159,7 +160,7 @@ export default function AdminDashboardPage() {
                 day: "numeric",
               });
               const specialtiesLabel = chef.specialties
-                .map((s) => dict.dishes.tags[s.toLowerCase()] || s)
+                .map((s) => getLocalizedSpecialty(s, locale))
                 .join(", ");
 
               const statusText = chef.status === "APPROVED" 

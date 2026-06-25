@@ -14,7 +14,7 @@ import BackToHome from "@/components/auth/back-to-home";
 import { getUserAvatarUrl, getUserBannerUrl } from "@/lib/defaults";
 import LanguageSwitcher from "@/components/language-switcher";
 import { useTranslation } from "@/context/I18nContext";
-import { getLocalizedBio } from "@/lib/i18n";
+import { getLocalizedBio, getLocalizedSpecialty } from "@/lib/i18n";
 
 const ROLE_COLORS: Record<string, string> = {
   USER:  "bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-900/30",
@@ -436,7 +436,7 @@ export default function ProfilePage() {
                             key={s}
                             className="px-2.5 py-1 rounded-lg bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 text-orange-600 dark:text-orange-400 text-[11px] font-bold"
                           >
-                            {dict.dishes.tags[s.toLowerCase()] || s.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}
+                            {getLocalizedSpecialty(s, locale)}
                           </span>
                         ))}
                       </div>

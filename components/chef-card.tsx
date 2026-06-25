@@ -3,8 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Star, MapPin } from "lucide-react";
 import { getChefAvatarUrl } from "@/lib/defaults";
-
 import { useTranslation } from "@/context/I18nContext";
+import { getLocalizedSpecialty } from "@/lib/i18n";
 
 export interface ChefCardData {
   id: string;
@@ -21,11 +21,11 @@ interface ChefCardProps {
 }
 
 export default function ChefCard({ chef }: ChefCardProps) {
-  const { dict } = useTranslation();
+  const { locale, dict } = useTranslation();
   const rating = chef.averageRating.toFixed(1);
   const specialtiesLabel = chef.specialties
     .slice(0, 2)
-    .map((s) => s.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase()))
+    .map((s) => getLocalizedSpecialty(s, locale))
     .join(" · ");
 
   return (

@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import BackToHome from "@/components/auth/back-to-home";
 import { useGoogleSignIn } from "@/hooks/useGoogleSignIn";
 import { useTranslation } from "@/context/I18nContext";
+import { getLocalizedSpecialty } from "@/lib/i18n";
 
 const SPECIALTY_OPTIONS = [
   "Moroccan",
@@ -156,12 +157,7 @@ export default function RegisterChefPage() {
 
   const labelClass = "text-[11px] font-bold text-muted-foreground uppercase tracking-wider";
 
-  const getSpecialtyLabel = (s: string) => {
-    const key = s.toLowerCase();
-    if (key === "grill") return dict.dishes.tags.grilled || s;
-    if (key === "soups") return dict.dishes.categories.soup || s;
-    return dict.dishes.tags[key] || dict.dishes.categories[key] || s;
-  };
+
 
   return (
     <div className="flex-1 flex flex-col lg:flex-row min-h-screen lg:min-h-0">
@@ -411,7 +407,7 @@ export default function RegisterChefPage() {
                         : "bg-secondary border-border text-foreground hover:bg-secondary/80"
                     }`}
                   >
-                    {getSpecialtyLabel(s)}
+                    {getLocalizedSpecialty(s, locale)}
                     {active && <X size={11} />}
                   </button>
                 );

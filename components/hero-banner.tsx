@@ -184,11 +184,10 @@ export default function HeroBanner() {
               {slide.headline}
             </h2>
             <p className="text-white/75 text-[11px] lg:text-[14px] mb-3 lg:mb-4">{slide.sub}</p>
-            <Link
-              href="/dishes"
-              className="inline-block bg-white text-gray-800 text-[11px] lg:text-[13px] font-bold px-4 py-1.5 lg:px-6 lg:py-2.5 rounded-full shadow-sm active:scale-95 transition-transform duration-100 text-center"
-            >
-              {slide.cta} {arrow}
+            <Link href="/dishes">
+              <button className="bg-white text-gray-800 text-[11px] lg:text-[13px] font-bold px-4 py-1.5 lg:px-6 lg:py-2.5 rounded-full shadow-sm active:scale-95 transition-transform duration-100">
+                {slide.cta} {arrow}
+              </button>
             </Link>
           </div>
 

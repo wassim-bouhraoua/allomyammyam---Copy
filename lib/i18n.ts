@@ -49,19 +49,9 @@ export function getLocalizedOrderItemName(
 export function getLocalizedSpecialty(specialty: string, locale: string): string {
   const dict = getDictionary(locale);
   const key = specialty.toLowerCase();
-  
-  if (key === "grill") {
-    return dict.dishes.tags.grilled || specialty;
-  }
-  if (key === "soups") {
-    return dict.dishes.categories.soup || specialty;
-  }
-  
-  const tagTranslation = (dict.dishes.tags as Record<string, string>)[key];
-  if (tagTranslation) return tagTranslation;
-  
-  const categoryTranslation = (dict.dishes.categories as Record<string, string>)[key];
-  if (categoryTranslation) return categoryTranslation;
-  
-  return specialty;
+  if (key === "grill") return dict.dishes.tags.grilled || specialty;
+  if (key === "soups") return dict.dishes.categories.soup || specialty;
+  const tags = dict.dishes.tags as Record<string, string>;
+  const categories = dict.dishes.categories as Record<string, string>;
+  return tags[key] || categories[key] || specialty;
 }

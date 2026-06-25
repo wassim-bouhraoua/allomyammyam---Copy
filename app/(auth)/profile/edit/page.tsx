@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import BackToHome from "@/components/auth/back-to-home";
 import { getUserAvatarUrl } from "@/lib/defaults";
 import { useTranslation } from "@/context/I18nContext";
+import { getLocalizedSpecialty } from "@/lib/i18n";
 
 const SPECIALTY_OPTIONS = [
   "Moroccan",
@@ -25,7 +26,7 @@ const SPECIALTY_OPTIONS = [
 export default function EditProfilePage() {
   const router = useRouter();
   const { user, loading: authLoading, refreshUser } = useAuth();
-  const { dict } = useTranslation();
+  const { locale, dict } = useTranslation();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -278,12 +279,7 @@ export default function EditProfilePage() {
   const inputCls = "h-12 px-4 rounded-2xl bg-gray-50 border border-gray-200 text-[14px] text-gray-900 placeholder-gray-400 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors w-full";
   const labelCls = "text-[11px] font-bold text-gray-400 uppercase tracking-wider";
 
-  const getSpecialtyLabel = (s: string) => {
-    const key = s.toLowerCase();
-    if (key === "grill") return dict.dishes.tags.grilled || s;
-    if (key === "soups") return dict.dishes.categories.soup || s;
-    return dict.dishes.tags[key] || dict.dishes.categories[key] || s;
-  };
+
 
   return (
     <div className="flex flex-col min-h-full px-4 pt-4 pb-8">
@@ -562,7 +558,7 @@ export default function EditProfilePage() {
                           : "bg-gray-50 border-gray-200 text-gray-600 hover:border-orange-200"
                       }`}
                     >
-                      {getSpecialtyLabel(s)}
+                      {getLocalizedSpecialty(s, locale)}
                       {active && <X size={11} />}
                     </button>
                   );

@@ -92,7 +92,9 @@
       "light": "Léger",
       "meat": "Viande",
       "mediterranean": "Méditerranéen",
-      "pastry": "Pâtisserie"
+      "pastry": "Pâtisserie",
+      "grill": "Grillades",
+      "soups": "Soupes"
     },
     "sort": {
       "title": "Trier par",
